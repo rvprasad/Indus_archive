@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jardesc>
+<jar path="/home/venku/workspace/non-primary-eclipse/Kaveri/Kaveri.jar"/>
+<options buildIfNeeded="true" compress="true" descriptionLocation="/Kaveri/kaveri.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="true" overwrite="false" saveDescription="true" storeRefactorings="false" useSourceFolders="false"/>
+<refactoring structuralOnly="false"/>
+<selectedProjects>
+<project name="Kaveri"/>
+</selectedProjects>
+<manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="true">
+<sealing sealJar="false">
+<packagesToSeal/>
+<packagesToUnSeal/>
+</sealing>
+</manifest>
+<selectedElements exportClassFiles="false" exportJavaFiles="false" exportOutputFolder="true">
+<javaElement handleIdentifier="=Kaveri/src"/>
+</selectedElements>
+</jardesc>

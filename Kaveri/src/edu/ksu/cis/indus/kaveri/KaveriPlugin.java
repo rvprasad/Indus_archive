@@ -14,8 +14,11 @@
 
 package edu.ksu.cis.indus.kaveri;
 
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
@@ -37,291 +40,269 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.osgi.framework.BundleContext;
 
+import soot.Type;
+import soot.Value;
+import soot.toolkits.graph.UnitGraph;
 
 /**
  * The main plugin class.
  */
-public class KaveriPlugin extends AbstractUIPlugin {
+public class KaveriPlugin<T extends ITokens<T, Value>>
+		extends AbstractUIPlugin {
 
-    /**
-     * The plugin instance.
-     */
-    private static KaveriPlugin plugin;
+	/**
+	 * The plugin instance.
+	 */
+	private static KaveriPlugin plugin;
 
-    /**
-     * The slicer tool instance.
-     */
-    private SlicerTool slicerTool;
+	/**
+	 * The slicer tool instance.
+	 */
+	private SlicerTool<T> slicerTool;
 
-    /**
-     * The resource change listener.
-     */
-    //private IResourceChangeListener listener;
-    /**
-     * This is the annotation cache map.
-     */
-    private Map cacheMap;
+	/**
+	 * The resource change listener.
+	 */
+	// private IResourceChangeListener listener;
+	/**
+	 * This is the annotation cache map.
+	 */
+	private Map cacheMap;
 
-    /**
-     * The indusconfiguration instance.
-     */
-    private IndusConfiguration indusConfiguration;
+	/**
+	 * The indusconfiguration instance.
+	 */
+	private IndusConfiguration indusConfiguration;
 
-    /**
-     * Comment for <code>resourceBundle.</code>
-     */
-    private ResourceBundle resourceBundle;
+	/**
+	 * Comment for <code>resourceBundle.</code>
+	 */
+	private ResourceBundle resourceBundle;
 
-    /**
-     * The root method trapper instance.
-     */
-    private KaveriRootMethodTrapper rmTrapper;
-    
-    /**
-     * Constructor.
-     */
-    public KaveriPlugin() {
-        super();
-    }
+	/**
+	 * The root method trapper instance.
+	 */
+	private KaveriRootMethodTrapper rmTrapper;
 
-    /**
-     * Returns the shared instance.
-     * 
-     * @return KaveriPlugin The plugin
-     */
-    public static KaveriPlugin getDefault() {
-        return plugin;
-    }
+	/**
+	 * Constructor.
+	 */
+	public KaveriPlugin() {
+		super();
+	}
 
-    /**
-     * Returns the string from the plugin's resource bundle, or 'key' if not
-     * found.
-     * 
-     * @param key
-     *            The key to lookup
-     * 
-     * @return String The string correspoding to the key
-     */
-    public static String getResourceString(final String key) {
-        final ResourceBundle _bundle = KaveriPlugin.getDefault()
-                .getResourceBundle();
-        String _result = key;
+	/**
+	 * Returns the shared instance.
+	 * 
+	 * @return KaveriPlugin The plugin
+	 */
+	public static KaveriPlugin getDefault() {
+		return plugin;
+	}
 
-        try {
-            if (_bundle != null) {
-                _result = _bundle.getString(key);
-            }
-        } catch (MissingResourceException _e) {
-            _result = key;
-            KaveriErrorLog.logException("Missing Resource", _e);
-        }
-        return _result;
-    }
+	/**
+	 * Returns the string from the plugin's resource bundle, or 'key' if not found.
+	 * 
+	 * @param key The key to lookup
+	 * @return String The string correspoding to the key
+	 */
+	public static String getResourceString(final String key) {
+		final ResourceBundle _bundle = KaveriPlugin.getDefault().getResourceBundle();
+		String _result = key;
 
-    /**
-     * Returns the Indus Configuration Instance.
-     * 
-     * @return Returns the indusConfiguration.
-     */
-    public IndusConfiguration getIndusConfiguration() {
-        return indusConfiguration;
-    }
+		try {
+			if (_bundle != null) {
+				_result = _bundle.getString(key);
+			}
+		} catch (MissingResourceException _e) {
+			_result = key;
+			KaveriErrorLog.logException("Missing Resource", _e);
+		}
+		return _result;
+	}
 
-    /**
-     * Returns the plugin's resource bundle.
-     * 
-     * @return ResourceBundle The Resource bundle
-     */
-    public ResourceBundle getResourceBundle() {
-        return resourceBundle;
-    }
+	/**
+	 * Returns the Indus Configuration Instance.
+	 * 
+	 * @return Returns the indusConfiguration.
+	 */
+	public IndusConfiguration getIndusConfiguration() {
+		return indusConfiguration;
+	}
 
-    /**
-     * Starts the plugin and initialized the default values.
-     * 
-     * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
-     */
-    public void start(final BundleContext context) throws Exception {
-        super.start(context);
-        plugin = this;
-        indusConfiguration = new IndusConfiguration();
-        try {
-            resourceBundle = ResourceBundle
-                    .getBundle("edu.ksu.cis.indus.kaveri");
-        } catch (MissingResourceException _x) {
-            resourceBundle = null;
-            //	KaveriErrorLog.logInformation("Missing resource", _x);
-        }
-                        
-        slicerTool = new SlicerTool(TokenUtil
-                .getTokenManager(new SootValueTypeManager()),
-                new ExceptionFlowSensitiveStmtGraphFactory());                
-        cacheMap = new HashMap();
-        rmTrapper = new KaveriRootMethodTrapper();
-        /*
-         * final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
-         * listener = new JavaClassChangeListener();
-         * _workspace.addResourceChangeListener(listener);
-         */
+	/**
+	 * Returns the plugin's resource bundle.
+	 * 
+	 * @return ResourceBundle The Resource bundle
+	 */
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
+	}
 
-    }
+	/**
+	 * Starts the plugin and initialized the default values.
+	 * 
+	 * @see org.osgi.framework.BundleActivator#start(org.osgi.framework.BundleContext)
+	 */
+	public void start(final BundleContext context) throws Exception {
+		super.start(context);
+		plugin = this;
+		indusConfiguration = new IndusConfiguration();
+		try {
+			resourceBundle = ResourceBundle.getBundle("edu.ksu.cis.indus.kaveri");
+		} catch (MissingResourceException _x) {
+			resourceBundle = null;
+			// KaveriErrorLog.logInformation("Missing resource", _x);
+		}
 
-   
-    /**
-     * Loads the defaultConfiguration.xml into slicer tool.
-     * 
-     * @throws IllegalArgumentException
-     *             When an valid configuration is used.
-     */
-    public void loadDefaultConfigurations() throws IllegalArgumentException {
-        final IPreferenceStore _store = getPreferenceStore();
-        final StringBuffer _userConfiguration = new StringBuffer();
-        final URL _url = KaveriPlugin.getDefault().getBundle().getEntry(
-                "data/default_config/default_slicer_configuration.xml");
+		slicerTool = new SlicerTool<T>(TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()),
+				new CompleteStmtGraphFactory());
+		cacheMap = new HashMap();
+		rmTrapper = new KaveriRootMethodTrapper();
+		/*
+		 * final IWorkspace _workspace = ResourcesPlugin.getWorkspace(); listener = new JavaClassChangeListener();
+		 * _workspace.addResourceChangeListener(listener);
+		 */
 
-        try {
-            final BufferedReader _configReader = new BufferedReader(
-                    new InputStreamReader(_url.openStream()));
+	}
 
-            while (_configReader.ready()) {
-                _userConfiguration.append(_configReader.readLine());
-            }
-            _configReader.close();
-        } catch (IOException _ioe) {
-            _ioe.printStackTrace();
-            KaveriErrorLog.logException("Error reading default configuration",
-                    _ioe);
-        }
+	/**
+	 * Loads the defaultConfiguration.xml into slicer tool.
+	 * 
+	 * @throws IllegalArgumentException When an valid configuration is used.
+	 */
+	public void loadDefaultConfigurations() throws IllegalArgumentException {
+		final IPreferenceStore _store = getPreferenceStore();
+		final StringBuffer _userConfiguration = new StringBuffer();
+		final URL _url = KaveriPlugin.getDefault().getBundle().getEntry(
+				"data/default_config/default_slicer_configuration.xml");
 
-        final String _configuration = _userConfiguration.toString();
-        final boolean _result = slicerTool
-                .destringizeConfiguration(_configuration);
-        if (!_result) {
-            throw new IllegalArgumentException(
-                    "Slicer Tool passed illegal configuration");
-        }
+		try {
+			final BufferedReader _configReader = new BufferedReader(new InputStreamReader(_url.openStream()));
 
-    }
+			while (_configReader.ready()) {
+				_userConfiguration.append(_configReader.readLine());
+			}
+			_configReader.close();
+		} catch (IOException _ioe) {
+			_ioe.printStackTrace();
+			KaveriErrorLog.logException("Error reading default configuration", _ioe);
+		}
 
-    /**
-     * Loads the defaults of the plugin.
-     * 
-     * @throws IllegalArgumentException
-     *             When an valid configuration is used.
-     */
-    public void loadConfigurations() throws IllegalArgumentException {
-        final IPreferenceStore _store = getPreferenceStore();
-        final String _config = _store.getString("defaultConfiguration");
+		final String _configuration = _userConfiguration.toString();
+		final boolean _result = slicerTool.destringizeConfiguration(_configuration);
+		if (!_result) {
+			throw new IllegalArgumentException("Slicer Tool passed illegal configuration");
+		}
 
-        if (_config.equals("")) {
-            loadDefaultConfigurations();
-        } else {           
-            final boolean _result = slicerTool
-                    .destringizeConfiguration(_config);
-            if (!_result) {
-                MessageDialog
-                        .openError(
-                                null,
-                                "Configuration Reset",
-                                "The stored configuration"
-                                        + " is not compatible with Indus, resetting all the configurations");
-                loadDefaultConfigurations();
-                storeConfiguration();
-            }
+	}
 
-        }
+	/**
+	 * Loads the defaults of the plugin.
+	 * 
+	 * @throws IllegalArgumentException When an valid configuration is used.
+	 */
+	public void loadConfigurations() throws IllegalArgumentException {
+		final IPreferenceStore _store = getPreferenceStore();
+		final String _config = _store.getString("defaultConfiguration");
 
-    }
+		if (_config.equals("")) {
+			loadDefaultConfigurations();
+		} else {
+			final boolean _result = slicerTool.destringizeConfiguration(_config);
+			if (!_result) {
+				MessageDialog.openError(null, "Configuration Reset", "The stored configuration"
+						+ " is not compatible with Indus, resetting all the configurations");
+				loadDefaultConfigurations();
+				storeConfiguration();
+			}
 
-    /**
-     * Resets the annotation cache map.
-     *  
-     */
-    public void reset() {
-        cacheMap.clear();
-    }
+		}
 
+	}
 
+	/**
+	 * Resets the annotation cache map.
+	 */
+	public void reset() {
+		cacheMap.clear();
+	}
 
-    /**
-     * Returns the slicer tool instance.
-     * 
-     * @return Returns the slicerTool.
-     */
-    public SlicerTool getSlicerTool() {
-        return slicerTool;
-    }
+	/**
+	 * Returns the slicer tool instance.
+	 * 
+	 * @return Returns the slicerTool.
+	 */
+	public SlicerTool getSlicerTool() {
+		return slicerTool;
+	}
 
-    /**
-     * Stores the new configurations.
-     */
-    public void storeConfiguration() {
-        final String _config = slicerTool.stringizeConfiguration();
-        getPreferenceStore().setValue("defaultConfiguration", _config);
-        loadConfigurations();
-    }
+	/**
+	 * Stores the new configurations.
+	 */
+	public void storeConfiguration() {
+		final String _config = slicerTool.stringizeConfiguration();
+		getPreferenceStore().setValue("defaultConfiguration", _config);
+		loadConfigurations();
+	}
 
-    /**
-     *  Create a new instance of the slicer.
-     *  @param ignoreExceptionList The list of exceptions to ignore.
-     */
-    public void createNewSlicer(final Collection ignoreExceptionList) {
-        ExceptionFlowSensitiveStmtGraphFactory _factory = null;
-        if (ignoreExceptionList.isEmpty()) {
-            _factory = new ExceptionFlowSensitiveStmtGraphFactory();
-        } else {
-            _factory = new ExceptionFlowSensitiveStmtGraphFactory(ignoreExceptionList,true);
-        }
-        
-        slicerTool = new SlicerTool(TokenUtil            
-                .getTokenManager(new SootValueTypeManager()),
-                _factory);
-        loadConfigurations();
-    }
+	/**
+	 * Create a new instance of the slicer.
+	 * 
+	 * @param ignoreExceptionList The list of exceptions to ignore.
+	 */
+	public void createNewSlicer(final Collection ignoreExceptionList) {
+		IStmtGraphFactory<? extends UnitGraph> _factory = null;
+		if (ignoreExceptionList.isEmpty()) {
+			_factory = new CompleteStmtGraphFactory();
+		} else {
+			_factory = new ExceptionFlowSensitiveStmtGraphFactory(ignoreExceptionList, true);
+		}
 
-    /**
-     * The plugin has stopped.
-     * 
-     * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
-     */
-    public void stop(final BundleContext context) throws Exception {
-        /*
-         * if (listener != null) { final IWorkspace _workspace =
-         * ResourcesPlugin.getWorkspace();
-         * _workspace.removeResourceChangeListener(listener); }
-         */
-        getIndusConfiguration().getRManager().dispose();
-        final IJobManager _manager = Platform.getJobManager();
-        final String _myJobFamily = "edu.ksu.cis.indus.kaveri.soottagremover";
-        _manager.cancel(_myJobFamily);
+		slicerTool = new SlicerTool<T>(TokenUtil.<T, Value, Type> getTokenManager(new SootValueTypeManager()), _factory);
+		loadConfigurations();
+	}
 
-    }
+	/**
+	 * The plugin has stopped.
+	 * 
+	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
+	 */
+	public void stop(final BundleContext context) throws Exception {
+		/*
+		 * if (listener != null) { final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
+		 * _workspace.removeResourceChangeListener(listener); }
+		 */
+		getIndusConfiguration().getRManager().dispose();
+		final IJobManager _manager = Platform.getJobManager();
+		final String _myJobFamily = "edu.ksu.cis.indus.kaveri.soottagremover";
+		_manager.cancel(_myJobFamily);
 
-    /**
-     * @return Returns the cacheMap.
-     */
-    public Map getCacheMap() {
-        return cacheMap;
-    }
+	}
 
-    /**
-     * Adds the given object to the map.
-     * 
-     * @param key
-     *            The key to the map
-     * @param value
-     *            The value to the map
-     */
-    public void addToCacheMap(final Object key, final Object value) {
-        cacheMap.put(key, value);
-    }
-    
-    /**
-     * 
-     * Get the instance of the rootmethod trapper.
-     * @return RootMethodTrapper The root method trapper instance.
-     */
-    public KaveriRootMethodTrapper getRmTrapper() {
-        return rmTrapper;
-    }
+	/**
+	 * @return Returns the cacheMap.
+	 */
+	public Map getCacheMap() {
+		return cacheMap;
+	}
+
+	/**
+	 * Adds the given object to the map.
+	 * 
+	 * @param key The key to the map
+	 * @param value The value to the map
+	 */
+	public void addToCacheMap(final Object key, final Object value) {
+		cacheMap.put(key, value);
+	}
+
+	/**
+	 * Get the instance of the rootmethod trapper.
+	 * 
+	 * @return RootMethodTrapper The root method trapper instance.
+	 */
+	public KaveriRootMethodTrapper getRmTrapper() {
+		return rmTrapper;
+	}
 }

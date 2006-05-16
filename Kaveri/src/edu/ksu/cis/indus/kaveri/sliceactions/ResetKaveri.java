@@ -55,8 +55,6 @@ public class ResetKaveri implements IEditorActionDelegate {
         G.reset();
         G.reset();
         KaveriPlugin.getDefault().getIndusConfiguration().reset();
-        KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
-        KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
         final IndusDecorator _decorator = IndusDecorator.getIndusDecorator();
         if (_decorator != null) {
             _decorator.refesh();

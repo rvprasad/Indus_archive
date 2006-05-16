@@ -17,8 +17,9 @@ package edu.ksu.cis.indus.kaveri.dialogs;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.layout.FillLayout;
-import org.eclipse.swt.layout.RowLayout;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
@@ -30,73 +31,73 @@ import org.eclipse.swt.widgets.Text;
  * 
  * @author Ganeshan
  */
-public class ExceptionDialog extends Dialog {
-    /**
-     * The exception trace to show.
-     */
-    private String exceptionTrace;
+public class ExceptionDialog
+		extends Dialog {
 
-    /**
-     * Constructor.
-     * 
-     * @param parentShell
-     *            The parent shell.
-     * @param expTrace
-     *            The exception trace.
-     */
-    public ExceptionDialog(final Shell parentShell, final String expTrace) {
-        super(parentShell);
-        exceptionTrace = expTrace;
-    }
+	/**
+	 * The exception trace to show.
+	 */
+	private String exceptionTrace;
 
-    /**
-     * Configures the shell.
-     * 
-     * @param newShell
-     *            The current shell.
-     */
-    protected void configureShell(final Shell newShell) {
-        super.configureShell(newShell);
-        newShell.setText(Messages.getString("ExceptionDialog.0")); //$NON-NLS-1$
-    }
+	/**
+	 * Constructor.
+	 * 
+	 * @param parentShell The parent shell.
+	 * @param expTrace The exception trace.
+	 */
+	public ExceptionDialog(final Shell parentShell, final String expTrace) {
+		super(parentShell);
+		setShellStyle(SWT.RESIZE);
+		exceptionTrace = expTrace;
+	}
 
-    /**
-     * Creates the OK button.
-     * 
-     * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
-     */
-    protected void createButtonsForButtonBar(final Composite parent) {
-        createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL,
-                true);
-    }
+	/**
+	 * Configures the shell.
+	 * 
+	 * @param newShell The current shell.
+	 */
+	protected void configureShell(final Shell newShell) {
+		super.configureShell(newShell);
+		newShell.setText(Messages.getString("ExceptionDialog.0")); //$NON-NLS-1$
+	}
 
-    /**
-     * Creates the dialog area.
-     * 
-     * @param parent
-     *            The parent control
-     * 
-     * @return Control The new control
-     */
-    protected Control createDialogArea(final Composite parent) {
-        final Composite _composite = new Composite(parent, SWT.NONE);
-        final RowLayout _rl = new RowLayout(SWT.HORIZONTAL);
-        _composite.setLayout(_rl);
+	/**
+	 * Creates the OK button.
+	 * 
+	 * @see org.eclipse.jface.dialogs.Dialog#createButtonsForButtonBar(org.eclipse.swt.widgets.Composite)
+	 */
+	protected void createButtonsForButtonBar(final Composite parent) {
+		createButton(parent, IDialogConstants.OK_ID, IDialogConstants.OK_LABEL, true);
+	}
 
-        final Group _group1 = new Group(_composite, SWT.NONE);
-        _group1.setText(Messages.getString("ExceptionDialog.1")); //$NON-NLS-1$
+	/**
+	 * Creates the dialog area.
+	 * 
+	 * @param parent The parent control
+	 * @return Control The new control
+	 */
+	protected Control createDialogArea(final Composite parent) {
+		final Composite _composite = (Composite) super.createDialogArea(parent);
+		final Group _g = new Group(_composite, SWT.SHADOW_NONE);
+		_g.setLayout(new GridLayout());
+		_g.setLayoutData(new GridData(GridData.FILL_BOTH));
+		_g.setText(Messages.getString("ExceptionDialog.1")); //$NON-NLS-1$
+		final Text _expList = new Text(_g, SWT.MULTI | SWT.BORDER | SWT.READ_ONLY | SWT.V_SCROLL | SWT.H_SCROLL);
+		_expList.setLayoutData(new GridData(GridData.FILL_BOTH));
+		_expList.setEditable(false);
+		_expList.append(exceptionTrace);
+		_expList.getVerticalBar().setSelection(_expList.getVerticalBar().getIncrement());
+		return _composite;
+	}
 
-        final FillLayout _fl = new FillLayout(SWT.VERTICAL | SWT.HORIZONTAL);
-        _group1.setLayout(_fl);
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see org.eclipse.jface.dialogs.Dialog#getInitialSize()
+	 */
+	@Override protected Point getInitialSize() {
+		// TODO: Auto-generated method stub
+		return new Point(600, 400);
+	}
 
-        final Text _expList;
-        _expList = new Text(_group1, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
-
-        final int _wh = 400;
-        _expList.setBounds(0, 0, _wh, _wh);
-        _expList.setText(exceptionTrace);
-        _expList.setEditable(false);
-
-        return _composite;
-    }
 }

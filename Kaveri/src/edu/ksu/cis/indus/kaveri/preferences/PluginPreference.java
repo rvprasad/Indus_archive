@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.kaveri.preferences;
 import edu.ksu.cis.indus.common.scoping.ClassSpecification;
 import edu.ksu.cis.indus.common.scoping.FieldSpecification;
 import edu.ksu.cis.indus.common.scoping.MethodSpecification;
+import edu.ksu.cis.indus.common.scoping.ScopeExtensionEnum;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.scoping.TypeSpecification;
 import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
@@ -584,7 +585,7 @@ public class PluginPreference extends PreferencePage implements
                     _cs.setName(_spsd.getStrScopeName());
 
                     final TypeSpecification _ts = new TypeSpecification();
-                    _ts.setScopeExtension(_spsd.getStrChoice());
+                    _ts.setScopeExtension(ScopeExtensionEnum.valueOf(_spsd.getStrChoice()));
                     _ts.setNamePattern(_spsd.getStrClassRegex());
                     _cs.setTypeSpec(_ts);
                     final Collection _collClass = sbsd.getClassSpecs();
