@@ -1,9 +1,9 @@
 Required software:
     Jakarta Commons CLI (1.0)
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
-    Jakarta Commons Lang 2.1
+    Jakarta Commons Lang (2.1)
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    Jakarta Commons Pool 1.2
+    Jakarta Commons Pool (1.2)
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
     Soot: a Java Optimization Framework (2.1.0)
         (sootclasses.jar) [http://www.sable.mcgill.ca/soot/]
@@ -22,6 +22,10 @@ Required software:
     	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
+Version 0.8.1
+----------------
+	- NPE in DivergenceDA was fixed.  Thanks to Suzette Person.
 
 Version 0.8
 --------------
