@@ -9,7 +9,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/xmlunit1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xpp3.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="lib" path="lib/commons-io-1.0.jar"/>
 	<classpathentry exported="true" sourcepath="/Indus" kind="lib" path="lib/indus.jar"/>
@@ -19,5 +18,6 @@
 	<classpathentry exported="true" kind="lib" path="lib/trove.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j.jar"/>
 	<classpathentry kind="lib" path="lib/xmlenc.jar"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
