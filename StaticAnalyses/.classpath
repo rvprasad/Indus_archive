@@ -10,7 +10,7 @@
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="var" path="CLOVER_RUNTIME"/>
-	<classpathentry sourcepath="ECLIPSE_HOME/plugins/org.eclipse.jdt.source_3.1.0/src/org.junit_3.8.1/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
+	<classpathentry sourcepath="/JUNIT_SRC_HOME/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
 	<classpathentry sourcepath="JAVACLASSES/src/commons-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>

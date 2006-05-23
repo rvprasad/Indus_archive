@@ -107,8 +107,8 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
-		classForT1 = (Class<T1>) getClass().getTypeParameters()[0].getGenericDeclaration();
-		classForE2 = (Class<E2>) getClass().getTypeParameters()[1].getGenericDeclaration();
+		classForT1 = (Class<T1>) getClass().getTypeParameters()[0].getBounds()[0];
+		classForE2 = (Class<E2>) getClass().getTypeParameters()[1].getBounds()[0];
 	}
 
 	/**
@@ -175,6 +175,9 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 					}
 				}
 				writer.endTag();
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("No informtion: " + stmt + " @ " + _method + " -- Dependents = " + _dependents.isEmpty() + " "
+						+ "Dependees = " + _dependees.isEmpty() + " " + analysis.getIds());
 			}
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
