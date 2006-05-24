@@ -197,7 +197,7 @@ public interface IEscapeInfo
 	 *
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
-	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>WRETE_WRITE_SHARED_ACCESS</code>.
 	 * @return <code>true</code> if <code>v</code> is shared; <code>false</code>, otherwise.
 	 * @pre v != null and sm != null
 	 */
@@ -211,7 +211,7 @@ public interface IEscapeInfo
 	 * @param sm1 is the method in which <code>v1</code> occurs.
 	 * @param v2 is the other program point in the check.
 	 * @param sm2 is the method in which <code>v2</code> occurs.
-	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>WRITE_WRITE_SHARED_ACCESS</code>.
 	 * @return <code>true</code> if the given values are indeed shared across threads; <code>false</code>, otherwise.
 	 * @pre v1 != null and sm1 != null and v2 != null and sm2 != null
 	 */
@@ -224,7 +224,7 @@ public interface IEscapeInfo
 	 * @param v is the program point being checked for sharing.
 	 * @param sm is the method in which <code>v</code> occurs.
 	 * @param signature is the field signature of interest.
-	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>READ_WRITE_SHARED_ACCESS</code>.
+	 * @param sharedAccessSort has to either <code>READ_WRITE_SHARED_ACCESS</code> or <code>WRITE_WRITE_SHARED_ACCESS</code>.
 	 * @return <code>true</code> if <code>v</code> is shared via access to the given field; <code>false</code>,
 	 *         otherwise.
 	 * @pre v != null and sm != null and signature != null
