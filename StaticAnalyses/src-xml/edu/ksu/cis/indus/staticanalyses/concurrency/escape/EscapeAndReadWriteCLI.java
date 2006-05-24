@@ -240,6 +240,10 @@ public class EscapeAndReadWriteCLI
 					final Local _local = _j.next();
 					System.out.println("\tLocal " + _local.getName() + "[" + _local.getType() + "] : ");
 					System.out.println("\t\tescapes = " + _escapeInfo.escapes(_local, _sm));
+					System.out.println("\t\tshared RW = " + _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
+					System.out.println("\t\tshared WW = " + _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS));
+					System.out.println("\t\tlocking = " + _escapeInfo.lockUnlockShared(_local, _sm));
+					System.out.println("\t\twaitNotify  = " + _escapeInfo.waitNotifyShared(_local, _sm));
 					System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_local, _sm));
 					System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_local, _sm));
 				}
