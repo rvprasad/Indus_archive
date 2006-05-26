@@ -14,6 +14,7 @@
 
 package edu.ksu.cis.indus.tools.slicer;
 
+import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
@@ -33,6 +34,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -51,6 +53,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,6 +85,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.jimple.ThrowStmt;
 
 /**
  * This is the command-line driver class for the slicer tool.
@@ -174,7 +178,16 @@ public class SliceXMLizerCLI
 	 * This indicates if the xml representation of the slice should be generated.
 	 */
 	private boolean shouldWriteSliceXML;
+	
+	/**
+	 * This indicates if the slice should preserve every "throw" statements.
+	 */
+	private boolean shouldPreserveThrowStatements;
 
+	/**
+	 * This indicates if the slice should preserve every "throw" statements only in application classes.
+	 */
+	private boolean shouldPreserveThrowStmtsInAppClassesOnly;
 	/**
 	 * Creates an instance of this class.
 	 * 
@@ -275,6 +288,20 @@ public class SliceXMLizerCLI
 		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
+		
+		if (shouldPreserveThrowStatements) {
+			final StmtTypeBasedSliceCriteriaGenerator _generator = new StmtTypeBasedSliceCriteriaGenerator();
+			_generator.setStmtTypes(Collections.singleton(ThrowStmt.class));
+			if (shouldPreserveThrowStmtsInAppClassesOnly) {
+				_generator.setSiteSelectionPredicate(new IPredicate<SootMethod>() {
+
+					public <T1 extends SootMethod> boolean evaluate(final T1 t) {
+						return t.getDeclaringClass().isApplicationClass();
+					}
+				});
+			}
+			slicer.addCriteriaGenerator(_generator);
+		}
 
 		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
 		slicer.setSliceScopeDefinition(sliceScope);
@@ -371,6 +398,13 @@ public class SliceXMLizerCLI
 		_o.setArgs(1);
 		_o.setArgName("classpath");
 		_o.setOptionalArg(false);
+		_options.addOption(_o);
+		_o = new Option("e", "exception-preserving-slice", true, "Generate slice that preserves every throw statement in "
+				+ "the application class. Any optional multi-character argument will preserve throw statements only in "
+				+ "Application classes.");
+		_o.setArgs(1);
+		_o.setOptionalArg(true);
+		_o.setArgName("applClassOnly");
 		_options.addOption(_o);
 		_o = new Option("h", "help", false, "Display message.");
 		_o.setOptionalArg(false);
