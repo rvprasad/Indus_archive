@@ -17,10 +17,8 @@ package edu.ksu.cis.indus.tools.slicer;
 
 import edu.ksu.cis.indus.AbstractXMLBasedTestSetup;
 import edu.ksu.cis.indus.TestHelper;
-
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo;
 import edu.ksu.cis.indus.interfaces.IEnvironment;
-
 import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizer;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.staticanalyses.dependency.XMLBasedDependencyAnalysisTest;
@@ -30,9 +28,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-
 import java.net.URL;
-
 import java.util.Arrays;
 import java.util.Iterator;
 
@@ -103,7 +99,7 @@ public class SlicerTestSetup
 		driver.setIDGenerator(idGenerator);
 		driver.initialize();
 		driver.slicer.destringizeConfiguration(stringizeConfig());
-		driver.execute();
+		driver.executeForSingleSlice();
 
 		// setup testcases for dependency analysis
 		final TestSuite _suite = (TestSuite) getTest();

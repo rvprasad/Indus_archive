@@ -35,6 +35,8 @@ import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AbstractSliceCriteriaPredicate;
+import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -85,6 +87,7 @@ import soot.SootClass;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.jimple.Stmt;
 import soot.jimple.ThrowStmt;
 
 /**
@@ -178,16 +181,27 @@ public class SliceXMLizerCLI
 	 * This indicates if the xml representation of the slice should be generated.
 	 */
 	private boolean shouldWriteSliceXML;
-	
+
 	/**
 	 * This indicates if the slice should preserve every "throw" statements.
 	 */
-	private boolean shouldPreserveThrowStatements;
+	private boolean preserveThrowStmtsInAppClassesOnly;
 
 	/**
-	 * This indicates if the slice should preserve every "throw" statements only in application classes.
+	 * This indicates if a separate slice should be generated for each "throwstatement.
 	 */
-	private boolean shouldPreserveThrowStmtsInAppClassesOnly;
+	private boolean generateSeparateSlicesForEachThrowStmt;
+
+	/**
+	 * This indicates if detailed (or summarized) stats should be provided.
+	 */
+	private boolean detailedStats;
+
+	/**
+	 * This indicates if the slice should preserve every "throw" statements.
+	 */
+	private boolean preserveThrowStatements;
+
 	/**
 	 * Creates an instance of this class.
 	 * 
@@ -212,21 +226,26 @@ public class SliceXMLizerCLI
 
 		_xmlizer.initialize();
 
-		final long _startTime = System.currentTimeMillis();
-		_xmlizer.execute();
+		if (!_xmlizer.generateSeparateSlicesForEachThrowStmt) {
+			final long _startTime = System.currentTimeMillis();
 
-		final long _stopTime = System.currentTimeMillis();
+			_xmlizer.executeForSingleSlice();
 
-		if (LOGGER.isInfoEnabled()) {
-			LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
+			final long _stopTime = System.currentTimeMillis();
+
+			if (LOGGER.isInfoEnabled()) {
+				LOGGER.info("It took " + (_stopTime - _startTime) + "ms to identify the slice.");
+			}
+
+			_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
+			_xmlizer.writeSliceXML();
+			_xmlizer.outputStats(_xmlizer.nameOfSliceTag);
+			_xmlizer.residualize();
+			_xmlizer.slicer.reset();
+			_xmlizer.reset();
+		} else {
+			_xmlizer.executeForMultipleSlices();
 		}
-
-		_xmlizer.setIDGenerator(new UniqueJimpleIDGenerator());
-		_xmlizer.writeSliceXML();
-		_xmlizer.outputStats();
-		_xmlizer.residualize();
-		_xmlizer.slicer.reset();
-		_xmlizer.reset();
 	}
 
 	/**
@@ -281,18 +300,82 @@ public class SliceXMLizerCLI
 	}
 
 	/**
-	 * Executes the slicer.
+	 * Executes the slicer to generate multiple slices -- one for each throw statement. The slice will not be residualized in
+	 * this mode.
 	 */
-	protected void execute() {
+	private void executeForMultipleSlices() {
+		final Collection<Stmt> _stmts = new HashSet<Stmt>();
+		final StmtTypeBasedSliceCriteriaGenerator _generator = new StmtTypeBasedSliceCriteriaGenerator();
+		_generator.setStmtTypes(Collections.singleton(ThrowStmt.class));
+		if (preserveThrowStmtsInAppClassesOnly) {
+			final IPredicate<SootMethod> _appPredicate = new IPredicate<SootMethod>() {
+
+				public boolean evaluate(final SootMethod t) {
+					return t.getDeclaringClass().isApplicationClass();
+				}
+			};
+			_generator.setSiteSelectionPredicate(_appPredicate);
+		}
+
+		final ISliceCriteriaPredicate<Stmt> _filter = new AbstractSliceCriteriaPredicate<Stmt>() {
+
+			public boolean evaluate(final Stmt t) {
+				final boolean _flag = _stmts.add(t);
+				return _flag;
+			}
+		};
+
+		_generator.setCriteriaFilterPredicate(_filter);
+		slicer.addCriteriaGenerator(_generator);
+
+		// execute the slicer
+		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
+		slicer.addCriteria(_criteria);
+		slicer.setSystem(new Environment(scene));
+		slicer.setRootMethods(rootMethods);
+		slicer.setSliceScopeDefinition(sliceScope);
+		slicer.addToolProgressListener(this);
+
+		final Phase _ph = Phase.createPhase();
+		_ph.nextMajorPhase();
+		slicer.setTagName(nameOfSliceTag);
+		slicer.run(Phase.STARTING_PHASE, _ph, true);
+		_ph.nextMajorPhase();
+
+		int _prevSize;
+		int _newSize = _stmts.size();
+		do {
+			final String _tag = nameOfSliceTag + ":" + _newSize;
+			slicer.setTagName(_tag);
+			slicer.run(_ph, null, true);
+			outputStats(_tag);
+			writeSliceXML();
+			if (LOGGER.isInfoEnabled()) {
+				try {
+					LOGGER.info("Criteria specification after slicing: \n"
+							+ SliceCriteriaParser.serialize(slicer.getCriteria()));
+				} catch (final JiBXException _e) {
+					LOGGER.info("JiBX failed during serialization.", _e);
+				}
+			}
+			_prevSize = _newSize;
+			_newSize = _stmts.size();
+		} while (_prevSize < _newSize);
+	}
+
+	/**
+	 * Executes the slicer to generate a slice.
+	 */
+	void executeForSingleSlice() {
 		// execute the slicer
 		slicer.setTagName(nameOfSliceTag);
 		slicer.setSystem(new Environment(scene));
 		slicer.setRootMethods(rootMethods);
-		
-		if (shouldPreserveThrowStatements) {
+
+		if (preserveThrowStatements) {
 			final StmtTypeBasedSliceCriteriaGenerator _generator = new StmtTypeBasedSliceCriteriaGenerator();
 			_generator.setStmtTypes(Collections.singleton(ThrowStmt.class));
-			if (shouldPreserveThrowStmtsInAppClassesOnly) {
+			if (preserveThrowStmtsInAppClassesOnly) {
 				_generator.setSiteSelectionPredicate(new IPredicate<SootMethod>() {
 
 					public <T1 extends SootMethod> boolean evaluate(final T1 t) {
@@ -400,12 +483,15 @@ public class SliceXMLizerCLI
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
 		_o = new Option("e", "exception-preserving-slice", true, "Generate slice that preserves every throw statement in "
-				+ "the application class. Any optional multi-character argument will preserve throw statements only in "
-				+ "Application classes.");
+				+ "the application class. Comma-separated combination of optional arguments: inAppOnly - preserve throw "
+				+ "statements in application classes only, separateSlices - generated a different slice for each throw "
+				+ "statement. **This option should not be combined with -r**");
 		_o.setArgs(1);
 		_o.setOptionalArg(true);
 		_o.setArgName("applClassOnly");
 		_options.addOption(_o);
+		_o = new Option(" ", "detailedStats", false, "Display detailed stats.");
+		_o.setOptionalArg(false);
 		_o = new Option("h", "help", false, "Display message.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
@@ -502,6 +588,18 @@ public class SliceXMLizerCLI
 			xmlizer.setScopeSpecFile(null);
 		}
 
+		xmlizer.preserveThrowStatements = _cl.hasOption('e');
+		if (xmlizer.preserveThrowStatements) {
+			xmlizer.parseThrowStmtTreatmentOptions(_cl.getOptionValue('e'));
+		}
+
+		if (xmlizer.generateSeparateSlicesForEachThrowStmt && xmlizer.residualize) {
+			throw new IllegalArgumentException(
+					"Residualization (-r) cannot be combined multiple slice generation mode (-e separateSlices).");
+		}
+
+		xmlizer.detailedStats = _cl.hasOption("detailedStats");
+
 		xmlizer.shouldWriteSliceXML = _cl.hasOption('x');
 
 		final List<String> _result = _cl.getArgList();
@@ -512,6 +610,26 @@ public class SliceXMLizerCLI
 		}
 
 		xmlizer.setClassNames(_result);
+	}
+
+	/**
+	 * Process the arguments to the "process throw statement" option.
+	 * 
+	 * @param optionValue to be processed.
+	 */
+	private void parseThrowStmtTreatmentOptions(final String optionValue) {
+		if (optionValue == null) {
+			return;
+		}
+
+		final String[] _values = optionValue.split(",");
+		for (final String _v : _values) {
+			if (_v.equals("appClassOnly")) {
+				preserveThrowStmtsInAppClassesOnly = true;
+			} else if (_v.equals("separateSlices")) {
+				generateSeparateSlicesForEachThrowStmt = true;
+			}
+		}
 	}
 
 	/**
@@ -642,7 +760,7 @@ public class SliceXMLizerCLI
 	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
 		final Printer _printer = Printer.v();
 
-		for (final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
+		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = _i.next();
 
 			if (!_sc.hasTag(nameOfSliceTag)) {
@@ -653,7 +771,7 @@ public class SliceXMLizerCLI
 				LOGGER.debug("Dumping jimple for " + _sc + " with suffix " + suffix);
 			}
 
-			for (final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
+			for (@SuppressWarnings("unchecked") final Iterator<SootMethod> _j = _sc.getMethods().iterator(); _j.hasNext();) {
 				final SootMethod _sm = _j.next();
 
 				if (_sm.isConcrete()) {
@@ -694,8 +812,10 @@ public class SliceXMLizerCLI
 
 	/**
 	 * Outputs the statistics for the system.
+	 * 
+	 * @param tag identifies the slice to process.
 	 */
-	private void outputStats() {
+	private void outputStats(final String tag) {
 		if (LOGGER.isInfoEnabled()) {
 			final MetricsProcessor _processor = new MetricsProcessor();
 			final ProcessingController _pc = new ProcessingController();
@@ -708,15 +828,17 @@ public class SliceXMLizerCLI
 			_pc.process();
 			_processor.unhook(_pc);
 
-			LOGGER.info("PRE SLICING STATISTICS:" + MapUtils.verbosePrint(_processor.getStatistics()));
+			LOGGER.info("PRE SLICING STATISTICS:"
+					+ MapUtils.verbosePrint(detailedStats ? _processor.getStatistics() : _processor.getSummary()));
 
-			_pc.setProcessingFilter(new TagBasedProcessingFilter(nameOfSliceTag));
+			_pc.setProcessingFilter(new TagBasedProcessingFilter(tag));
 			_processor.hookup(_pc);
 			_pc.setEnvironment(new Environment(scene));
 			_pc.process();
 			_processor.unhook(_pc);
 
-			LOGGER.info("POST SLICING STATISTICS:" + MapUtils.verbosePrint(_processor.getStatistics()));
+			LOGGER.info("POST SLICING STATISTICS:"
+					+ MapUtils.verbosePrint(detailedStats ? _processor.getStatistics() : _processor.getSummary()));
 		}
 	}
 
