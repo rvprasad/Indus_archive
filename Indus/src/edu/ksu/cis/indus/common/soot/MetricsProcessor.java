@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.common.soot;
 import edu.ksu.cis.indus.annotations.Functional;
 import edu.ksu.cis.indus.annotations.Immutable;
 import edu.ksu.cis.indus.annotations.NonNull;
+import edu.ksu.cis.indus.annotations.NonNullContainer;
 import edu.ksu.cis.indus.common.ToStringBasedComparator;
 import edu.ksu.cis.indus.processing.AbstractProcessor;
 import edu.ksu.cis.indus.processing.Context;
@@ -267,6 +268,30 @@ public final class MetricsProcessor
 	}
 
 	/**
+	    * Retrives a summarized statistics (only for keys mentioned in MetricKeys).
+	    * 
+	    * @return the summarized statistics.
+	    */
+	   @NonNull @Functional @NonNullContainer public Map<MetricKeys, Map<Object, Integer>> getSummary() {
+	       final Map<Object, Integer> _app = new HashMap<Object, Integer>();
+	       for (final Object o : applicationStatistics.keys()) {
+	           if (o instanceof MetricKeys) {
+	               _app.put(o, applicationStatistics.get(o));
+	           }
+	       }
+	       final Map<Object, Integer> _lib = new HashMap<Object, Integer>();
+	       for (final Object o : libraryStatistics.keys()) {
+	           if (o instanceof MetricKeys) {
+	               _lib.put(o, libraryStatistics.get(o));
+	           }
+	       }
+	       final Map<MetricKeys, Map<Object, Integer>> _result = new HashMap<MetricKeys, Map<Object, Integer>>();
+	       _result.put(MetricKeys.APPLICATION_STATISTICS, _app);
+	       _result.put(MetricKeys.LIBRARY_STATISTICS, _app);
+	       return _result;
+	   }
+
+	/**
 	 * {@inheritDoc}
 	 */
 	public void hookup(final ProcessingController ppc) {
@@ -282,8 +307,7 @@ public final class MetricsProcessor
 		applicationStatistics.clear();
 		libraryStatistics.clear();
 	}
-
-	/**
+    /**
 	 * {@inheritDoc}
 	 */
 	public void unhook(final ProcessingController ppc) {

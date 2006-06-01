@@ -1,3 +1,8 @@
+2006-06-01 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/soot/MetricsProcessor.java: 
+		- added support to retrieve summary of the statistics.
+
 2006-04-23 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/common/scoping/ISpecification.java: 
