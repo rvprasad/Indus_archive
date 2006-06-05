@@ -17,6 +17,7 @@ package edu.ksu.cis.indus.tools.slicer;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
+import edu.ksu.cis.indus.common.soot.ApplicationClassesOnlyPredicate;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.MetricsProcessor;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -36,7 +37,6 @@ import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AbstractSliceCriteriaPredicate;
-import edu.ksu.cis.indus.tools.slicer.criteria.predicates.ISliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
 import edu.ksu.cis.indus.xmlizer.AbstractXMLizer;
 import edu.ksu.cis.indus.xmlizer.IJimpleIDGenerator;
@@ -100,7 +100,67 @@ import soot.jimple.ThrowStmt;
 public class SliceXMLizerCLI
 		extends SootBasedDriver
 		implements IToolProgressListener {
+	/**
+	 * This predicate allows only one statement to be considered as a criterion.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	private class CustomCriteriaPredicate
+			extends AbstractSliceCriteriaPredicate<Stmt> {
 
+		/**
+		 * This indicates if the predicate is counting. Only in counting status will the predicate accept criteria.
+		 */
+		private boolean countingStatus = true;
+
+		/**
+		 * The collection of statements that have been considered as criterion.
+		 */
+		private final Collection<Stmt> stmts;
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		CustomCriteriaPredicate() {
+			super();
+			stmts = new HashSet<Stmt>();
+		}
+
+		/**
+		 * {@inheritDoc}
+		 */
+		public boolean evaluate(final Stmt t) {
+			final boolean _flag;
+			if (countingStatus) {
+				_flag = stmts.add(t);
+				if (_flag) {
+					countingStatus = false;
+				}
+			} else {
+				_flag = false;
+			}
+			return _flag;
+		}
+
+		/**
+		 * Retrieves the number of slices generated so far.
+		 * 
+		 * @return the number of slices.
+		 */
+		int getSliceCount() {
+			return stmts.size();
+		}
+
+		/**
+		 * Sets the predicate into counting status.
+		 */
+		void setCountingStatus() {
+			countingStatus = true;
+		}
+	}
+	
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -304,27 +364,15 @@ public class SliceXMLizerCLI
 	 * this mode.
 	 */
 	private void executeForMultipleSlices() {
-		final Collection<Stmt> _stmts = new HashSet<Stmt>();
 		final StmtTypeBasedSliceCriteriaGenerator _generator = new StmtTypeBasedSliceCriteriaGenerator();
 		_generator.setStmtTypes(Collections.singleton(ThrowStmt.class));
-		if (preserveThrowStmtsInAppClassesOnly) {
-			final IPredicate<SootMethod> _appPredicate = new IPredicate<SootMethod>() {
 
-				public boolean evaluate(final SootMethod t) {
-					return t.getDeclaringClass().isApplicationClass();
-				}
-			};
-			_generator.setSiteSelectionPredicate(_appPredicate);
+		if (preserveThrowStmtsInAppClassesOnly) {
+			_generator.setSiteSelectionPredicate(new ApplicationClassesOnlyPredicate());
 		}
 
-		final ISliceCriteriaPredicate<Stmt> _filter = new AbstractSliceCriteriaPredicate<Stmt>() {
-
-			public boolean evaluate(final Stmt t) {
-				final boolean _flag = _stmts.add(t);
-				return _flag;
-			}
-		};
-
+		final CustomCriteriaPredicate _filter = new CustomCriteriaPredicate();
+		
 		_generator.setCriteriaFilterPredicate(_filter);
 		slicer.addCriteriaGenerator(_generator);
 
@@ -336,20 +384,19 @@ public class SliceXMLizerCLI
 		slicer.setSliceScopeDefinition(sliceScope);
 		slicer.addToolProgressListener(this);
 
-		final Phase _ph = Phase.createPhase();
-		_ph.nextMajorPhase();
 		slicer.setTagName(nameOfSliceTag);
-		slicer.run(Phase.STARTING_PHASE, _ph, true);
-		_ph.nextMajorPhase();
+		slicer.run(Phase.STARTING_PHASE, SlicerTool.SLICE_MAJOR_PHASE, true);
 
 		int _prevSize;
-		int _newSize = _stmts.size();
+		int _count = 0;
 		do {
-			final String _tag = nameOfSliceTag + ":" + _newSize;
+			_prevSize = _filter.getSliceCount();
+			final String _tag = nameOfSliceTag + ":" + _prevSize;
 			slicer.setTagName(_tag);
-			slicer.run(_ph, null, true);
+			slicer.run(SlicerTool.SLICE_MAJOR_PHASE, Phase.FINISHED_PHASE, true);
 			outputStats(_tag);
-			writeSliceXML();
+			dumpJimple("_" + String.valueOf(_count++), true, false, _tag);
+			_filter.setCountingStatus();
 			if (LOGGER.isInfoEnabled()) {
 				try {
 					LOGGER.info("Criteria specification after slicing: \n"
@@ -358,9 +405,7 @@ public class SliceXMLizerCLI
 					LOGGER.info("JiBX failed during serialization.", _e);
 				}
 			}
-			_prevSize = _newSize;
-			_newSize = _stmts.size();
-		} while (_prevSize < _newSize);
+		} while (_filter.getSliceCount() == _count);
 	}
 
 	/**
@@ -756,14 +801,15 @@ public class SliceXMLizerCLI
 	 *            otherwise.
 	 * @param classFile <code>true</code> indicates that class files should be dumped as well; <code>false</code>,
 	 *            otherwise.
+	 * @param tag to jimplify.
 	 */
-	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile) {
+	private void dumpJimple(final String suffix, final boolean jimpleFile, final boolean classFile, final String tag) {
 		final Printer _printer = Printer.v();
 
 		for (@SuppressWarnings("unchecked") final Iterator<SootClass> _i = scene.getClasses().iterator(); _i.hasNext();) {
 			final SootClass _sc = _i.next();
 
-			if (!_sc.hasTag(nameOfSliceTag)) {
+			if (!_sc.hasTag(tag)) {
 				continue;
 			}
 
@@ -897,7 +943,7 @@ public class SliceXMLizerCLI
 		}
 
 		if (preResJimpleDump) {
-			dumpJimple("_preRes", true, false);
+			dumpJimple("_preRes", true, false, nameOfSliceTag);
 		}
 
 		if (residualize) {
@@ -913,11 +959,11 @@ public class SliceXMLizerCLI
 					LOGGER.debug("Retained classes are " + _c);
 				}
 			}
-			dumpJimple("", false, true);
+			dumpJimple("", false, true, nameOfSliceTag);
 		}
 
 		if (postResJimpleDump) {
-			dumpJimple("_postRes", true, false);
+			dumpJimple("_postRes", true, false, nameOfSliceTag);
 		}
 
 		if (postResXMLJimpleDump) {

@@ -132,7 +132,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * This represents the phase in which dependence analysis happens.
 	 */
-	public static final Object DEPENDENCE_MAJOR_PHASE;
+	public static final Phase DEPENDENCE_MAJOR_PHASE;
 
 	/**
 	 * The tag used to identify the parts touched by flow analysis.
@@ -142,7 +142,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * This represents the phase in which slicing happens.
 	 */
-	public static final Object SLICE_MAJOR_PHASE;
+	public static final Phase SLICE_MAJOR_PHASE;
 
 	/**
 	 * This is the indentation step to be used during stringization of the configuration.
@@ -489,7 +489,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 		setCurrentConfiguration(_slicerConfig);
 		_slicerConfig.setupForUse();
 
-		if (_ph.equalsMajor((Phase) DEPENDENCE_MAJOR_PHASE)) {
+		if (_ph.equalsMajor(DEPENDENCE_MAJOR_PHASE)) {
 			fireToolProgressEvent("Performing dependence analyses", _ph);
 			dependencyAnalysisPhase(_slicerConfig);
 		}
@@ -500,7 +500,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 
 		movingToNextPhase();
 
-		if (_ph.equalsMajor((Phase) SLICE_MAJOR_PHASE)) {
+		if (_ph.equalsMajor(SLICE_MAJOR_PHASE)) {
 			fireToolProgressEvent("Performing slicing", _ph);
 			slicingPhase(_slicerConfig);
 		}
