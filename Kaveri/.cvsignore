@@ -16,3 +16,4 @@ edu.ksu.cis.indus.kaveri_?.?.?.zip
 .fbwarnings
 *.zip
 *.pdf
+__generated_src

@@ -192,14 +192,14 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     protected void processContexts(Collection ctx) throws InterruptedException {
         final EclipseIndusDriver _driver = KaveriPlugin.getDefault()
                 .getIndusConfiguration().getEclipseIndusDriver();
-        for (Iterator iter = ctx.iterator(); iter.hasNext();) {
-            final MethodCallContext _mcc = (MethodCallContext) iter.next();
+        for (Iterator _i = ctx.iterator(); _i.hasNext();) {
+            final MethodCallContext _mcc = (MethodCallContext) _i.next();
             final Collection _stkColl = _mcc.getContextStacks();
-            for (Iterator iterator = _stkColl.iterator(); iterator.hasNext();) {
-                final Stack _stk = (Stack) iterator.next();
-                final Stack _ctxStack = new Stack();
-                for (Iterator _iter = _stk.iterator(); _iter.hasNext();) {
-                    final Triple _triple = (Triple) _iter.next();
+            for (Iterator _j = _stkColl.iterator(); _j.hasNext();) {
+                final Stack _stk = (Stack) _j.next();
+                final edu.ksu.cis.indus.common.collections.Stack _ctxStack = new edu.ksu.cis.indus.common.collections.Stack();
+                for (Iterator _k = _stk.iterator(); _k.hasNext();) {
+                    final Triple _triple = (Triple) _k.next();
                     final MethodWrapper _m1 = (MethodWrapper) _triple
                             .getFirst();
                     final MethodWrapper _m2 = (MethodWrapper) _triple
@@ -252,6 +252,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
             final Chain _chain = _body.getUnits();
             for (Iterator iter = _lst.iterator(); iter.hasNext();) {
                 final Stmt _stmt = (Stmt) iter.next();
+                assert _stmt.containsInvokeExpr();
                 if (_stmt.containsInvokeExpr()) {
                     final InvokeExpr _expr1 = _stmt.getInvokeExpr();
                     if (_expr1.getMethod().equals(sm2)) {

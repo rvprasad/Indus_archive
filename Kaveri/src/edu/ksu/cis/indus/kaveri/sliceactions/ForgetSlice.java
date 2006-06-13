@@ -32,12 +32,11 @@ import org.eclipse.ui.PlatformUI;
 import soot.G;
 
 /**
- * @author ganeshan
- *
- * TODO To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Style - Code Templates
+ * This action is derived from ResetKaveri action.
+ * 
+ * @author Venkatesh Prasad Ranganath
  */
-public class ResetKaveri implements IEditorActionDelegate {
+public class ForgetSlice implements IEditorActionDelegate {
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction, org.eclipse.ui.IEditorPart)
@@ -52,14 +51,10 @@ public class ResetKaveri implements IEditorActionDelegate {
      */
     public void run(IAction action) {
         removeAnnotations();
-        G.reset();
-        G.reset();
-        KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
         final IndusDecorator _decorator = IndusDecorator.getIndusDecorator();
         if (_decorator != null) {
             _decorator.refesh();
         }
-
     }
     
     /**
@@ -95,7 +90,6 @@ public class ResetKaveri implements IEditorActionDelegate {
             }
         }
     }
-
 
     /* (non-Javadoc)
      * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction, org.eclipse.jface.viewers.ISelection)

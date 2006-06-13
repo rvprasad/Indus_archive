@@ -210,7 +210,7 @@ public class J2BIndusRunner
 	 */
 	private void resetSoot() {
 		G.reset();
-		KaveriPlugin.getDefault().getIndusConfiguration().reset();
+		KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
 		KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
 	}
 }

@@ -19,6 +19,7 @@
  */
 package edu.ksu.cis.indus.kaveri.driver;
 
+import edu.ksu.cis.indus.common.collections.Stack;
 import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 import edu.ksu.cis.indus.common.soot.NamedTag;
 import edu.ksu.cis.indus.common.soot.SootBasedDriver;
@@ -47,7 +48,6 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Stack;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -473,14 +473,14 @@ public class EclipseIndusDriver extends SootBasedDriver {
         }
 
         StaticSliceCriteriaGenerator _sscg = null;
-         if (contextCollection.size() > 0) { 
-             _sscg = new StaticSliceCriteriaGenerator(criteria);
-             _sscg.setCriteriaContextualizer(new StaticSliceCriteriaCallStackContextualizer(contextCollection));    
-             slicer.addCriteriaGenerator(_sscg); 
-          }
-                  
-        slicer.clearCriteria();
-        slicer.addCriteria(criteria);
+        if (contextCollection.size() > 0) { 
+            _sscg = new StaticSliceCriteriaGenerator(criteria);
+            _sscg.setCriteriaContextualizer(new StaticSliceCriteriaCallStackContextualizer(contextCollection));    
+            slicer.addCriteriaGenerator(_sscg); 
+        } else {
+            slicer.clearCriteria();
+            slicer.addCriteria(criteria);
+        }
         slicer.run(Phase.STARTING_PHASE, Phase.FINISHED_PHASE, true); // changed from true
         
         if (_sscg != null) {

@@ -3,7 +3,7 @@
 <plugin
    id="edu.ksu.cis.indus.kaveri"
    name="Kaveri Java Slicer Plug-in"
-   version="0.8"
+   version="0.8.1"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.indus.kaveri.KaveriPlugin">
 
@@ -247,9 +247,17 @@
             id="edu.ksu.cis.indus.kaveri.editorContribution">
          <action
                toolbarPath="Normal/additions"
+               label="Forget Slice"
+               tooltip="Forget Slice"
+               icon="data/icons/eraser.gif"
+               class="edu.ksu.cis.indus.kaveri.sliceactions.ForgetSlice"
+               style="push"
+               id="edu.ksu.cis.indus.kaveri.ForgetSlice"/>            
+         <action
+               toolbarPath="Normal/additions"
                label="Reset"
                tooltip="Reset Kaveri"
-               icon="data/icons/eraser.gif"
+               icon="data/icons/reset.gif"
                class="edu.ksu.cis.indus.kaveri.sliceactions.ResetKaveri"
                style="push"
                id="edu.ksu.cis.indus.kaveri.Reset"/>            

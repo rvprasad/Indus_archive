@@ -110,13 +110,13 @@ public class RunIndus extends BasicSliceFunctions implements
             KaveriErrorLog.logException("Invocation Target Exception", _ie);
             SECommons.handleException(_ie);
             G.reset();
-            KaveriPlugin.getDefault().getIndusConfiguration().reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
             KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
         } catch (InterruptedException _ie) {
             KaveriErrorLog.logException("Interrupted Exception", _ie);
             SECommons.handleException(_ie);
             G.reset();
-            KaveriPlugin.getDefault().getIndusConfiguration().reset();
+            KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
             KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
         }       
         
@@ -141,13 +141,13 @@ public class RunIndus extends BasicSliceFunctions implements
                 KaveriErrorLog.logException("Invocation Target Exception", _ie);
                 SECommons.handleException(_ie);
                 G.reset();
-                KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
                 KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
             } catch (InterruptedException _ie) {
                 KaveriErrorLog.logException("Interrupted Exception", _ie);
                 SECommons.handleException(_ie);
                 G.reset();
-                KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
                 KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
             }
         }

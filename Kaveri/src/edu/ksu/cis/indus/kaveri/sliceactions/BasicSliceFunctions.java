@@ -247,14 +247,14 @@ abstract public class BasicSliceFunctions {
                         // Reset.
                         SECommons.handleException(_ie);
                         G.reset();
-                        KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
                         KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
                     } catch (InterruptedException _ie) {
                         KaveriErrorLog.logException("Interrupted Exception",
                                 _ie);
                         SECommons.handleException(_ie);
                         G.reset();
-                        KaveriPlugin.getDefault().getIndusConfiguration().reset();
+                        KaveriPlugin.getDefault().getIndusConfiguration().resetAll();
                         KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver().reset();
                     }
 

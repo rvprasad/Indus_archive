@@ -392,6 +392,7 @@ public class IndusConfigurationDialog extends Dialog {
      */
     private void setUpCriteria() {
         final Object _objCriteria[] = viewer.getCheckedElements();
+        KaveriPlugin.getDefault().getIndusConfiguration().clearCriteria();
         if (_objCriteria.length > 0) {
             for (int i = 0; i < _objCriteria.length; i++) {
                 final Criteria _c = (Criteria) _objCriteria[i];

@@ -227,7 +227,15 @@ public class IndusConfiguration {
      *            CriteriaList.fourthElement.kindOf(int: jimple index)
      */
     public void setCriteria(final Criteria criterialist) {
-        this.criteria.add(criterialist);
+        criteria.add(criterialist);
+    }
+    
+    /**
+     * Forgets all criteria explicitly provided to Indus during it's previous run.
+     *
+     */
+    public void clearCriteria() {
+        criteria.clear();
     }
 
     /**
@@ -330,26 +338,34 @@ public class IndusConfiguration {
 
     /**
      * <p>
-     * Reset the internal variables to their defaults.
+     * Reset the plugin.
      * </p>
+     */
+    public void resetAll() {
+        reset();
+        depHistory.reset();
+        ctxRepository.reset();
+        chosenContext.clear();
+        criteria.clear();
+    }
+    
+    /**
+     * Resets the status of the slicer but not the plugin, i.e. any previous user inputs, not configurations,
+     * will be remembered.
+     *
      */
     public void reset() {
         lineNumbers = null;
         selectedStatement = "         ";
 
         if (!additive) {
-            //	System.out.println("Resetting");
+            //  System.out.println("Resetting");
             indusAnnotationManager.reset();
         }
         sliceFileList.clear();
         sliceProject = null;
         stmtList.setStmtList(null);
-        criteria.clear();
         KaveriPlugin.getDefault().reset();
-        depHistory.reset();
-        ctxRepository.reset();
-        chosenContext.clear();
-        
         eclipseIndusDriver.reset();
         stmtList.update();
     }
