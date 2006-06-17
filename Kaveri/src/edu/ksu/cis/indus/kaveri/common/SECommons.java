@@ -426,60 +426,6 @@ public final class SECommons {
 	}
 
 	/**
-	 * Loads the given classes into the scene.
-	 * 
-	 * @param lst
-	 * @param jfile
-	 */
-	public static void loadupClasses(List lst, IFile jfile) {
-		String _sootClassPath = "";
-		IPath _jreclasspath = JavaCore.getClasspathVariable("JRE_LIB");
-		final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3")); //$NON-NLS-1$
-		final String _fileseparator = System.getProperty(Messages.getString("SootConvertor.4")); //$NON-NLS-1$
-		if (_jreclasspath != null) {
-			_sootClassPath = _jreclasspath.toOSString();
-			_sootClassPath += _pathseparator;
-
-			final IProject _project = jfile.getProject();
-			final IJavaProject _jproject = JavaCore.create(_project);
-			final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false, true);
-			for (Iterator iter = _set.iterator(); iter.hasNext();) {
-				_sootClassPath += (String) iter.next();
-			}
-			// G.reset();
-			final Scene _scene = Scene.v();
-			Options.v().parse(Util.getSootOptions());
-
-			/** Fix for the soot.CompilationDeathException. */
-			// Options.v().set_src_prec(Options.src_prec_java);
-			Options.v().set_keep_line_number(true);
-
-			String _cpString = _scene.getSootClassPath();
-
-			if (_cpString != null) {
-				_cpString += File.pathSeparator + _sootClassPath + File.pathSeparator + System.getProperty("java.class.path");
-			} else {
-				_cpString = _sootClassPath;
-			}
-
-			_scene.setSootClassPath(_cpString);
-
-			for (int _i = 0; _i < lst.size(); _i++) {
-				try {
-					final String _classname = (String) lst.get(_i);
-					_scene.loadClassAndSupport(_classname);
-				} catch (RuntimeException _rme) {
-					KaveriErrorLog.logException("Error loading soot class ", _rme);
-					SECommons.handleException(_rme);
-					throw _rme;
-				}
-
-			}
-
-		}
-	}
-
-	/**
 	 * @param _st
 	 * @return
 	 */
