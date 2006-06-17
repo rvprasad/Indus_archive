@@ -45,6 +45,8 @@ import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
+import org.eclipse.swt.events.FocusEvent;
+import org.eclipse.swt.events.FocusListener;
 import org.eclipse.swt.events.PaintEvent;
 import org.eclipse.swt.events.PaintListener;
 import org.eclipse.swt.events.SelectionAdapter;
@@ -210,6 +212,15 @@ public class ConfigurationDialog
 			_gd.grabExcessHorizontalSpace = true;
 			cmbBackSliceConfig.setLayoutData(_gd);
 			initializeConfigs(cmbBackSliceConfig, false);
+            
+            cmbBackSliceConfig.addFocusListener(new FocusListener() {
+
+                public void focusGained(final FocusEvent e) {
+                }
+
+                public void focusLost(final FocusEvent e) {
+                    sliceActionConfigStoreHelper("edu.ksu.cis.indus.kaveri.sbConfig", cmbBackSliceConfig);
+                } });
 
 			final Label _lblForwardSlice = new Label(_grp1, SWT.LEFT);
 			_lblForwardSlice.setText("Forward Slice Action Configuration");
@@ -223,18 +234,15 @@ public class ConfigurationDialog
 			_gd.grabExcessHorizontalSpace = true;
 			cmbFwdSliceConfig.setLayoutData(_gd);
 			initializeConfigs(cmbFwdSliceConfig, true);
+			
+            cmbFwdSliceConfig.addFocusListener(new FocusListener() {
 
-			_comp.addPaintListener(new PaintListener() {
+                public void focusGained(final FocusEvent e) {
+                }
 
-				public void paintControl(PaintEvent e) {
-					cmbBackSliceConfig.removeAll();
-					cmbFwdSliceConfig.removeAll();
-					initializeConfigs(cmbBackSliceConfig, false);
-					initializeConfigs(cmbFwdSliceConfig, true);
-
-				}
-
-			});
+                public void focusLost(final FocusEvent e) {
+                    sliceActionConfigStoreHelper("edu.ksu.cis.indus.kaveri.sfConfig", cmbFwdSliceConfig);
+                } });
 
 		} catch (IllegalArgumentException _ile) {
 			KaveriErrorLog.logException("Illega Argument Exception", _ile);
@@ -270,7 +278,9 @@ public class ConfigurationDialog
 		if (!_sbConfigPreference.equals("")) {
 			final int _activeIndex = confsCombo.indexOf(_sbConfigPreference);
 			confsCombo.select(_activeIndex);
-		}
+		} else if (!_c.isEmpty()){
+		    confsCombo.select(0);
+        }
 	}
 
 	/**
@@ -503,19 +513,18 @@ public class ConfigurationDialog
 	 * Store the slice button configurations.
 	 */
 	private void storeSliceActionConfigurations() {
-		final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
-		final String _sbConfigKey = "edu.ksu.cis.indus.kaveri.sbConfig";
-		final String _sfConfigKey = "edu.ksu.cis.indus.kaveri.sfConfig";
-
-		final String _bckConfig = cmbBackSliceConfig.getText();
-		final String _fwdConfig = cmbFwdSliceConfig.getText();
-		if (!_bckConfig.equals("") && !(_fwdConfig.equals(""))) {
-			_ps.setValue(_sbConfigKey, _bckConfig);
-			_ps.setValue(_sfConfigKey, _fwdConfig);
-		}
-
+        sliceActionConfigStoreHelper("edu.ksu.cis.indus.kaveri.sbConfig", cmbBackSliceConfig);
+        sliceActionConfigStoreHelper("edu.ksu.cis.indus.kaveri.sfConfig", cmbFwdSliceConfig);
 	}
 
+    private void sliceActionConfigStoreHelper(final String key, final Combo cmb) {
+        final IPreferenceStore _ps = KaveriPlugin.getDefault().getPreferenceStore();
+        final String _config = cmb.getText();
+        if (!_config.equals("")) {
+            _ps.setValue(key, _config);
+        } 
+    }
+    
 	class ViewContentProvider
 			implements IStructuredContentProvider {
 
