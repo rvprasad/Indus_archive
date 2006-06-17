@@ -472,22 +472,6 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
         }
     }
 
-    //	/**
-    //	 * Dumps the jimple representation of the classes in
-    //	 * the directory where the sliced files are present.
-    //	 */
-    //	private void dumpJimple() {
-    //		final IFile _file = (IFile) fileList.get(0);
-    //		final String _op =
-    // _file.getLocation().removeLastSegments(1).toOSString();
-    //
-    //		try {
-    //			driver.dumpJimple(_op);
-    //		} catch (KaveriException _ie) {
-    //			SECommons.handleException(_ie);
-    //		}
-    //	}
-
     /**
      * Returns the list of selected criteria.
      * 
