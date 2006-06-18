@@ -430,7 +430,10 @@ public final class SootConvertor {
                 _sootClassPath += (String) iter.next();
             }
 
-            //G.reset();
+            if (KaveriPlugin.getDefault().getSootState().doesSceneNeedUpdate()) {
+                G.reset();
+                KaveriPlugin.getDefault().getSootState().setSceneNeedsUpdate(false);
+            }
             final Scene _scene = Scene.v();
             Options.v().parse(Util.getSootOptions());
             // Fix for the soot.CompilationDeathError.
@@ -459,6 +462,7 @@ public final class SootConvertor {
                 SECommons.handleException(_rme);
                 // Take care.
                 G.reset();
+            } finally {
                 KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
             }
         }

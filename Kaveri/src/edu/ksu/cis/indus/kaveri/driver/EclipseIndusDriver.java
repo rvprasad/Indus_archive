@@ -27,6 +27,7 @@ import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.common.SECommons;
 import edu.ksu.cis.indus.kaveri.presentation.AnnotationData;
+import edu.ksu.cis.indus.kaveri.soot.SootState;
 import edu.ksu.cis.indus.processing.Environment;
 import edu.ksu.cis.indus.slicer.SliceCriteriaFactory;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
@@ -48,6 +49,8 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Observable;
+import java.util.Observer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +76,10 @@ import soot.util.Chain;
  * @author Ganeshan
  */
 public class EclipseIndusDriver extends SootBasedDriver {
+    
+
+    public static final Object SOOT_UPDATED = "Soot updated event";
+
     /**
      * <p>
      * Logger to log the activities of the run.
@@ -102,6 +109,8 @@ public class EclipseIndusDriver extends SootBasedDriver {
      * </p>
      */
     private SlicerTool slicer;
+    
+    private Observable subject = new Observable();
 
     /**
      * <p>
@@ -160,7 +169,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
      * result.values.values.oclIsKindOf(Collection(AnnotationData))
      * 
      * @return Map The map of classnames to line numbers
-     */
+     
     public Map getAnnotationLineNumbers() {
         final Map _v = new HashMap();
         final Chain _classlist = Scene.v().getApplicationClasses();
@@ -193,12 +202,6 @@ public class EclipseIndusDriver extends SootBasedDriver {
 
                 final List _lst = new LinkedList();
 
-                /*
-                 * final int _line = getLineNumberFromMethod(_method); if (_line >
-                 * -1) { final AnnotationData _data = new AnnotationData();
-                 * _data.setComplete(true); _data.setNLineNumber(_line); if
-                 * (!_lst.contains(_data)) { _lst.add(_data); } }
-                 */
                 final String _classname = _sootclass.getName();
                 final String _methodname = SECommons.getSearchPattern(_method);
                 final Chain _unitchain = _body.getUnits();
@@ -218,7 +221,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         }
 
         return _v;
-    }
+    }*/
 
     /**
      * <p>
@@ -498,6 +501,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         // Fix for soot.CompilationDeathException.
         //Options.v().set_src_prec(Options.src_prec_java);
         super.initialize();
+        subject.notifyObservers(SOOT_UPDATED);
     }
 
     /**
@@ -553,7 +557,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
      *            present, result = linenumber otherwise
      * 
      * @return int Line Number
-     */
+     *
     private int getLineNumberFromUnit(final Stmt unit) {
         int _nLine = -1;
         final LineNumberTag _lntag = (LineNumberTag) unit.getTag(Messages
@@ -645,7 +649,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
      *            The name of the class in which the units exist.
      * @param methodname
      *            The name of the method in which the units exist.
-     */
+     *
     private void processUnit(final Chain unitchain, final List lst,
             final String classname, final String methodname) {
         final Iterator _unititerator = unitchain.snapshotIterator();
@@ -744,4 +748,20 @@ public class EclipseIndusDriver extends SootBasedDriver {
     public void addToContext(final Stack stkContext) {
         contextCollection.add(stkContext);
     }
+
+    /**
+     * @see java.util.Observable#addObserver(java.util.Observer)
+     */
+    public void addObserver(Observer o) {
+        subject.addObserver(o);
+    }
+
+    /**
+     * @see java.util.Observable#deleteObserver(java.util.Observer)
+     */
+    public void deleteObserver(Observer o) {
+        subject.deleteObserver(o);
+    }
+
+    
 }

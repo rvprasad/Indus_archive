@@ -18,6 +18,7 @@ import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
 import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
 import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
+import edu.ksu.cis.indus.kaveri.soot.SootState;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
@@ -33,8 +34,12 @@ import java.util.Map;
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IWorkspace;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
@@ -63,7 +68,8 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	/**
 	 * The resource change listener.
 	 */
-	// private IResourceChangeListener listener;
+	private IResourceChangeListener listener;
+    
 	/**
 	 * This is the annotation cache map.
 	 */
@@ -84,6 +90,18 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	 */
 	private KaveriRootMethodTrapper rmTrapper;
 
+    /**
+     * This tracks the state of soot.
+     */
+    private SootState sootState;
+    
+    /**
+     * @return provides the object that contains info about Soot's state.
+     */
+    public SootState getSootState() {
+        return sootState;
+    }
+    
 	/**
 	 * Constructor.
 	 */
@@ -159,11 +177,10 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 				new CompleteStmtGraphFactory());
 		cacheMap = new HashMap();
 		rmTrapper = new KaveriRootMethodTrapper();
-		/*
-		 * final IWorkspace _workspace = ResourcesPlugin.getWorkspace(); listener = new JavaClassChangeListener();
-		 * _workspace.addResourceChangeListener(listener);
-		 */
-
+		
+        sootState = new SootState();
+        JavaCore.addElementChangedListener(sootState);
+        indusConfiguration.getEclipseIndusDriver().addObserver(sootState);
 	}
 
 	/**

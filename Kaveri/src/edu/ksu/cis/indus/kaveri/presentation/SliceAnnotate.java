@@ -229,9 +229,10 @@ public class SliceAnnotate implements IEditorActionDelegate {
      * @param _selection
      */
     protected void processSelection(final ITextSelection _selection) {
-        if (KaveriPlugin.getDefault().getIndusConfiguration()
+        final KaveriPlugin _default1 = KaveriPlugin.getDefault();
+        if (_default1.getIndusConfiguration()
                         .getStmtList().isListenersPresent()) {
-            if (KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
+            if (_default1.getIndusConfiguration().getStmtList()
                     .isListenersReady()
                     && editor != null) {
                 final IFile _file = ((IFileEditorInput) editor.getEditorInput())
@@ -257,14 +258,13 @@ public class SliceAnnotate implements IEditorActionDelegate {
                             .getFile();
                     nLineno = _selection.getStartLine();
                 }
-                if (isSootClassAlreadyPresent(_file)) {
-                    handleSelectionForSliceView(_selection);    
+                
+                if (isSootClassAlreadyPresent(_file) && !_default1.getSootState().doesSceneNeedUpdate()) {
+                    handleSelectionForSliceView(_selection);
                 } else {
-                   
-                    
                     final ProgressMonitorDialog _pmd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());
                     final IRunnableWithProgress _progress = new IRunnableWithProgress() {
-
+    
                         public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
                             monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);                            
                             handleSelectionForSliceView(_selection);
@@ -279,8 +279,8 @@ public class SliceAnnotate implements IEditorActionDelegate {
                     } catch (InvocationTargetException _ie) {
                         SECommons.handleException(_ie);
                         KaveriErrorLog.logException("Interrupted Exception", _ie);
-                    }
-                }                                
+                    }     
+                }
             }
         }
         
@@ -354,51 +354,6 @@ public class SliceAnnotate implements IEditorActionDelegate {
     }
 
     /**
-     * Handles the selection change event.
-     * 
-     * @see org.eclipse.ui.IActionDelegate#selectionChanged(org.eclipse.jface.action.IAction,
-     *      org.eclipse.jface.viewers.ISelection)
-     */
-    public void selectionChanged(final IAction action,
-            final ISelection selection) {
-        
-        /*if (selection != null
-                && !selection.isEmpty()
-                && KaveriPlugin.getDefault().getIndusConfiguration()
-                        .getStmtList().isListenersPresent()) {
-            if (KaveriPlugin.getDefault().getIndusConfiguration().getStmtList()
-                    .isListenersReady()
-                    && editor != null) {
-                final IFile _file = ((IFileEditorInput) editor.getEditorInput())
-                .getFile();
-                if (_file == null) {
-                    return;
-                }
-                if (!hasJavaNature(_file)) {
-                    return;
-                }
-                if (prevFile != null
-                        && ((IFileEditorInput) editor.getEditorInput())
-                                .getFile().equals(prevFile)) {
-                    final ITextSelection _tsel = (ITextSelection) selection;
-                    if (_tsel.getLength() == 0
-                            || nLineno == _tsel.getStartLine()) {
-                        return;
-                    } else {
-                        nLineno = _tsel.getStartLine();
-                    }
-
-                } else {
-                    prevFile = ((IFileEditorInput) editor.getEditorInput())
-                            .getFile();
-                    nLineno = ((ITextSelection) selection).getStartLine();
-                }
-                handleSelectionForSliceView(selection);
-            }
-        } */
-    }
-
-    /**
      * Update the slice view with the information from the current selection.
      * 
      * @param selection
@@ -453,5 +408,9 @@ public class SliceAnnotate implements IEditorActionDelegate {
             }
 
         }
+    }
+
+    public void selectionChanged(final IAction action, final ISelection selection) {
+        // empty        
     }
 }
