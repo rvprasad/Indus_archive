@@ -763,20 +763,6 @@ public class PartialSliceView extends ViewPart {
     }
 
     /**
-     * @param _table
-     */
-    /*
-     * private void updateTable(Table _table) { _table.setLinesVisible(true);
-     * _table.setHeaderVisible(true);
-     * 
-     * final TableColumn _col1 = new TableColumn(_table, SWT.NONE);
-     * _col1.setText("Statement");
-     * 
-     * final TableColumn _col2 = new TableColumn(_table, SWT.NONE);
-     * _col2.setText("Part of Slice"); _col1.pack(); _col2.pack(); }
-     */
-
-    /**
      * Creates the table.
      * 
      * @param parent
