@@ -22,6 +22,7 @@ import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.IElementChangedListener;
 import org.eclipse.jdt.core.IJavaElementDelta;
 
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
 
 /**
@@ -61,6 +62,9 @@ public class SootState implements Observer, IElementChangedListener {
         final Object _source = event.getSource();
         if (_source instanceof IJavaElementDelta) {
             sceneNeedsUpdate |= ((IJavaElementDelta) _source).getElement() instanceof ICompilationUnit;
+        }
+        if (sceneNeedsUpdate) {
+            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().update();
         }
     }
 }

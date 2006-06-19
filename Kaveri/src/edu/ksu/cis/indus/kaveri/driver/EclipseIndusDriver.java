@@ -116,7 +116,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         }
     };
 
-    private MyObservable subject;
+    private MyObservable subject = new MyObservable();
     
     /**
      * <p>

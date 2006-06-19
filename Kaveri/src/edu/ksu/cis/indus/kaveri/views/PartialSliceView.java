@@ -170,16 +170,25 @@ public class PartialSliceView extends ViewPart {
             if (_cd == null)
                 return;
             final List _crtList = _cd.getCriterias();
+            boolean criteriaDeleted = false;
             for (Iterator iter = _crtList.iterator(); iter.hasNext();) {
                 Criteria _crt = (Criteria) iter.next();
-                if (_crt.getStrClassName().equals(_className)
-                        && _crt.getStrMethodName().equals(_methodName)
+                if (_crt.getStrClassName().equals(_className) && _crt.getStrMethodName().equals(_methodName)
                         && _crt.getNLineNo() == _nLineno) {
                     // Found a criteria at the given point, hooray!
-                    crtList.put(_jimpleList.get(_crt.getNJimpleIndex()),
-                            Boolean.valueOf(_crt.isBConsiderValue()));
-
+                    if (_jimpleList.size() > _crt.getNJimpleIndex()) {
+                        crtList.put(_jimpleList.get(_crt.getNJimpleIndex()),
+                                Boolean.valueOf(_crt.isBConsiderValue()));
+                    } else {
+                        iter.remove();
+                        criteriaDeleted = true;
+                    }
                 }
+            }
+            if (criteriaDeleted) {
+                MessageDialog.openError(null, "Criteria Erased",
+                "Previous criteria at line #" + _nLineno + " were deleted.  If you need them, you will need to re-add them.");
+                storeCriteriaDataForProject(_cd, _project);
             }
         }
 
@@ -211,6 +220,20 @@ public class PartialSliceView extends ViewPart {
             return _data;
         }
 
+        private void storeCriteriaDataForProject(final CriteriaData cd, final IProject project) {
+
+           /* final QualifiedName _name = new QualifiedName(
+                    "edu.ksu.cis.indus.kaveri", "criterias");
+            final XStream _xstream = new XStream();
+            _xstream.alias("CriteriaData", CriteriaData.class);
+            try {
+                final String _propVal = _xstream.toXML(cd);
+                project.setPersistentProperty(_name, _propVal);
+            } catch (CoreException _ce) {
+                KaveriErrorLog.logException("Core Exception Exception", _ce);
+            }*/
+        }
+        
         /**
          * Dispose any created resources.
          */
