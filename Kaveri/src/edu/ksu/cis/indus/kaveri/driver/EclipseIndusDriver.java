@@ -110,8 +110,14 @@ public class EclipseIndusDriver extends SootBasedDriver {
      */
     private SlicerTool slicer;
     
-    private Observable subject = new Observable();
+    private static class MyObservable extends Observable {
+        public void setChanged() {
+            super.setChanged();
+        }
+    };
 
+    private MyObservable subject;
+    
     /**
      * <p>
      * Location of the default configuration, relative to the plugin directory.
@@ -159,69 +165,6 @@ public class EclipseIndusDriver extends SootBasedDriver {
         }
     }
 
-    /**
-     * This function is used to extract line numbers of Java statements from the
-     * corresponding Jimple statements which have a slice tag assiciated with
-     * them. Returns a mapping of class names with their associated line
-     * numbers. <b>Postcondition: </b> result.oclIsKindOf(HashMap) &&
-     * result.keys.oclIsKindOf(String : classname) &&
-     * result.values.oclIsKindOf(Map) and
-     * result.values.values.oclIsKindOf(Collection(AnnotationData))
-     * 
-     * @return Map The map of classnames to line numbers
-     
-    public Map getAnnotationLineNumbers() {
-        final Map _v = new HashMap();
-        final Chain _classlist = Scene.v().getApplicationClasses();
-        final Iterator _iterator = _classlist.snapshotIterator();
-
-        while (_iterator.hasNext()) {
-            final SootClass _sootclass = (SootClass) _iterator.next();
-            final List _list = _sootclass.getMethods();
-            final Map _mMap = new HashMap();
-
-            for (int _nCtr = 0; _nCtr < _list.size(); _nCtr++) {
-                final SootMethod _method = (SootMethod) _list.get(_nCtr);
-
-                // Don't bother with abstract or non-concrete methods
-                // This doesn't filter everything but works well enough
-                if (_method.isAbstract() || !_method.isConcrete()) {
-                    continue;
-                }
-
-                Body _body = null;
-
-                if (_method.hasActiveBody()) {
-                    // An active body is necessary to get the tags properly.
-                    // retrieving
-                    // destroys the tags
-                    _body = _method.getActiveBody();
-                } else {
-                    _body = _method.retrieveActiveBody();
-                }
-
-                final List _lst = new LinkedList();
-
-                final String _classname = _sootclass.getName();
-                final String _methodname = SECommons.getSearchPattern(_method);
-                final Chain _unitchain = _body.getUnits();
-                processUnit(_unitchain, _lst, _classname, _methodname);
-
-                if (_lst.size() > 0) {
-                    _mMap.put(_methodname, _lst);
-                }
-            }
-
-            final String _className = _sootclass.getName();
-
-            //final List _linelist = (List) _v.get(_className);
-            if (_mMap.size() > 0) {
-                _v.put(_className, _mMap);
-            }
-        }
-
-        return _v;
-    }*/
 
     /**
      * <p>
@@ -501,6 +444,7 @@ public class EclipseIndusDriver extends SootBasedDriver {
         // Fix for soot.CompilationDeathException.
         //Options.v().set_src_prec(Options.src_prec_java);
         super.initialize();
+        subject.setChanged();
         subject.notifyObservers(SOOT_UPDATED);
     }
 
