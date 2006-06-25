@@ -1,3 +1,7 @@
+- Kaveri Version 0.8.2
+  - fixes to the gui of scoped slicing
+  - fixes to context-restrictive slicing UI
+
 - Kaveri Version 0.1 (20040805)
   - The first version of Kaveri.
   - File and project slicing.
