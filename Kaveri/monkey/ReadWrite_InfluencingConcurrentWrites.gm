@@ -5,6 +5,7 @@
  * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * LANG: Groovy
  * Exec-Mode: Foreground
+ * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
  
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -12,58 +13,58 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import java.util.Collection;
+import edu.ksu.cis.indus.common.datastructures.Pair;
 
 Collection getAccessExpressionsInSelection() {
 	// access the Jimple statements for the current selection, extract the field/array access expressions, and return them
-	// the return expression is a triple composed of Jimple access statement, method, and class.
+	ret = getJimpleStmtsForSelection()
+	sootMethod = getJimpleMethodForSelection()
+	result = []
+	ret.each {
+		if (it.containsArrayRef() || it.containsFieldRef()) {
+			result << new Pair(it, sootMethod)
+		}
+	}
+	// the return expression is a pair composed of Jimple access statement and method.
+	return result
 }
 
 Collection getCoupledAccessExprs(exprs) {
-	// exprs are a triple composed of access statement, method, and class.
+	// exprs are a pair composed of access statement and method.
 	// access the Environment, visit each assignment statement in each method, and check for field/array read-write conflict by using the escapeinfo interface
-	// the return expression is a triple composed of Jimple access statement, method, and class.
-}
-
-void displayDialog(message) {
-	MessageDialog.openInformation( window.getShell(), 'Kaveri Scripting Dialog', message)
-}
-
-Pair getFileFor(expr) {
-	// the return value is composed of an IFile object and an Integer.
-}
-
-void createMarker(expr, message) {
-	p = getFileInfoFor(expr)
-	file = p.getFirst()
-	marker = file.createMarker(IMarker.BOOKMARK)
-	marker.setAttribute(Resources.standardMarkerName, file.getMarkerKey())
-    marker.setAttribute(IMarker.MESSAGE, message)
-    marker.setAttribute(IMarker.LINE_NUMBER, p.getSecond())
+	// the return expression is a pair composed of Jimple access statement and method.
+	
+	// TODO:
 }
 
 def monitor = new NullProgressMonitor()
 monitor.beginTask("Calculating influencing writes for given read/write", IProgressMonitor.UNKNOWN)
 
 if (!monitor.isCanceled()) {
-	if (selectionExists()) {
+	if (slicer.selectionExists()) {
 		bookmarkSelection()
 		srcAccessExprs = getAccessExpressionsInSelection()
 		if (srcAccessExpr.isEmpty()) {
-			displayDialog('There are no field/array read expressions in the current selection')
+			slicer.displayDialog('There are no field/array read expressions in the current selection')
 		} else {
 			i = 0
+			b = false
 			destAccessExprs = getCoupledAccessExprs(srcAccessExprs)
 			if (!destAccessExprs.isEmpty()) {
 				destAccessExprs.each {
 					destAccessExpr = it
-					createMarkerFor(destAccessExpr, "Influencing field/array write expression")
+					b |= slicer.createMarkerFor(destAccessExpr, "Influencing field/array write expression")
 					i++
 				}
 			}
 			if (i == 0) {
-				displayDialog('There are no influencing write expressions for the field/array read expression(s) in the current selection')
+				slicer.displayDialog('There are no influencing write expressions for the field/array read expression(s) in the current selection')
 			} else {
-				displayDialog('There were total of ' + i + ' influencing concurrent writes.')
+				msg = 'There were total of ' + i + ' influencing concurrent writes.'
+				if (b) {
+					msg += 'There were some influencing concurrent writes in classes with no souce files.'
+				}
+				slicer.displayDialog('There were total of ' + i + ' influencing concurrent writes.')
 				slicer.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView('org.eclipse.ui.views.bookmarkexplorer.BookmarkNavigator')
 			}
 		}
