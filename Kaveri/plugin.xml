@@ -43,6 +43,10 @@
       <import plugin="edu.ksu.cis.indus" version="0.7.2" match="greaterOrEqual"/>
       <import plugin="org.antlr" optional="true"/>
       <import plugin="edu.ksu.cis.peq" optional="true"/>
+      <import plugin="net.sf.groovyMonkey"/>
+      <import plugin="net.sf.groovyMonkey.dom"/>
+      <import plugin="org.eclipse.dash.doms"/>
+      <import plugin="org.eclipse.eclipsemonkey"/>
    </requires>
 
 <!-- The document -->
@@ -433,4 +437,14 @@
       </page>
    </extension>
    -->
+   
+   <extension 
+   		point="net.sf.groovyMonkey.dom">
+		<updateSite url="http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.dom"/>
+		<dom 
+			class="edu.ksu.cis.indus.dom.SlicerDOMFactory" 
+			id="Java Slicer" 
+			resource="edu.ksu.cis.indus.dom.SlicerDOM" 
+			variableName="slicer"/>
+	</extension>   
 </plugin>

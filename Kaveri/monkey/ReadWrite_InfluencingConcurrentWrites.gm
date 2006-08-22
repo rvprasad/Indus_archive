@@ -1,0 +1,74 @@
+/*
+ * Menu: Read/Write > Influencing Writes
+ * Kudos: Venkatesh Prasad Ranganath
+ * License: CPL 1.0
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.dom
+ * LANG: Groovy
+ * Exec-Mode: Foreground
+ */
+ 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.resources.IMarker
+import org.eclipse.jface.dialogs.MessageDialog;
+import java.util.Collection;
+
+Collection getAccessExpressionsInSelection() {
+	// access the Jimple statements for the current selection, extract the field/array access expressions, and return them
+	// the return expression is a triple composed of Jimple access statement, method, and class.
+}
+
+Collection getCoupledAccessExprs(exprs) {
+	// exprs are a triple composed of access statement, method, and class.
+	// access the Environment, visit each assignment statement in each method, and check for field/array read-write conflict by using the escapeinfo interface
+	// the return expression is a triple composed of Jimple access statement, method, and class.
+}
+
+void displayDialog(message) {
+	MessageDialog.openInformation( window.getShell(), 'Kaveri Scripting Dialog', message)
+}
+
+Pair getFileFor(expr) {
+	// the return value is composed of an IFile object and an Integer.
+}
+
+void createMarker(expr, message) {
+	p = getFileInfoFor(expr)
+	file = p.getFirst()
+	marker = file.createMarker(IMarker.BOOKMARK)
+	marker.setAttribute(Resources.standardMarkerName, file.getMarkerKey())
+    marker.setAttribute(IMarker.MESSAGE, message)
+    marker.setAttribute(IMarker.LINE_NUMBER, p.getSecond())
+}
+
+def monitor = new NullProgressMonitor()
+monitor.beginTask("Calculating influencing writes for given read/write", IProgressMonitor.UNKNOWN)
+
+if (!monitor.isCanceled()) {
+	if (selectionExists()) {
+		bookmarkSelection()
+		srcAccessExprs = getAccessExpressionsInSelection()
+		if (srcAccessExpr.isEmpty()) {
+			displayDialog('There are no field/array read expressions in the current selection')
+		} else {
+			i = 0
+			destAccessExprs = getCoupledAccessExprs(srcAccessExprs)
+			if (!destAccessExprs.isEmpty()) {
+				destAccessExprs.each {
+					destAccessExpr = it
+					createMarkerFor(destAccessExpr, "Influencing field/array write expression")
+					i++
+				}
+			}
+			if (i == 0) {
+				displayDialog('There are no influencing write expressions for the field/array read expression(s) in the current selection')
+			} else {
+				displayDialog('There were total of ' + i + ' influencing concurrent writes.')
+				slicer.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView('org.eclipse.ui.views.bookmarkexplorer.BookmarkNavigator')
+			}
+		}
+	} else {
+		displayDialog('Please select a line containing a field/array read expression in a Java file')
+	}
+}
+monitor.done()
