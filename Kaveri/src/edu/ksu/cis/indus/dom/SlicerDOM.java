@@ -62,7 +62,7 @@ public final class SlicerDOM {
         final SearchRequestor _r = new SearchRequestor() {
 
             public void acceptSearchMatch(final SearchMatch match) throws CoreException {
-                _result.add((IFile) match.getResource());
+                _result.add(match.getResource());
             }            
         };
         _se.search(_sp, new SearchParticipant[0], SearchEngine.createWorkspaceScope(), _r, new NullProgressMonitor());
