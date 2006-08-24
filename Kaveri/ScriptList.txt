@@ -1,28 +1,37 @@
-1.1) Given a field/array read, what are the influencing concurrent writes?
-1.2) Given a field/array write, what are the depending concurrent reads?
-1.3) Given a wait statement, what are the influencing concurrent notify statement?
-1.4) Given a notify statement, what are the depending concurrent wait statement?
+> denotes "done"
+) denotes "TBD"
+] denotes "won't be done"
 
-1.5) Given a field/array write, what are the conflicting concurrent writes?
-1.6) Given a synchronized statement/method, what are the depending
-	concurrent synchronized statements and methods?
+1.1> Given a field/array read, what are the influencing concurrent writes?
+1.2> Given a field/array write, what are the depending concurrent reads?
+
+1.3> Given a wait statement, what are the influencing concurrent notify statement?
+1.4> Given a notify statement, what are the depending concurrent wait statement?
+1.5> Given a field/array write, what are the conflicting concurrent writes?
+1.6> Given a synchronized statement/method, what are the depending concurrent 
+     synchronized statements and methods?
 	
 1.7) Given a reference variable, what are the allocation sites of the
-	objects referred to by this variable?
+     objects referred to by this variable?
 	
-1.8) Given a field/array access, is it protected by any locks?
-1.9) Given a field/array access, what are the locks proctecting the access?
-1.10) Given a lock protected field/array write, are all writes to the
-	field/array protected by some common lock set?
-1.11) Given a lock protected field/array write, what are the racing
-	writes, if any?
+1.8> Given a field/array access, is it protected by any locks?
+     - Redundant
+1.9> Given a field/array access, what are the locks protecting the access?
 
 2.1) Given a non-atomic method, what parts of the method contribute to
-	non-atomicity?
+     non-atomicity?
 2.2) Given a sealed method, what access paths rooted in the method need
-	to be checked for shared access to ensure atomicity?  (For info about
-	sealing, refer to "Notes on Atomicity" at
-	http://www.cis.ksu.edu/~rvprasad/publications/)
+     to be checked for shared access to ensure atomicity?  (For info about
+     sealing, refer to "Notes on Atomicity" at
+     http://www.cis.ksu.edu/~rvprasad/publications/)
 2.3) Given a set of fields in an atomic set (Tip's POPL paper), are they
-	indeed in an atomic set?
+     indeed in an atomic set?
 2.4) If not, identify the violating access sites?
+
+
+1.10] Given a lock protected field/array write, are all writes to the
+      field/array protected by some common lock set?
+      - Redundant
+1.11] Given a lock protected field/array write, what are the racing 
+      writes, if any?
+      - Needs some sort of must-information to be accurate

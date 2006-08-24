@@ -56,6 +56,12 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 public final class SlicerDOM {
 	
+	private static int counter;
+	
+	public int getCounter() {
+		return counter++;
+	}
+	
     public IWorkbench getWorkbench() {
         return PlatformUI.getWorkbench();
     }

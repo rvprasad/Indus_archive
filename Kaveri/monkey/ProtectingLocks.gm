@@ -1,9 +1,8 @@
 /*
- * Menu: Read/Write > Influencing Writes
+ * Menu: Indus > Mark Protecting Lock Acquisitions
  * Kudos: Venkatesh Prasad Ranganath
  * License: CPL 1.0
  * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * DOM: http://groovy-monkey.sourceforge.net/update/plugins/net.sf.groovyMonkey.dom
  * LANG: Groovy
  * Job: UIJob
  * Include-Bundle: edu.ksu.cis.indus.kaveri
@@ -24,43 +23,53 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 import soot.jimple.Stmt;
+import soot.jimple.AssignStmt;
 
 
-def BANNER = "Calculating influencing writes for given read/write..."
-def SRC_MARK_DESC = "RW -- InfluencingWrite -- source read expression"
-def EMPTY_SELECTION_MSG = "There are no field/array read expressions in the current selection."
-def DEST_MARK_DESC = "Influencing field/array write expression"
-def SOME_IN_BINARY_MSG = "There were some influencing concurrent writes in classes with no souce files."
-def ENTITY_MSG = " influencing concurrent writes."
-def INVALID_SELECTION_MSG = "Please select a line containing a field/array read expression in a Java file."
-def EMPTY_RESULT_MSG = "There are no influencing write expressions for the field/array read expression(s) in the current selection."
+def BANNER = "Calculating protecting lock acquisitions for given expression..."
+
+def SRC_MARK_DESC = "Source expression"
+def DEST_MARK_DESC = "protecting lock acquisitions"
+
+def EMPTY_SELECTION_MSG = "There are no expressions in the current selection."
+def SOME_IN_BINARY_MSG = "There were some protecting lock acquisitions in classes with no souce files."
+def ENTITY_MSG = " protecting lock acquisitions."
+def INVALID_SELECTION_MSG = "Please select a line containing an expression in a Java file."
+def EMPTY_RESULT_MSG = "There are no protecting lock acquisitions for the expressions in the current selection."
 
 
 boolean checkValidity(Stmt stmt) {
-	return stmt.containsArrayRef() || stmt.containsFieldRef()
+	return stmt instanceof AssignStmt 
+		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) 
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp())))
 }
 
 
-Collection getDAs() {
-	return slicer.getDA(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) + 
-		slicer.getDA(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA) + 
-		slicer.getDA(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)
-}
 
-
-Closure getDependenceRetriever() {
-	closure = { da, stmt, method -> 
-		r = da.getDependees(stmt, method)
-		out.println("1 " + stmt + " " + method + " " + r + " " + da.getIds())
-		if (da.getIds().contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
-			r = r.collect { it -> new Pair(it, method) }
+Collection getProtectingLocks(stmt, method, mon, mg) {
+	def result = []
+ 	mg.getInterProcedurallyEnclosingMonitorTriples(stmt, method, true).values().each { 
+ 		result += it.collect { trp -> 
+			[ new Pair(trp.getFirst(), trp.getThird()), 
+			  new Pair(trp.getSecond(), trp.getThird()) ]
 		}
-		return r
 	}
-	return closure
+	return result
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
+
+
+Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
+	def r = []
+	def mon = slicer.getMonitorInfo()
+	def mg = mon.getMonitorGraph()
+	exprs.each { expr -> 
+		r += getProtectingLocks(expr.getFirst(), expr.getSecond(), mon, mg)
+	}
+	return new HashSet(r)
+}
+
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -75,29 +84,10 @@ Collection getSrcExpressionsInSelection() {
 }
 
 
-Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
-	def r = []
-	def das = getDAs()
-	def m = getDependenceRetriever()
-	out.println(exprs)
-	exprs.each { expr -> 
-		das.each { da ->
-			if (monitor.isCanceled()) {
-				return r;
-			} else {
-				t = m.call(da, expr.getFirst(), expr.getSecond()) 
-				r += t
-			}
-		}
-	}
-	return new HashSet(r)
-}
-
-
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
-    m.setAttribute(IMarker.MESSAGE, "(" + ts + ")" + message)
+    m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
 
@@ -114,7 +104,7 @@ if (slicer.getSlicerTool().isStable()) {
 	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)
 	if (!monitor.isCanceled()) {
 		if (validSelectionExists()) {
-			def ts = System.currentTimeMillis()
+			def ts = slicer.getCounter()
 			bookmarkSelection(SRC_MARK_DESC, ts)
 			def srcExprs = getSrcExpressionsInSelection()
 			if (srcExprs.isEmpty()) {

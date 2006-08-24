@@ -1,0 +1,155 @@
+/*
+ * Menu: Indus > Mark Depending Reads
+ * Kudos: Venkatesh Prasad Ranganath
+ * License: CPL 1.0
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
+ * LANG: Groovy
+ * Job: UIJob
+ * Include-Bundle: edu.ksu.cis.indus.kaveri
+ */
+ 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.resources.IMarker
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.ITextSelection;
+
+import groovy.lang.Closure;
+
+import java.util.Collection;
+
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
+import soot.jimple.Stmt;
+import soot.jimple.AssignStmt;
+
+
+def BANNER = "Calculating influenced reads for given write..."
+
+def SRC_MARK_DESC = "Source write expression"
+def DEST_MARK_DESC = "Influenced read expression"
+
+def EMPTY_SELECTION_MSG = "There are no field/array write expressions in the current selection."
+def SOME_IN_BINARY_MSG = "There were some influencing reads in classes with no souce files."
+def ENTITY_MSG = " influenced reads."
+def INVALID_SELECTION_MSG = "Please select a line containing a field/array write expression in a Java file."
+def EMPTY_RESULT_MSG = "There are no influencing read expressions for the field/array write expression(s) in the current selection."
+
+boolean checkValidity(Stmt stmt) {
+	return stmt instanceof AssignStmt 
+		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getLeftOp())) 
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp())))
+}
+
+
+Collection getDAs() {
+	return slicer.getDA(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) + 
+		slicer.getDA(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA) + 
+		slicer.getDA(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)
+}
+
+
+Closure getDependenceRetriever() {
+	closure = { da, stmt, method -> 
+		r = da.getDependents(stmt, method)
+		if (da.getIds().contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
+			r = r.collect { it -> new Pair(it, method) }
+		}
+		return r
+	}
+	return closure
+}
+
+// Customiable part ENDS.  Non-customizable part BEGINS.
+
+Collection getSrcExpressionsInSelection() {
+	def r = slicer.getJimpleStmtsForSelection()
+	def sootMethod = slicer.getJimpleMethodForSelection()
+	def result = []
+	r.each { stmt ->
+		if (checkValidity(stmt)) {
+			result << new Pair(stmt, sootMethod)
+		}
+	}
+	return result
+}
+
+
+Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
+	def r = []
+	def das = getDAs()
+	def m = getDependenceRetriever()
+	exprs.each { expr -> 
+		das.each { da ->
+			if (monitor.isCanceled()) {
+				return r;
+			} else {
+				t = m.call(da, expr.getFirst(), expr.getSecond()) 
+				r += t
+			}
+		}
+	}
+	return new HashSet(r)
+}
+
+
+void bookmarkSelection(message, ts) {
+    def selection = slicer.getSelection()
+    m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
+    m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
+    m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
+}
+
+
+boolean validSelectionExists() {
+	def f = slicer.getSelectionContainingFile()
+	def s = slicer.getSelection()
+	def n = f.getName()
+	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
+}
+
+if (slicer.getSlicerTool().isStable()) {
+	def monitor = new NullProgressMonitor()
+	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)
+	if (!monitor.isCanceled()) {
+		if (validSelectionExists()) {
+			def ts = slicer.getCounter()
+			bookmarkSelection(SRC_MARK_DESC, ts)
+			def srcExprs = getSrcExpressionsInSelection()
+			if (srcExprs.isEmpty()) {
+				slicer.displayDialog(EMPTY_SELECTION_MSG)
+			} else {
+				def i = 0
+				def b = true
+				def destExprs = getDestExprs(srcExprs, monitor)
+				if (!destExprs.isEmpty()) {
+					out.print(destExprs)
+					destExprs.each { destExpr ->
+						if (monitor.isCanceled()) {
+							return
+						}
+						b &= slicer.createMarkerForSootStmtMethod(destExpr, DEST_MARK_DESC, ts)
+						i++
+					}
+				}
+				if (i == 0) {
+					slicer.displayDialog(EMPTY_RESULT_MSG)
+				} else {
+					def msg = 'There were total of ' + i + ENTITY_MSG
+					if (!b) {
+						msg += SOME_IN_BINARY_MSG
+					}
+					slicer.displayDialog(msg)
+					window.getActivePage().showView("org.eclipse.ui.views.BookmarkView")
+				}
+			}
+		} else {
+			slicer.displayDialog(INVALID_SELECTION_MSG)
+		}
+	}
+	monitor.done()
+} else {
+	slicer.displayDialog("Please run the slicer before executing this script.")
+}

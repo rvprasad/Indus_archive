@@ -1,0 +1,164 @@
+/*
+ * Menu: Indus > Mark Depending Waits
+ * Kudos: Venkatesh Prasad Ranganath
+ * License: CPL 1.0
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
+ * LANG: Groovy
+ * Job: UIJob
+ * Include-Bundle: edu.ksu.cis.indus.kaveri
+ */
+ 
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.resources.IMarker
+import org.eclipse.jface.dialogs.MessageDialog;
+import org.eclipse.jface.text.ITextSelection;
+
+import groovy.lang.Closure;
+
+import java.util.Collection;
+
+import edu.ksu.cis.indus.common.datastructures.Pair;
+import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+
+import soot.jimple.Stmt;
+import soot.jimple.InvokeStmt;
+
+
+def BANNER = "Calculating influencing waits for given notify..."
+
+def SRC_MARK_DESC = "Source notify expression"
+def DEST_MARK_DESC = "Influencing wait expression"
+
+def EMPTY_SELECTION_MSG = "There are no notify expressions in the current selection."
+def SOME_IN_BINARY_MSG = "There were some influencing waits in classes with no souce files."
+def ENTITY_MSG = " influencing waits."
+def INVALID_SELECTION_MSG = "Please select a line containing a notify expression in a Java file."
+def EMPTY_RESULT_MSG = "There are no influencing wait expressions for the notify expression(s) in the current selection."
+
+
+boolean checkValidity(Stmt stmt) {
+	return stmt instanceof InvokeStmt && Util.isNotifyMethod(stmt.getInvokeExpr().getMethod())
+}
+
+
+boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
+	return dStmt instanceof InvokeStmt && Util.isWaitMethod(dStmt.getInvokeExpr().getMethod())
+		&& escape.areWaitAndNotifyCoupled(dStmt, dMethod, sStmt, sMethod)
+}
+
+// Customiable part ENDS.  Non-customizable part BEGINS.
+
+
+Closure getClosure() {
+	def escape = slicer.getEscapeInfo()
+	closure = { sStmt, sMethod, monitor -> 
+		def result = new HashSet()
+		slicer.getEnvironment().getClasses().each { sc ->
+			sc.getMethods().each { dMethod ->
+				if (dMethod.isConcrete()) {
+					if (!dMethod.hasBody()) {
+						dMethod.retrieveActiveBody()
+					}
+					dMethod.getActiveBody().getUnits().each { dStmt ->
+						if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
+							result << new Pair(dStmt, dMethod)
+						}
+					}
+				}
+			}
+		}
+		return result
+	}
+	return closure
+}
+
+
+Collection getSrcExpressionsInSelection() {
+	def r = slicer.getJimpleStmtsForSelection()
+	def sootMethod = slicer.getJimpleMethodForSelection()
+	def result = []
+	r.each { stmt ->
+		if (checkValidity(stmt)) {
+			result << new Pair(stmt, sootMethod)
+		}
+	}
+	return result
+}
+
+
+Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
+	def r = []
+	def c = getClosure()
+	exprs.each { expr -> 
+			if (monitor.isCanceled()) {
+				return r;
+			} else {
+				r += c.call(expr.getFirst(), expr.getSecond(), monitor)
+			}
+		}
+	}
+	return new HashSet(r)
+}
+
+
+void bookmarkSelection(message, ts) {
+    def selection = slicer.getSelection()
+    m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
+    m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
+    m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
+}
+
+
+boolean validSelectionExists() {
+	def f = slicer.getSelectionContainingFile()
+	def s = slicer.getSelection()
+	def n = f.getName()
+	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
+}
+
+if (slicer.getSlicerTool().isStable()) {
+	def monitor = new NullProgressMonitor()
+	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)
+	if (!monitor.isCanceled()) {
+		if (validSelectionExists()) {
+			def ts = slicer.getCounter()
+			bookmarkSelection(SRC_MARK_DESC, ts)
+			def srcExprs = getSrcExpressionsInSelection()
+			if (srcExprs.isEmpty()) {
+				slicer.displayDialog(EMPTY_SELECTION_MSG)
+			} else {
+				def i = 0
+				def b = true
+				def destExprs = getDestExprs(srcExprs, monitor)
+				if (!destExprs.isEmpty()) {
+					out.print(destExprs)
+					destExprs.each { destExpr ->
+						if (monitor.isCanceled()) {
+							return
+						}
+						b &= slicer.createMarkerForSootStmtMethod(destExpr, DEST_MARK_DESC, ts)
+						i++
+					}
+				}
+				if (i == 0) {
+					slicer.displayDialog(EMPTY_RESULT_MSG)
+				} else {
+					def msg = 'There were total of ' + i + ENTITY_MSG
+					if (!b) {
+						msg += SOME_IN_BINARY_MSG
+					}
+					slicer.displayDialog(msg)
+					window.getActivePage().showView("org.eclipse.ui.views.BookmarkView")
+				}
+			}
+		} else {
+			slicer.displayDialog(INVALID_SELECTION_MSG)
+		}
+	}
+	monitor.done()
+} else {
+	slicer.displayDialog("Please run the slicer before executing this script.")
+}
