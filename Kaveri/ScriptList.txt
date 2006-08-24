@@ -1,6 +1,5 @@
 > denotes "done"
 ) denotes "TBD"
-] denotes "won't be done"
 
 1.1> Given a field/array read, what are the influencing concurrent writes?
 1.2> Given a field/array write, what are the depending concurrent reads?
@@ -18,20 +17,15 @@
      - Redundant
 1.9> Given a field/array access, what are the locks protecting the access?
 
+1.10) Given a lock protected field/array write, what are the racing 
+      writes, if any?
+
 2.1) Given a non-atomic method, what parts of the method contribute to
      non-atomicity?
 2.2) Given a sealed method, what access paths rooted in the method need
      to be checked for shared access to ensure atomicity?  (For info about
      sealing, refer to "Notes on Atomicity" at
      http://www.cis.ksu.edu/~rvprasad/publications/)
-2.3) Given a set of fields in an atomic set (Tip's POPL paper), are they
-     indeed in an atomic set?
-2.4) If not, identify the violating access sites?
+2.3) Given a set of fields in an atomic set (Tip's POPL paper), identify access
+       sites that violate atomic set requirements?
 
-
-1.10] Given a lock protected field/array write, are all writes to the
-      field/array protected by some common lock set?
-      - Redundant
-1.11] Given a lock protected field/array write, what are the racing 
-      writes, if any?
-      - Needs some sort of must-information to be accurate
