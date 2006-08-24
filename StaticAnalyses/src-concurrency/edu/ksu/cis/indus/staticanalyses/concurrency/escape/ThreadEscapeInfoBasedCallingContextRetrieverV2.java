@@ -207,7 +207,7 @@ public class ThreadEscapeInfoBasedCallingContextRetrieverV2
 					&& CollectionUtils.containsAny(_callerReadyEntities, _calleeReadyEntities);
 			final Collection<?> _callerLockEntities = callerSideToken.getLockEntities();
 			final Collection<?> _calleeLockEntities = calleeSideToken.getLockEntities();
-			_considerForLock = _callerLockEntities != null || _calleeLockEntities != null
+			_considerForLock = _callerLockEntities != null && _calleeLockEntities != null
 					&& CollectionUtils.containsAny(_callerLockEntities, _calleeLockEntities);
 		} else {
 			_considerForReady = false;
