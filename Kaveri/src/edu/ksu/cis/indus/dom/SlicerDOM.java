@@ -16,11 +16,13 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
-import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.search.IJavaSearchConstants;
 import org.eclipse.jdt.core.search.SearchEngine;
 import org.eclipse.jdt.core.search.SearchMatch;
@@ -53,7 +55,7 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 public final class SlicerDOM {
-    
+	
     public IWorkbench getWorkbench() {
         return PlatformUI.getWorkbench();
     }
@@ -66,14 +68,14 @@ public final class SlicerDOM {
         final ArrayList _result = new ArrayList();
         final String[] _s = sc.getName().split("$");
         final SearchEngine _se = new SearchEngine();
-        final SearchPattern _sp = SearchPattern.createPattern(_s[0], IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH);
+        final SearchPattern _sp = SearchPattern.createPattern(_s[0], IJavaSearchConstants.TYPE, IJavaSearchConstants.DECLARATIONS, SearchPattern.R_EXACT_MATCH | SearchPattern.R_CASE_SENSITIVE);
         final SearchRequestor _r = new SearchRequestor() {
 
-            public void acceptSearchMatch(final SearchMatch match) throws CoreException {
+        	@SuppressWarnings("unchecked") public void acceptSearchMatch(final SearchMatch match) {
                 _result.add(match.getResource());
             }            
         };
-        _se.search(_sp, new SearchParticipant[0], SearchEngine.createWorkspaceScope(), _r, new NullProgressMonitor());
+        _se.search(_sp, new SearchParticipant[]{SearchEngine.getDefaultSearchParticipant()}, SearchEngine.createWorkspaceScope(), _r, new NullProgressMonitor());
         return _result;
     }
         
@@ -81,7 +83,7 @@ public final class SlicerDOM {
         return getLineNumber(stmt);
     }
     
-    public boolean createMarkerForSootStmtMethod(final Pair stmtMethod, final String message, final int timeStamp) throws CoreException {
+    public boolean createMarkerForSootStmtMethod(final Pair stmtMethod, final String message, final long timeStamp) throws CoreException {
         SootMethod _sootMethod = (SootMethod) stmtMethod.getSecond();
         ArrayList _files = getFileFor(_sootMethod.getDeclaringClass());
         assert _files.size() <= 1;
@@ -89,14 +91,49 @@ public final class SlicerDOM {
         if (_ret) {
             Stmt _sootStmt = (Stmt) stmtMethod.getFirst();
             int line = getLineFor(_sootStmt);
-            IMarker marker = ((IFile) _files.get(0)).createMarker(IMarker.BOOKMARK);
+            IFile _file = (IFile) _files.get(0);
+			IMarker marker = (_file).createMarker(IMarker.BOOKMARK);
             marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp + "] - " + message);
-            marker.setAttribute(IMarker.LINE_NUMBER, line);
+            if (line != -1) {
+            	marker.setAttribute(IMarker.LINE_NUMBER, line);
+            } else {
+            	IMethod _methodForIn = getMethodForIn(_sootMethod, _file);
+            	if (_methodForIn == null) {
+            		marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp + "] - No line# - " + message);
+            	} else {
+            		ASTParser _ap = ASTParser.newParser(AST.JLS3);
+            		_ap.setSource(getCompilationUnit(_file));
+            		CompilationUnit _cu = (CompilationUnit) _ap.createAST(null);
+					marker.setAttribute(IMarker.LINE_NUMBER, _cu.lineNumber(_methodForIn.getSourceRange().getOffset()));
+            	}
+            }
         }
         return _ret;
     }
     
-    public void displayDialog(final String message) {
+    public IMethod getMethodForIn(final SootMethod sm, final IFile file) throws JavaModelException {
+    	final ICompilationUnit _c = getCompilationUnit(file);
+    	final String _smName = sm.getName().indexOf("<init>") == -1 ? sm.getName() : sm.getDeclaringClass().getJavaStyleName();
+    	for (IType _type : _c.getAllTypes()) {
+    		if (_type.getFullyQualifiedName().equals(sm.getDeclaringClass().getName())) {
+				for (IMethod _method : _type.getMethods()) {
+					if (_method.getElementName().equals(_smName)) {
+						final String[] _p = _method.getParameterTypes();
+						boolean _flag = true;
+						for (int _k = _method.getNumberOfParameters() - 1; _k >= 0; _k--) {
+							_flag &= sm.getParameterType(_k).toString().equals(_p[_k]);
+						}
+						if (_flag) {
+							return _method;
+						}
+					}
+				}
+    		}
+		}
+		return null;
+	}
+
+	public void displayDialog(final String message) {
         MessageDialog.openInformation( getWorkbench().getActiveWorkbenchWindow().getShell(), "Kaveri Scripting Dialog", message);
     }
     
@@ -107,12 +144,16 @@ public final class SlicerDOM {
     }
     
     public IFile getSelectionContainingFile() {
-    	final IEditorPart _e = getWorkbench().getWorkbenchWindows()[0].getActivePage().getActiveEditor();
+    	final IEditorPart _e = getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
         return ((IFileEditorInput) _e.getEditorInput()).getFile();
     }
     
+    public ICompilationUnit getCompilationUnit(IFile file) {
+    	return JavaCore.createCompilationUnitFrom(file);
+    }
+    
     public ICompilationUnit getSelectionContainingCompilationUnit() {
-    	return JavaCore.createCompilationUnitFrom(getSelectionContainingFile());
+    	return getCompilationUnit(getSelectionContainingFile());
     }
     
     public SootMethod getJimpleMethodForSelection() throws JavaModelException {
@@ -152,9 +193,9 @@ public final class SlicerDOM {
     	return _r;
     }
     
-    public Collection<Stmt> getJimpleStmtsFor(final IFile thefile, final IType theclass, 
+	public Collection<Stmt> getJimpleStmtsFor(final IFile thefile, final IType theclass, 
             final IMethod themethod, final int theline) {
-        final List<Stmt> _r = getStmtForLine(thefile, theclass, themethod, theline);
+		@SuppressWarnings("unchecked") final List<Stmt> _r = getStmtForLine(thefile, theclass, themethod, theline);
         _r.remove(0);
         _r.remove(0);
         return _r;
@@ -192,7 +233,7 @@ public final class SlicerDOM {
         return getSlicerTool().getMonitorInfo();
     }
     
-    public Collection<SootMethod> getRootMethods() {
+    @SuppressWarnings("unchecked") public Collection<SootMethod> getRootMethods() {
         return getSlicerTool().getRootMethods();
     }
     
@@ -207,7 +248,7 @@ public final class SlicerDOM {
         return _r;
     }
     
-    public Collection<IDependencyAnalysis> getDAs() {
+    @SuppressWarnings("unchecked") public Collection<IDependencyAnalysis> getDAs() {
         return getSlicerTool().getDAs();
     }
     

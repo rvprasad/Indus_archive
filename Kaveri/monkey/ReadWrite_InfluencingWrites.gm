@@ -27,9 +27,9 @@ import soot.jimple.Stmt;
 
 
 def BANNER = "Calculating influencing writes for given read/write..."
-def SRC_MARK_DESC = "RW -- InfluencingConcucrrentWrite -- source read expression"
+def SRC_MARK_DESC = "RW -- InfluencingWrite -- source read expression"
 def EMPTY_SELECTION_MSG = "There are no field/array read expressions in the current selection."
-def DEST_MARK_DESC = "Concurrent influencing field/array write expression"
+def DEST_MARK_DESC = "Influencing field/array write expression"
 def SOME_IN_BINARY_MSG = "There were some influencing concurrent writes in classes with no souce files."
 def ENTITY_MSG = " influencing concurrent writes."
 def INVALID_SELECTION_MSG = "Please select a line containing a field/array read expression in a Java file."
@@ -49,12 +49,15 @@ Collection getDAs() {
 
 
 Closure getDependenceRetriever() {
-	return { da, stmt, method ->  
+	closure = { da, stmt, method -> 
 		r = da.getDependees(stmt, method)
-		if (da.getIds().contains(DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
-			r.collect { it -> new Pair(it, method) }
+		out.println("1 " + stmt + " " + method + " " + r + " " + da.getIds())
+		if (da.getIds().contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
+			r = r.collect { it -> new Pair(it, method) }
 		}
+		return r
 	}
+	return closure
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
@@ -76,16 +79,18 @@ Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def das = getDAs()
 	def m = getDependenceRetriever()
+	out.println(exprs)
 	exprs.each { expr -> 
 		das.each { da ->
 			if (monitor.isCanceled()) {
 				return r;
 			} else {
-				r += m.call(da, expr.getFirst(), expr.getSecond()) 
+				t = m.call(da, expr.getFirst(), expr.getSecond()) 
+				r += t
 			}
 		}
 	}
-	return r
+	return new HashSet(r)
 }
 
 
@@ -93,7 +98,7 @@ void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
     m.setAttribute(IMarker.MESSAGE, "(" + ts + ")" + message)
-    m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine())
+    m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
 
 
@@ -103,7 +108,6 @@ boolean validSelectionExists() {
 	def n = f.getName()
 	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
 }
-
 
 if (slicer.getSlicerTool().isStable()) {
 	def monitor = new NullProgressMonitor()
@@ -117,27 +121,27 @@ if (slicer.getSlicerTool().isStable()) {
 				slicer.displayDialog(EMPTY_SELECTION_MSG)
 			} else {
 				def i = 0
-				def b = false
+				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					destExprs.each {
+					out.print(destExprs)
+					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return
 						}
-						destExpr = it
-						b |= slicer.createMarkerForSootStmtMethod(destExpr, DEST_MARK_DESC, ts)
+						b &= slicer.createMarkerForSootStmtMethod(destExpr, DEST_MARK_DESC, ts)
 						i++
 					}
 				}
 				if (i == 0) {
 					slicer.displayDialog(EMPTY_RESULT_MSG)
 				} else {
-					def msg = 'There were total of ' + i + ENTITIES_MSG
-					if (b) {
-						msg += SOME_IN_BINARY
+					def msg = 'There were total of ' + i + ENTITY_MSG
+					if (!b) {
+						msg += SOME_IN_BINARY_MSG
 					}
 					slicer.displayDialog(msg)
-					slicer.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView('org.eclipse.ui.views.bookmarkexplorer.BookmarkNavigator')
+					window.getActivePage().showView("org.eclipse.ui.views.BookmarkView")
 				}
 			}
 		} else {
