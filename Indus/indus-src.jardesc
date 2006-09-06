@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-    <jar path="/home/venku/workspace/eclipse/Indus/indus-src.jar"/>
+    <jar path="/home/venku/workspace/non-primary-eclipse/Indus/indus-src.jar"/>
     <options overwrite="false" compress="true" exportErrors="true" exportWarnings="true" saveDescription="true" descriptionLocation="/Indus/indus-src.jardesc" useSourceFolders="true" buildIfNeeded="false"/>
     <selectedElements exportClassFiles="false" exportOutputFolder="false" exportJavaFiles="true">
         <javaElement handleIdentifier="=Indus/src"/>
