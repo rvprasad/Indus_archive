@@ -12,9 +12,9 @@
 	<classpathentry exported="true" kind="lib" path="lib/jasminclasses-sable-1.2.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/polyglot-1.1.0.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/indus.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slicer.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/staticanalyses.jar"/>
+	<classpathentry exported="true" sourcepath="/Indus" kind="lib" path="lib/indus.jar"/>
+	<classpathentry exported="true" sourcepath="/JavaSlicer" kind="lib" path="lib/slicer.jar"/>
+	<classpathentry exported="true" sourcepath="/StaticAnalyses" kind="lib" path="lib/staticanalyses.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/slf4j.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/xmlenc.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
