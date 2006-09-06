@@ -39,9 +39,9 @@ def EMPTY_RESULT_MSG = "There are no protecting lock acquisitions for the expres
 
 
 boolean checkValidity(Stmt stmt) {
-	return stmt instanceof AssignStmt 
+	return (stmt instanceof AssignStmt 
 		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp())))
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
 }
 
 

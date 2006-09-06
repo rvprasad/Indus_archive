@@ -45,8 +45,8 @@ boolean checkValidity(Stmt stmt) {
 
 
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
-	return dStmt instanceof MonitorStmt 
-		&& escape.areMonitorsCoupled(dStmt, dMethod, sStmt, sMethod)
+	return (dStmt instanceof MonitorStmt 
+		&& escape.areMonitorsCoupled(dStmt, dMethod, sStmt, sMethod))
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.

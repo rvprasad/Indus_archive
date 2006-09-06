@@ -45,8 +45,8 @@ boolean checkValidity(Stmt stmt) {
 
 
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
-	return dStmt instanceof InvokeStmt && Util.isNotifyMethod(dStmt.getInvokeExpr().getMethod()) 
-		&& escape.areWaitAndNotifyCoupled(sStmt, sMethod, dStmt, dMethod)
+	return (dStmt instanceof InvokeStmt && Util.isNotifyMethod(dStmt.getInvokeExpr().getMethod()) 
+		&& escape.areWaitAndNotifyCoupled(sStmt, sMethod, dStmt, dMethod))
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.

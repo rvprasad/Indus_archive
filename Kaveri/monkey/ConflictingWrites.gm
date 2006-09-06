@@ -41,9 +41,9 @@ def EMPTY_RESULT_MSG = "There are no conflicting write expressions for the write
 
 
 boolean checkValidity(Stmt stmt) {
-	return stmt instanceof AssignStmt 
+	return (stmt instanceof AssignStmt 
 		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getLeftOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp())))
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp()))))
 }
 
 

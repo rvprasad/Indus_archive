@@ -38,9 +38,9 @@ def INVALID_SELECTION_MSG = "Please select a line containing a field/array write
 def EMPTY_RESULT_MSG = "There are no influencing read expressions for the field/array write expression(s) in the current selection."
 
 boolean checkValidity(Stmt stmt) {
-	return stmt instanceof AssignStmt 
+	return (stmt instanceof AssignStmt 
 		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getLeftOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp())))
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp()))))
 }
 
 
