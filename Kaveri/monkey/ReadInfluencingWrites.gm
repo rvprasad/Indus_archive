@@ -39,9 +39,9 @@ def EMPTY_RESULT_MSG = "There are no influencing write expressions for the field
 
 
 boolean checkValidity(Stmt stmt) {
-	return stmt instanceof AssignStmt 
+	return (stmt instanceof AssignStmt 
 		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp())))
+			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
 }
 
 
@@ -126,7 +126,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return
