@@ -6,6 +6,10 @@
 	<classpathentry exported="true" kind="lib" path="lib/peq-indus.jar"/>
 	<classpathentry exported="true" kind="lib" path="lib/peq-specCompiler.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
+	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins">
+		<accessrules>
+			<accessrule kind="accessible" pattern="org/eclipse/jdt/internal/corext/util/JavaModelUtil"/>
+		</accessrules>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
