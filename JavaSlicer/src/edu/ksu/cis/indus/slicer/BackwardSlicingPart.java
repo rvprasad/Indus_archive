@@ -299,25 +299,27 @@ public class BackwardSlicingPart
 					+ method + ", stack = " + engine.getCopyOfCallStackCache() + ") - BEGIN");
 		}
 
-		engine.generateStmtLevelSliceCriterion(stmt, method, true);
-
+		boolean _flag = false;
+		
 		if (stmt.containsInvokeExpr()) {
 			final Iterator<ValueBox> _i = stmt.getDefBoxes().iterator();
 			final int _iEnd = stmt.getDefBoxes().size();
 
-			for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
+			for (int _iIndex = 0; _iIndex < _iEnd && !_flag; _iIndex++) {
 				final ValueBox _vb = _i.next();
 				final Value _v = _vb.getValue();
-
-				if (_v.equals(local)) {
-					final Context _ctxt = new Context();
-					_ctxt.setRootMethod(method);
-					_ctxt.setStmt(stmt);
-					processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method,
-							returnValueInclClosure);
-					break;
-				}
+				_flag = _v.equals(local);
 			}
+		}
+		
+		engine.generateStmtLevelSliceCriterion(stmt, method, _flag);
+		
+		if (stmt.containsInvokeExpr() && _flag) {
+			final Context _ctxt = new Context();
+			_ctxt.setRootMethod(method);
+			_ctxt.setStmt(stmt);
+			processTailsOf(engine.getCgi().getCallees(stmt.getInvokeExpr(), _ctxt), stmt, method,
+					returnValueInclClosure);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
