@@ -301,7 +301,7 @@ public class BackwardSlicingPart
 
 		boolean _flag = false;
 		
-		if (stmt.containsInvokeExpr()) {
+		if (stmt instanceof DefinitionStmt) {
 			final Iterator<ValueBox> _i = stmt.getDefBoxes().iterator();
 			final int _iEnd = stmt.getDefBoxes().size();
 
