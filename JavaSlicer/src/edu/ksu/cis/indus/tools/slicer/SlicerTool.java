@@ -571,7 +571,7 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	/**
 	 * Retrieves escape info provider.
 	 * 
-	 * @return an escape info provider.
+	 * @return the escape info provider.
 	 * @post result != null
 	 */
 	public IEscapeInfo getEscapeInfo() {
@@ -579,14 +579,23 @@ public final class SlicerTool<T extends ITokens<T, Value>>
 	}
 
 	/**
-	 * Retrieves the value in <code>monitorInfo</code>.
+	 * Retrieves monitor info provider.
 	 * 
-	 * @return the value in <code>monitorInfo</code>.
+	 * @return the monitor info provider.
 	 */
 	public MonitorAnalysis getMonitorInfo() {
 		return monitorInfo;
 	}
 
+	/**
+	 * Retrieves the value analyzer that provides object flow information.
+	 * 
+	 * @return the object flow analyzer.
+	 */
+	public IValueAnalyzer<Value> getOFAnalyzer() {
+		return ofa;
+	}
+	
 	/**
 	 * Returns the phase in which the tool's execution.
 	 * 
