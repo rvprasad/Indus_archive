@@ -68,7 +68,6 @@ import edu.ksu.cis.indus.interfaces.IMonitorInfo;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.kaveri.KaveriPlugin;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
-import edu.ksu.cis.indus.staticanalyses.flow.instances.ofa.OFAnalyzer;
 import edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzer;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
@@ -83,39 +82,40 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 public final class SlicerDOM {
 
 	/**
-	 * DOCUMENT ME!
+	 * A counter variable.
 	 */
 	private static int counter;
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieve the current counter value.
 	 */
 	public int getCounter() {
 		return counter++;
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Get a handle to the workbench.
 	 * 
-	 * @return
+	 * @return the workbench.
 	 */
 	public IWorkbench getWorkbench() {
 		return PlatformUI.getWorkbench();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Get a handle to the workspace.
 	 * 
-	 * @return
+	 * @return the workspace.
 	 */
 	public IWorkspace getWorkSpace() {
 		return getWorkspace();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the files corresponding to the class represented by the given class.
 	 * 
-	 * @return
+	 * @return the Java files containing the definition of the class.
+	 * @pre result.size() = 0 or result.size() = 1 
 	 */
 	public ArrayList getFileFor(final SootClass sc) throws CoreException {
 		final ArrayList _result = new ArrayList();
@@ -138,19 +138,12 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Creates a marker for the given statement-method pair with the given message and timestamp.
+	 * @param stmtMethod is a pair of statement and method that is to be bookmarked.
+	 * @param message is the message of the bookmark.
+	 * @param timeStamp to be included in the message.
 	 * 
-	 * @return
-	 */
-
-	public int getLineFor(final Stmt stmt) {
-		return getLineNumber(stmt);
-	}
-
-	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @return
+	 * @return <code>true</code> if a marker was added; <code>false</code>, otherwise.
 	 */
 	public boolean createMarkerForSootStmtMethod(final Pair stmtMethod,
 			final String message, final long timeStamp) throws CoreException {
@@ -160,7 +153,7 @@ public final class SlicerDOM {
 		final boolean _ret = !_files.isEmpty();
 		if (_ret) {
 			Stmt _sootStmt = (Stmt) stmtMethod.getFirst();
-			int line = getLineFor(_sootStmt);
+			int line = getLineNumber(_sootStmt);
 			IFile _file = (IFile) _files.get(0);
 			IMarker marker = (_file).createMarker(IMarker.BOOKMARK);
 			marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp + "] - "
@@ -186,9 +179,10 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @return
+	 * Retrieves the JDT method corresponding the given Soot method. 
+	 * @param sm is the Soot method.
+	 * @param file in which the corresponding JDT method is to be searched for.
+	 * @return the JDT method. 
 	 */
 	public IMethod getMethodForIn(final SootMethod sm, final IFile file)
 			throws JavaModelException {
@@ -213,8 +207,8 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
+	 * Displays a dialog with the given message.
+	 * @param message to be displayed.
 	 */
 	public void displayDialog(final String message) {
 		MessageDialog.openInformation(getWorkbench().getActiveWorkbenchWindow()
@@ -222,9 +216,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the current selection (if any) in the active editor (if any).
 	 * 
-	 * @return
+	 * @return the selection, if one exists; <code>null</code>, otherwise.
 	 */
 	public ISelection getSelection() {
 		final IEditorPart _e = getWorkbench().getWorkbenchWindows()[0]
@@ -235,9 +229,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the file containing the selection.
 	 * 
-	 * @return
+	 * @return the file.
 	 */
 	public IFile getSelectionContainingFile() {
 		final IEditorPart _e = getWorkbench().getActiveWorkbenchWindow()
@@ -246,27 +240,27 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the compilation unit corresponding to the contents of the given file.  
 	 * 
-	 * @return
+	 * @return the compilation unit.
 	 */
 	public ICompilationUnit getCompilationUnit(IFile file) {
 		return JavaCore.createCompilationUnitFrom(file);
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the compilation unit corresponding to the file in which the current selection occurs.
 	 * 
-	 * @return
+	 * @return the compilation unit.
 	 */
 	public ICompilationUnit getSelectionContainingCompilationUnit() {
 		return getCompilationUnit(getSelectionContainingFile());
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the Jimple method corresponding to the method that contains the current selection. 
 	 * 
-	 * @return
+	 * @return the Jimple method.
 	 */
 	public SootMethod getJimpleMethodForSelection() throws JavaModelException {
 		final ITextSelection _s = (ITextSelection) getSelection();
@@ -296,9 +290,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Checks if the given JDT method and Soot method have type conforming parameters.
 	 * 
-	 * @return
+	 * @return <code>true</code> if the parameter types are identical; <code>false</code>, otherwise.
 	 */
 	private boolean checkParameterTypeConformance(final IMethod method,
 			final IType declaringType, final SootMethod sm)
@@ -313,9 +307,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the Jimple statements for the given selection.
 	 * 
-	 * @return
+	 * @return the corresponding Jimple statements.
 	 */
 	public Collection<Stmt> getJimpleStmtsForSelection()
 			throws JavaModelException {
@@ -323,18 +317,19 @@ public final class SlicerDOM {
 		final ITextSelection _s = (ITextSelection) getSelection();
 		final ICompilationUnit _c = getSelectionContainingCompilationUnit();
 		final IMethod e = (IMethod) _c.getElementAt(_s.getOffset());
-		int _lineNumber = _s.getStartLine() + 1; // 0-offset line numbering
-		// is used in Eclipse;
-		// hence, I add 1.
+		int _lineNumber = _s.getStartLine() + 1; // 0-offset line numbering is used in Eclipse; hence, I add 1.
 		final Collection<Stmt> _r = getJimpleStmtsFor(_f, e.getDeclaringType(),
 				e, _lineNumber);
 		return _r;
 	}
 
 	/**
-	 * DOCUMENT ME!
-	 * 
-	 * @return
+	 * Retrieves the Jimple statements for the given line in the given method in the given type in the given file. 
+	 * @param thefile containing theclass.
+	 * @param theclass containing themethod.
+	 * @param themethod containing theline.
+	 * @param theline of interest.
+	 * @return the corresponding Jimple statements. 
 	 */
 	public Collection<Stmt> getJimpleStmtsFor(final IFile thefile,
 			final IType theclass, final IMethod themethod, final int theline) {
@@ -347,85 +342,90 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the Kaveri plugin.
 	 * 
-	 * @return
+	 * @return a handle to the plugin.
 	 */
 	public KaveriPlugin getKaveriPlugin() {
 		return getDefault();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the escape info.
 	 * 
-	 * @return
+	 * @return a handle to the escape info.
 	 */
 	public IEscapeInfo getEscapeInfo() {
 		return getSlicerTool().getECBA().getEscapeInfo();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the read-write info.
 	 * 
-	 * @return
+	 * @return a handle to the read-write info.
 	 */
 	public IReadWriteInfo getReadWriteInfo() {
 		return getSlicerTool().getECBA().getReadWriteInfo();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the environment.
 	 * 
-	 * @return
+	 * @return a handle to the environment.
 	 */
 	public IEnvironment getEnvironment() {
 		return getSlicerTool().getSystem();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the slicer tool.
 	 * 
-	 * @return
+	 * @return a handle to the slicer tool.
 	 */
 	public SlicerTool getSlicerTool() {
 		return getKaveriPlugin().getSlicerTool();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the basic block manager.
 	 * 
-	 * @return
+	 * @return a handle to the basic block manager.
 	 */
 	public BasicBlockGraphMgr getBasicBlockGraphManager() {
 		return getSlicerTool().getBasicBlockGraphManager();
 	}
 
+	/**
+	 * Retrieves a handle to the object-flow analyzer.
+	 * 
+	 * @return a handle to the object-flow analyzer.
+	 */
 	public IValueAnalyzer<Value> getOFAnalyzer() {
 		return getSlicerTool().getOFAnalyzer();
 	}
 	
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the call graph.
 	 * 
-	 * @return
+	 * @return a handle to the call graph.
 	 */
 	public ICallGraphInfo getCallGraph() {
 		return getSlicerTool().getCallGraph();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the monitor information.
 	 * 
-	 * @return
+	 * @return a handle to the monitor information.
 	 */
 	public IMonitorInfo getMonitorInfo() {
 		return getSlicerTool().getMonitorInfo();
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves the collection root/entry methods. 
 	 * 
-	 * @return
+	 * @return the collection of root/entry methods.
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<SootMethod> getRootMethods() {
@@ -433,9 +433,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the requested dependence analysis info.
 	 * 
-	 * @return
+	 * @return a handle to the requested dependence analysis info.
 	 */
 	public Collection<IDependencyAnalysis> getDA(final Comparable<?> id) {
 		final Collection<IDependencyAnalysis> _r = new ArrayList<IDependencyAnalysis>();
@@ -449,9 +449,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to all dependence analyses.
 	 * 
-	 * @return
+	 * @return a handle to all dependence analyses.
 	 */
 	@SuppressWarnings("unchecked")
 	public Collection<IDependencyAnalysis> getDAs() {
@@ -459,9 +459,9 @@ public final class SlicerDOM {
 	}
 
 	/**
-	 * DOCUMENT ME!
+	 * Retrieves a handle to the CFG factory.
 	 * 
-	 * @return
+	 * @return a handle to the CFG factory.
 	 */
 	public IStmtGraphFactory<?> getStmtGraphFactory() {
 		return getSlicerTool().getStmtGraphFactory();

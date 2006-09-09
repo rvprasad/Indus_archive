@@ -335,8 +335,8 @@ public final class SootConvertor {
     /**
      * Returns the java line number for the given statement;
      *
-     * @param stmt
-     * @return
+     * @param stmt of interest.
+     * @return the line number if one exists; -1, otherwise.
      */
     public static int getLineNumber(Stmt stmt) {
         int _nLine = -1;
@@ -349,7 +349,6 @@ public final class SootConvertor {
             _nLine = _stag.startLn();
         } else {
             if (_lntag != null) {
-                //_nLine = Integer.parseInt(_lntag.toString());
                 _nLine = _lntag.getLineNumber();
             }
         }
