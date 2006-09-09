@@ -3,7 +3,7 @@
 <plugin
    id="edu.ksu.cis.indus"
    name="Indus Plug-in"
-   version="0.8.3.1"
+   version="0.8.3.2"
    provider-name="SAnToS laboratory, Kansas State University"
    class="edu.ksu.cis.projects.indus.IndusPlugin">
 
@@ -58,8 +58,10 @@
       <import plugin="org.eclipse.help"/>
    </requires>
    
+   <!--
    <extension  point="org.eclipse.help.toc">
       <toc file="toc.xml"
              primary="true"/>
    </extension>
+   -->
 </plugin>
