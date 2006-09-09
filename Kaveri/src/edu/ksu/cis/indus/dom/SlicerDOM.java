@@ -73,7 +73,7 @@ import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * This class encapsulates the logic to extract dependencies from a dependence
- * analysis based on slice direction. This class is meant for internal use only.
+ * analysis based on slice direction.
  * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
@@ -465,5 +465,13 @@ public final class SlicerDOM {
 	 */
 	public IStmtGraphFactory<?> getStmtGraphFactory() {
 		return getSlicerTool().getStmtGraphFactory();
+	}
+
+
+	/**
+	 * Creates an instance of this class.
+	 */
+	SlicerDOM() {
+		super();
 	}
 }
