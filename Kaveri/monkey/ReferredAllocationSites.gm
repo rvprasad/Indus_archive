@@ -1,11 +1,12 @@
 /*
- * Menu: Indus > Mark Depending Waits
+ * Menu: Indus > Mark Referred Allocation Sites
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
  * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * LANG: Groovy
  * Job: UIJob
  * Include-Bundle: edu.ksu.cis.indus.kaveri
+ * DOM: http://groovy-monkey.sourceforge.net/update/plugins/net.sf.groovyMonkey.dom
  */
  
 import org.eclipse.core.runtime.IProgressMonitor;
@@ -19,61 +20,26 @@ import groovy.lang.Closure;
 import java.util.Collection;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
-import edu.ksu.cis.indus.common.soot.Util;
+import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
+import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
 
 import soot.jimple.Stmt;
-import soot.jimple.InvokeStmt;
+import soot.jimple.AssignStmt;
+import soot.jimple.InstanceFieldRef;
+import soot.jimple.ArrayRef;
+import soot.RefType;
+import soot.ArrayType;
 
-
-def BANNER = "Calculating influencing waits for given notify..."
-
-def SRC_MARK_DESC = "Source notify expression"
-def DEST_MARK_DESC = "Influencing wait expression"
-
-def EMPTY_SELECTION_MSG = "There are no notify expressions in the current selection."
-def SOME_IN_BINARY_MSG = "There were some influencing waits in classes with no souce files."
-def ENTITY_MSG = " influencing waits."
-def INVALID_SELECTION_MSG = "Please select a line containing a notify expression in a Java file."
-def EMPTY_RESULT_MSG = "There are no influencing wait expressions for the notify expression(s) in the current selection."
-
-
-boolean checkValidity(Stmt stmt) {
-	return stmt instanceof InvokeStmt && Util.isNotifyMethod(stmt.getInvokeExpr().getMethod())
-}
-
-
-boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
-	return dStmt instanceof InvokeStmt && Util.isWaitMethod(dStmt.getInvokeExpr().getMethod())
-		&& escape.areWaitAndNotifyCoupled(dStmt, dMethod, sStmt, sMethod)
-}
-
-// Customiable part ENDS.  Non-customizable part BEGINS.
-
-
-Closure getClosure() {
-	def escape = slicer.getEscapeInfo()
-	closure = { sStmt, sMethod, monitor -> 
-		def result = new HashSet()
-		slicer.getEnvironment().getClasses().each { sc ->
-			sc.getMethods().each { dMethod ->
-				if (dMethod.isConcrete()) {
-					if (!dMethod.hasBody()) {
-						dMethod.retrieveActiveBody()
-					}
-					dMethod.getActiveBody().getUnits().each { dStmt ->
-						if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
-							result << new Pair(dStmt, dMethod)
-						}
-					}
-				}
-			}
-		}
-		return result
-	}
-	return closure
-}
+def BANNER = "Calculating referring allocations for given variables..."
+def SRC_MARK_DESC = "Source expression"
+def DEST_MARK_DESC = "Referring allocation site"
+def EMPTY_SELECTION_MSG = "There are no reference variables in the current selection."
+def SOME_IN_BINARY_MSG = "There were some allocation sites in classes with no souce files."
+def ENTITY_MSG = " allocation sites."
+def INVALID_SELECTION_MSG = "Please select a line containing a reference variable in a Java file."
+def EMPTY_RESULT_MSG = "There are no allocation sites for the reference variables in the current selection."
 
 
 Collection getSrcExpressionsInSelection() {
@@ -81,24 +47,66 @@ Collection getSrcExpressionsInSelection() {
 	def sootMethod = slicer.getJimpleMethodForSelection()
 	def result = []
 	r.each { stmt ->
-		if (checkValidity(stmt)) {
-			result << new Pair(stmt, sootMethod)
+		stmt.getUseAndDefBoxes().each { box ->
+			def t = box.getValue().getType()
+			if (t instanceof RefType || t instanceof ArrayType) {
+				result << new Triple(box, stmt, sootMethod)
+			}
 		}
 	}
 	return result
 }
 
 
-Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
+Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
-	def c = getClosure()
+	def ofa = slicer.getOFAnalyzer()
+	def ctxt = new AllocationContext()
 	exprs.each { expr -> 
-			if (monitor.isCanceled()) {
-				return r;
-			} else {
-				r += c.call(expr.getFirst(), expr.getSecond(), monitor)
+		if (monitor.isCanceled()) {
+			return new HashSet(r)
+		} 
+		ctxt.setRootMethod(expr.getThird())
+		ctxt.setStmt(expr.getSecond())
+		def first = expr.getFirst()
+		def value = first.getValue()
+		if (first instanceof InstanceFieldRef || first instanceof ArrayRef) {
+			ctxt.setProgramPoint(value.getBaseBox())
+			ofa.getValues(value.getBase(), ctxt).each { b ->
+				ctxt.setProgramPoint(first)					
+				ctxt.setAllocationSite(b)
+				r += ofa.getValues(value, ctxt)
 			}
-		}
+		} else {
+			ctxt.setProgramPoint(first)
+			r += ofa.getValues(value, ctxt)
+		}		
+	}
+	return new HashSet(r)
+}
+
+
+Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
+	def allocs = getAllocationSites(exprs, monitor)
+	def r = []
+	slicer.getEnvironment().getClasses().each { sc ->
+		if (monitor.isCanceled()) {
+			return new HashSet(r)
+		} 
+		sc.getMethods().each { sm -> 
+			if (monitor.isCanceled()) {
+				return new HashSet(r)
+			} 
+			if (sm.isConcrete() && sm.hasActiveBody()) {
+				sm.getActiveBody().getUnits().each { stmt -> 
+					stmt.getUseAndDefBoxes().each { box -> 
+						if (allocs.contains(box.getValue())) {
+							r << new Pair(stmt, sm)
+						}
+					}
+				}
+			}			
+		}		
 	}
 	return new HashSet(r)
 }
@@ -119,6 +127,7 @@ boolean validSelectionExists() {
 	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
 }
 
+
 if (slicer.getSlicerTool().isStable()) {
 	def monitor = new NullProgressMonitor()
 	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)
@@ -134,7 +143,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return

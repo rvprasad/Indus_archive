@@ -10,7 +10,7 @@
 1.6> Given a synchronized statement/method, what are the depending concurrent 
      synchronized statements and methods?
 	
-1.7) Given a reference variable, what are the allocation sites of the
+1.7> Given a reference variable, what are the allocation sites of the
      objects referred to by this variable?
 	
 1.8> Given a field/array access, is it protected by any locks?
