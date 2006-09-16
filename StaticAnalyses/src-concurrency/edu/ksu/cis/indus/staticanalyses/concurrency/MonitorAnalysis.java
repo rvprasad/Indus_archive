@@ -553,6 +553,10 @@ public final class MonitorAnalysis
 			} else {
 				_result.addAll(MapUtils.getEmptyCollectionFromMap(_enclosedStmt2monitors, stmt));
 			}
+		} else {
+			if (method.isSynchronized()) {
+				_result.add(new Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>(null, null, method));
+			}
 		}
 		return _result;
 	}
