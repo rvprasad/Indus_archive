@@ -137,6 +137,10 @@ public final class MonitorAnalysis
 			final Collection<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>> _monitorNodes = new HashSet<SimpleNode<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>>();
 			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _immediateMonitors = getEnclosingMonitorTriples(
 					stmt, method, false);
+			
+			if (_immediateMonitors.isEmpty()) {
+				_immediateMonitors.addAll(calculateImmediateInterprocedurallyEnclosingMonitorTriples(method));
+			}
 			_result.put(method, _immediateMonitors);
 
 			if (transitive && !_immediateMonitors.isEmpty()) {
@@ -160,6 +164,39 @@ public final class MonitorAnalysis
 				MapUtils.putIntoSetInMap(_result, _monitor.getThird(), _monitor);
 			}
 
+			return _result;
+		}
+
+		/**
+		 * DOCUMENT ME!
+		 * @param method DOCUMENT ME!
+		 */
+		private Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> calculateImmediateInterprocedurallyEnclosingMonitorTriples(final SootMethod method) {
+			final IWorkBag<Pair<Stmt, SootMethod>> _wb = new HistoryAwareLIFOWorkBag<Pair<Stmt, SootMethod>>(
+					new HashSet<Pair<Stmt, SootMethod>>());
+			final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _result = new HashSet<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>>();
+			
+			for (Iterator _i = cgi.getCallers(method).iterator(); _i.hasNext();) {
+				final CallTriple _ctrp = (CallTriple) _i.next();
+				_wb.addWork(new Pair<Stmt, SootMethod>(_ctrp.getStmt(), _ctrp.getMethod()));
+			}
+			
+			while (_wb.hasWork()) {
+				final Pair<Stmt, SootMethod> _pair = _wb.getWork();
+				final Stmt _stmt = _pair.getFirst();
+				final SootMethod _sm = _pair.getSecond();
+				final Collection<Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> _immMon = getEnclosingMonitorTriples(
+						_stmt, _sm, false);
+				
+				if (_immMon.isEmpty()) {
+					for (Iterator _i = cgi.getCallers(_sm).iterator(); _i.hasNext();) {
+						final CallTriple _ctrp = (CallTriple) _i.next();
+						_wb.addWork(new Pair<Stmt, SootMethod>(_ctrp.getStmt(), _ctrp.getMethod()));
+					}
+				} else {
+					_result.addAll(_immMon);
+				}
+			}
 			return _result;
 		}
 
