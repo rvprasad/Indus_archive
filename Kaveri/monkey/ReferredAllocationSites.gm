@@ -1,30 +1,27 @@
 /*
  * Menu: Indus > Mark Referred Allocation Sites
+ * Script-Path: /Kaveri/monkey/ReferredAllocationSites.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
- * Include-Bundle: edu.ksu.cis.indus.kaveri
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * DOM: http://groovy-monkey.sourceforge.net/update/plugins/net.sf.groovyMonkey.dom
+ * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 import edu.ksu.cis.indus.staticanalyses.flow.modes.sensitive.allocation.AllocationContext;
-
 import soot.jimple.Stmt;
 import soot.jimple.AssignStmt;
 import soot.jimple.InstanceFieldRef;
@@ -33,14 +30,13 @@ import soot.RefType;
 import soot.ArrayType;
 
 def BANNER = "Calculating referring allocations for given variables..."
-def SRC_MARK_DESC = "Source expression"
+def SRC_MARK_DESC = "Referring source expression"
 def DEST_MARK_DESC = "Referring allocation site"
 def EMPTY_SELECTION_MSG = "There are no reference variables in the current selection."
 def SOME_IN_BINARY_MSG = "There were some allocation sites in classes with no souce files."
 def ENTITY_MSG = " allocation sites."
 def INVALID_SELECTION_MSG = "Please select a line containing a reference variable in a Java file."
 def EMPTY_RESULT_MSG = "There are no allocation sites for the reference variables in the current selection."
-
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -56,7 +52,6 @@ Collection getSrcExpressionsInSelection() {
 	}
 	return result
 }
-
 
 Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
@@ -85,32 +80,25 @@ Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 	return new HashSet(r)
 }
 
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def allocs = getAllocationSites(exprs, monitor)
 	def r = []
-	slicer.getEnvironment().getClasses().each { sc ->
+	slicer.getCallGraph().getReachableMethods().each { sm ->
 		if (monitor.isCanceled()) {
 			return new HashSet(r)
 		} 
-		sc.getMethods().each { sm -> 
-			if (monitor.isCanceled()) {
-				return new HashSet(r)
-			} 
-			if (sm.isConcrete() && sm.hasActiveBody()) {
-				sm.getActiveBody().getUnits().each { stmt -> 
-					stmt.getUseAndDefBoxes().each { box -> 
-						if (allocs.contains(box.getValue())) {
-							r << new Pair(stmt, sm)
-						}
+		if (sm.isConcrete() && sm.hasActiveBody()) {
+			sm.getActiveBody().getUnits().each { stmt -> 
+				stmt.getUseAndDefBoxes().each { box -> 
+					if (allocs.contains(box.getValue())) {
+						r << new Pair(stmt, sm)
 					}
 				}
-			}			
-		}		
+			}
+		}						
 	}
 	return new HashSet(r)
 }
-
 
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
@@ -119,14 +107,12 @@ void bookmarkSelection(message, ts) {
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
 
-
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
 	def s = slicer.getSelection()
 	def n = f.getName()
 	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
 }
-
 
 if (slicer.getSlicerTool().isStable()) {
 	def monitor = new NullProgressMonitor()

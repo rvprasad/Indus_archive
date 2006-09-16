@@ -1,68 +1,61 @@
 /*
- * Menu: Indus > Mark Conflicting Writes 
+ * Menu: Indus > Mark Conflicting Writes
+ * Script-Path: /Kaveri/monkey/ConflictingWrites.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
-import edu.ksu.cis.indus.common.interfaces.IEscapeInfo;
+import edu.ksu.cis.indus.interfaces.IEscapeInfo;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import soot.jimple.Stmt;
+import soot.jimple.AssignStmt;
 import soot.jimple.InvokeStmt;
 
-
 def BANNER = "Calculating conflicting writes for given write..."
-
 def SRC_MARK_DESC = "Source write expression"
 def DEST_MARK_DESC = "Conflicting write expression"
-
 def EMPTY_SELECTION_MSG = "There are no field/array write expressions in the current selection."
 def SOME_IN_BINARY_MSG = "There were some conflicting write in classes with no souce files."
 def ENTITY_MSG = " conflicting writes."
 def INVALID_SELECTION_MSG = "Please select a line containing a write expression in a Java file."
 def EMPTY_RESULT_MSG = "There are no conflicting write expressions for the write expression(s) in the current selection."
 
-
 boolean checkValidity(Stmt stmt) {
-	return (stmt instanceof AssignStmt 
-		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getLeftOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp()))))
+	return (stmt instanceof AssignStmt && 
+      ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getLeftOp())) || 
+       (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getLeftOp()))))
 }
-
 
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
 	if (checkValidity(dStmt)) {
 		if (sStmt.containsArrayRef() && dStmt.containsArrayRef()) {
 			return escape.areFieldAccessShared(sStmt.getArrayRef().getBase(), sMethod, dStmt.getArrayRef().getBase(), dMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
-		} else {
+		} else if (sStmt.containsFieldRef() && dStmt.containsFieldRef()) {
 			def sFieldRef = sStmt.getFieldRef();
 			def dFieldRef = dStmt.getFieldRef();			
-			def sField = sFieldRef().getField()
-			def dField = dFieldRef().getField()
+			def sField = sFieldRef.getField()
+			def dField = dFieldRef.getField()
 			if (sField.isStatic()) {
-				return sField.equals(dField) 
-					&& escape.staticFieldAccessShared(sField.getDeclaringClass(), sMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
-					&& escape.staticFieldAccessShared(dField.getDeclaringClass(), dMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
+				return sField.equals(dField) && 
+					escape.staticFieldAccessShared(sField.getDeclaringClass(), sMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS) &&
+					escape.staticFieldAccessShared(dField.getDeclaringClass(), dMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
 			} else {
-				return sField.equals(dField) 
-					&& escape.fieldAccessShared(sFieldRef.getBase(), sMethod, dFieldRef().getBase(), dMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
+				return sField.equals(dField) && 
+			          escape.fieldAccessShared(sFieldRef.getBase(), sMethod, dFieldRef.getBase(), dMethod, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS)
 			}
 		}
 	}
@@ -71,21 +64,18 @@ boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
 
-
 Closure getClosure() {
 	def escape = slicer.getEscapeInfo()
 	closure = { sStmt, sMethod, monitor -> 
 		def result = new HashSet()
-		slicer.getEnvironment().getClasses().each { sc ->
-			sc.getMethods().each { dMethod ->
-				if (dMethod.isConcrete()) {
-					if (!dMethod.hasBody()) {
-						dMethod.retrieveActiveBody()
-					}
-					dMethod.getActiveBody().getUnits().each { dStmt ->
-						if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {							
-							result << new Pair(dStmt, dMethod)
-						}
+		slicer.getCallGraph().getReachableMethods().each { dMethod ->
+			if (dMethod.isConcrete()) {
+				if (!dMethod.hasActiveBody()) {
+					dMethod.retrieveActiveBody()
+				}
+				dMethod.getActiveBody().getUnits().each { dStmt ->
+					if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {							
+						result << new Pair(dStmt, dMethod)
 					}
 				}
 			}
@@ -94,7 +84,6 @@ Closure getClosure() {
 	}
 	return closure
 }
-
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -108,21 +97,18 @@ Collection getSrcExpressionsInSelection() {
 	return result
 }
 
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def c = getClosure()
 	exprs.each { expr -> 
-			if (monitor.isCanceled()) {
-				return r;
-			} else {
-				r += c.call(expr.getFirst(), expr.getSecond(), monitor)
-			}
-		}
+	    if (monitor.isCanceled()) {
+	      return r;
+	    } else {
+	      r += c.call(expr.getFirst(), expr.getSecond(), monitor)
+	    }
 	}
 	return new HashSet(r)
 }
-
 
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
@@ -130,7 +116,6 @@ void bookmarkSelection(message, ts) {
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
@@ -154,7 +139,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return

@@ -1,57 +1,52 @@
 /*
  * Menu: Indus > Mark Protecting Lock Acquisitions
+ * Script-Path: /Kaveri/monkey/ProtectingLocks.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
+ * DOM: http://groovy-monkey.sourceforge.net/update/net.sf.groovyMonkey.dom
  * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import soot.jimple.Stmt;
 import soot.jimple.AssignStmt;
 
-
 def BANNER = "Calculating protecting lock acquisitions for given expression..."
-
-def SRC_MARK_DESC = "Source expression"
+def SRC_MARK_DESC = "Protected source expression"
 def DEST_MARK_DESC = "protecting lock acquisitions"
-
 def EMPTY_SELECTION_MSG = "There are no expressions in the current selection."
 def SOME_IN_BINARY_MSG = "There were some protecting lock acquisitions in classes with no souce files."
 def ENTITY_MSG = " protecting lock acquisitions."
 def INVALID_SELECTION_MSG = "Please select a line containing an expression in a Java file."
 def EMPTY_RESULT_MSG = "There are no protecting lock acquisitions for the expressions in the current selection."
 
-
 boolean checkValidity(Stmt stmt) {
-	return (stmt instanceof AssignStmt 
-		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
+	return (stmt instanceof AssignStmt && 
+      ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) || 
+       (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
 }
-
-
 
 Collection getProtectingLocks(stmt, method, mon, mg) {
 	def result = []
+	out.println(mon.toString())
  	mg.getInterProcedurallyEnclosingMonitorTriples(stmt, method, true).values().each { 
- 		result += it.collect { trp -> 
-			[ new Pair(trp.getFirst(), trp.getThird()), 
-			  new Pair(trp.getSecond(), trp.getThird()) ]
+ 		it.each { trp -> 
+			result << new Pair(trp.getFirst(), trp.getThird())
+ 			if (trp.getSecond() != null) {
+				result << new Pair(trp.getSecond(), trp.getThird())
+			}
 		}
 	}
 	return result
@@ -59,17 +54,15 @@ Collection getProtectingLocks(stmt, method, mon, mg) {
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
 
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def mon = slicer.getMonitorInfo()
-	def mg = mon.getMonitorGraph()
+	def mg = mon.getMonitorGraph(slicer.getCallGraph())
 	exprs.each { expr -> 
 		r += getProtectingLocks(expr.getFirst(), expr.getSecond(), mon, mg)
 	}
 	return new HashSet(r)
 }
-
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -83,14 +76,12 @@ Collection getSrcExpressionsInSelection() {
 	return result
 }
 
-
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
@@ -113,8 +104,8 @@ if (slicer.getSlicerTool().isStable()) {
 				def i = 0
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
+				out.println(destExprs.toString())
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return

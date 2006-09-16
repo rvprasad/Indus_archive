@@ -1,56 +1,47 @@
 /*
  * Menu: Indus > Mark Influencing Writes
+ * Script-Path: /Kaveri/monkey/ReadInfluencingWrites.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import soot.jimple.Stmt;
 import soot.jimple.AssignStmt;
 
-
 def BANNER = "Calculating influencing writes for given read..."
-
 def SRC_MARK_DESC = "Source read expression"
 def DEST_MARK_DESC = "Influencing write expression"
-
 def EMPTY_SELECTION_MSG = "There are no field/array read expressions in the current selection."
 def SOME_IN_BINARY_MSG = "There were some influencing writes in classes with no souce files."
 def ENTITY_MSG = " influencing writes."
 def INVALID_SELECTION_MSG = "Please select a line containing a field/array read expression in a Java file."
 def EMPTY_RESULT_MSG = "There are no influencing write expressions for the field/array read expression(s) in the current selection."
 
-
 boolean checkValidity(Stmt stmt) {
-	return (stmt instanceof AssignStmt 
-		&& ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) 
-			|| (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
+	return (stmt instanceof AssignStmt && 
+      ((stmt.containsArrayRef() && stmt.getArrayRef().equals(stmt.getRightOp())) || 
+       (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
 }
-
 
 Collection getDAs() {
 	return slicer.getDA(IDependencyAnalysis.DependenceSort.INTERFERENCE_DA) + 
 		slicer.getDA(IDependencyAnalysis.DependenceSort.REFERENCE_BASED_DATA_DA) + 
 		slicer.getDA(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)
 }
-
 
 Closure getDependenceRetriever() {
 	closure = { da, stmt, method -> 
@@ -64,7 +55,6 @@ Closure getDependenceRetriever() {
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
-
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
 	def sootMethod = slicer.getJimpleMethodForSelection()
@@ -76,7 +66,6 @@ Collection getSrcExpressionsInSelection() {
 	}
 	return result
 }
-
 
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
@@ -95,14 +84,12 @@ Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	return new HashSet(r)
 }
 
-
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()

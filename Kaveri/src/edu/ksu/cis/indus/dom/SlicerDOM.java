@@ -150,29 +150,34 @@ public final class SlicerDOM {
 		SootMethod _sootMethod = (SootMethod) stmtMethod.getSecond();
 		ArrayList _files = getFileFor(_sootMethod.getDeclaringClass());
 		assert _files.size() <= 1;
-		final boolean _ret = !_files.isEmpty();
+		boolean _ret = !_files.isEmpty();
 		if (_ret) {
 			Stmt _sootStmt = (Stmt) stmtMethod.getFirst();
-			int line = getLineNumber(_sootStmt);
-			IFile _file = (IFile) _files.get(0);
-			IMarker marker = (_file).createMarker(IMarker.BOOKMARK);
-			marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp + "] - "
-					+ message);
-			if (line != -1) {
-				marker.setAttribute(IMarker.LINE_NUMBER, line);
-			} else {
-				IMethod _methodForIn = getMethodForIn(_sootMethod, _file);
-				if (_methodForIn == null) {
-					marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp
-							+ "] - No line# - " + message);
+			final int line = _sootStmt != null ? getLineNumber(_sootStmt) : -1;
+			final Object _o = _files.get(0);
+			if (_o instanceof IFile) {
+				final IFile _file = (IFile) _o;
+				final IMarker _marker = (_file).createMarker(IMarker.BOOKMARK);
+				_marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp + "] - "
+						+ message);
+				if (line != -1) {
+					_marker.setAttribute(IMarker.LINE_NUMBER, line);
 				} else {
-					ASTParser _ap = ASTParser.newParser(AST.JLS3);
-					_ap.setSource(getCompilationUnit(_file));
-					CompilationUnit _cu = (CompilationUnit) _ap.createAST(null);
-					marker.setAttribute(IMarker.LINE_NUMBER, _cu
-							.lineNumber(_methodForIn.getSourceRange()
-									.getOffset()));
+					final IMethod _methodForIn = getMethodForIn(_sootMethod, _file);
+					if (_methodForIn == null) {
+						_marker.setAttribute(IMarker.MESSAGE, "[" + timeStamp
+								+ "] - No line# - " + message);
+					} else {
+						final ASTParser _ap = ASTParser.newParser(AST.JLS3);
+						_ap.setSource(getCompilationUnit(_file));
+						final CompilationUnit _cu = (CompilationUnit) _ap.createAST(null);
+						_marker.setAttribute(IMarker.LINE_NUMBER, _cu
+								.lineNumber(_methodForIn.getSourceRange()
+										.getOffset()));
+					}
 				}
+			} else {
+				_ret = false;
 			}
 		}
 		return _ret;

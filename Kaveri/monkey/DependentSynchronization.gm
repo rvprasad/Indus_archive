@@ -1,72 +1,65 @@
 /*
  * Menu: Indus > Mark Coupled Locks
+ * Script-Path: /Kaveri/monkey/DependentSynchronization.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
+ * DOM: http://groovy-monkey.sourceforge.net/update/net.sf.groovyMonkey.dom
  * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import soot.jimple.Stmt;
 import soot.jimple.MonitorStmt;
 
-
 def BANNER = "Calculating depending lock acquisitions for given lock acquisition..."
-
 def SRC_MARK_DESC = "Source lock acquisition expression"
 def DEST_MARK_DESC = "Dependent lock acquisition expression"
-
 def EMPTY_SELECTION_MSG = "There are no lock acquisitions in the current selection."
 def SOME_IN_BINARY_MSG = "There were some dependent lock acquisitions in classes with no souce files."
 def ENTITY_MSG = " dependent lock acquisitions."
 def INVALID_SELECTION_MSG = "Please select a line containing lock acquisition in a Java file."
 def EMPTY_RESULT_MSG = "There are no dependent lock acquisitions for the synchronization expression(s) in the current selection."
 
-
 boolean checkValidity(Stmt stmt) {
 	return stmt instanceof MonitorStmt
 }
 
-
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
-	return (dStmt instanceof MonitorStmt 
-		&& escape.areMonitorsCoupled(dStmt, dMethod, sStmt, sMethod))
+	return ((dStmt instanceof MonitorStmt || dStmt == null) && 
+      escape.areMonitorsCoupled(dStmt, dMethod, sStmt, sMethod))
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
-
 
 Closure getClosure() {
 	def escape = slicer.getEscapeInfo()
 	closure = { sStmt, sMethod, monitor -> 
 		def result = new HashSet()
-		slicer.getEnvironment().getClasses().each { sc ->
-			sc.getMethods().each { dMethod ->
-				if (dMethod.isConcrete()) {
-					if (!dMethod.hasBody()) {
-						dMethod.retrieveActiveBody()
+		slicer.getCallGraph().getReachableMethods().each { dMethod ->
+			if (dMethod.isConcrete()) {
+				if (!dMethod.hasActiveBody()) {
+					dMethod.retrieveActiveBody()
+				}
+				dMethod.getActiveBody().getUnits().each { dStmt ->
+					if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
+						result << new Pair(dStmt, dMethod)
 					}
-					dMethod.getActiveBody().getUnits().each { dStmt ->
-						if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
-							result << new Pair(dStmt, dMethod)
-						}
-					}
+				}
+				if (dMethod.isSynchronized() && areRelated(sStmt, sMethod, null, dMethod, escape)) {
+					result << new Pair(null, dMethod)
 				}
 			}
 		}
@@ -74,7 +67,6 @@ Closure getClosure() {
 	}
 	return closure
 }
-
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -85,24 +77,25 @@ Collection getSrcExpressionsInSelection() {
 			result << new Pair(stmt, sootMethod)
 		}
 	}
+	if (result.isEmpty() && sootMethod.isSynchronized()) {
+		result << new Pair(null, sootMethod)
+	}
+	
 	return result
 }
-
 
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def c = getClosure()
 	exprs.each { expr -> 
-			if (monitor.isCanceled()) {
-				return r;
-			} else {
-				r += c.call(expr.getFirst(), expr.getSecond(), monitor)
-			}
+		if (monitor.isCanceled()) {
+			return r;
+		} else {
+			r += c.call(expr.getFirst(), expr.getSecond(), monitor)
 		}
 	}
 	return new HashSet(r)
 }
-
 
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
@@ -110,7 +103,6 @@ void bookmarkSelection(message, ts) {
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
@@ -134,8 +126,8 @@ if (slicer.getSlicerTool().isStable()) {
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
+					out.println(destExpr.toString())
 						if (monitor.isCanceled()) {
 							return
 						}

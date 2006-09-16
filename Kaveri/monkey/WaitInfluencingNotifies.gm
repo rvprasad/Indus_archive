@@ -1,71 +1,60 @@
 /*
  * Menu: Indus > Mark Influencing Notifies
+ * Script-Path: /Kaveri/monkey/WaitInfluencingNotifies.gm
  * Kudos: Venkatesh Prasad Ranganath (Santos Laboratory)
  * License: MPL 1.1
- * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
- * LANG: Groovy
  * Job: UIJob
+ * DOM: http://indus.projects.cis.ksu.edu/update/plugins/edu.ksu.cis.indus.kaveri
  * Include-Bundle: edu.ksu.cis.indus.kaveri
  */
+
  
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.resources.IMarker
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.text.ITextSelection;
-
 import groovy.lang.Closure;
-
 import java.util.Collection;
-
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.Util;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import soot.jimple.Stmt;
 import soot.jimple.InvokeStmt;
 
-
 def BANNER = "Calculating influencing notifies for given wait..."
-
 def SRC_MARK_DESC = "Source wait expression"
 def DEST_MARK_DESC = "Influencing notify expression"
-
 def EMPTY_SELECTION_MSG = "There are no wait expressions in the current selection."
 def SOME_IN_BINARY_MSG = "There were some influencing notify in classes with no souce files."
 def ENTITY_MSG = " influencing notifies."
 def INVALID_SELECTION_MSG = "Please select a line containing a wait expression in a Java file."
 def EMPTY_RESULT_MSG = "There are no influencing notify expressions for the wait expression(s) in the current selection."
 
-
 boolean checkValidity(Stmt stmt) {
 	return stmt instanceof InvokeStmt && Util.isWaitMethod(stmt.getInvokeExpr().getMethod())
 }
 
-
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
-	return (dStmt instanceof InvokeStmt && Util.isNotifyMethod(dStmt.getInvokeExpr().getMethod()) 
-		&& escape.areWaitAndNotifyCoupled(sStmt, sMethod, dStmt, dMethod))
+	return (dStmt instanceof InvokeStmt && Util.isNotifyMethod(dStmt.getInvokeExpr().getMethod()) && 
+      escape.areWaitAndNotifyCoupled(sStmt, sMethod, dStmt, dMethod))
 }
 
 // Customiable part ENDS.  Non-customizable part BEGINS.
-
 
 Closure getClosure() {
 	def escape = slicer.getEscapeInfo()
 	closure = { sStmt, sMethod, monitor -> 
 		def result = new HashSet()
-		slicer.getEnvironment().getClasses().each { sc ->
-			sc.getMethods().each { dMethod ->
-				if (dMethod.isConcrete()) {
-					if (!dMethod.hasBody()) {
-						dMethod.retrieveActiveBody()
-					}
-					dMethod.getActiveBody().getUnits().each { dStmt ->
-						if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
-							result << new Pair(dStmt, dMethod)
-						}
+		slicer.getCallGraph().getReachableMethods().each { dMethod ->
+			if (dMethod.isConcrete()) {
+				if (!dMethod.hasActiveBody()) {
+					dMethod.retrieveActiveBody()
+				}
+				dMethod.getActiveBody().getUnits().each { dStmt ->
+					if (areRelated(sStmt, sMethod, dStmt, dMethod, escape)) {
+						result << new Pair(dStmt, dMethod)
 					}
 				}
 			}
@@ -74,7 +63,6 @@ Closure getClosure() {
 	}
 	return closure
 }
-
 
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
@@ -88,21 +76,18 @@ Collection getSrcExpressionsInSelection() {
 	return result
 }
 
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def c = getClosure()
 	exprs.each { expr -> 
-			if (monitor.isCanceled()) {
-				return r;
-			} else {
-				r += c.call(expr.getFirst(), expr.getSecond(), monitor)
-			}
+		if (monitor.isCanceled()) {
+			return r;
+		} else {
+			r += c.call(expr.getFirst(), expr.getSecond(), monitor)
 		}
 	}
 	return new HashSet(r)
 }
-
 
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
@@ -110,7 +95,6 @@ void bookmarkSelection(message, ts) {
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
@@ -134,7 +118,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
-					out.print(destExprs)
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {
 							return
