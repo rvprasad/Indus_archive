@@ -21,6 +21,7 @@ import static org.eclipse.core.resources.ResourcesPlugin.getWorkspace;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -30,6 +31,7 @@ import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jdt.core.ICompilationUnit;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
@@ -321,10 +323,18 @@ public final class SlicerDOM {
 		final IFile _f = getSelectionContainingFile();
 		final ITextSelection _s = (ITextSelection) getSelection();
 		final ICompilationUnit _c = getSelectionContainingCompilationUnit();
-		final IMethod e = (IMethod) _c.getElementAt(_s.getOffset());
-		int _lineNumber = _s.getStartLine() + 1; // 0-offset line numbering is used in Eclipse; hence, I add 1.
-		final Collection<Stmt> _r = getJimpleStmtsFor(_f, e.getDeclaringType(),
-				e, _lineNumber);
+		final IJavaElement _elementAt = _c.getElementAt(_s.getOffset());
+		final Collection<Stmt> _r;
+		
+		if (_elementAt instanceof IMethod) {
+			final IMethod e = (IMethod) _elementAt;
+			int _lineNumber = _s.getStartLine() + 1; // 0-offset line numbering is used in Eclipse; hence, I add 1.
+			_r = getJimpleStmtsFor(_f, e.getDeclaringType(),
+					e, _lineNumber);
+		} else {
+			_r = Collections.<Stmt>emptySet();
+		}
+		
 		return _r;
 	}
 
