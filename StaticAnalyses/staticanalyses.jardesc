@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <jardesc>
-<jar path="/home/venku/workspace/eclipse/StaticAnalyses/staticanalyses.jar"/>
+<jar path="/home/venku/workspace/non-primary-eclipse/StaticAnalyses/staticanalyses.jar"/>
 <options buildIfNeeded="false" compress="true" descriptionLocation="/StaticAnalyses/staticanalyses.jardesc" exportErrors="true" exportWarnings="true" includeDirectoryEntries="false" overwrite="false" saveDescription="true" useSourceFolders="false"/>
 <manifest generateManifest="true" manifestLocation="" manifestVersion="1.0" reuseManifest="false" saveManifest="false" usesManifest="false">
 <sealing sealJar="true">
