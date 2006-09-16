@@ -38,9 +38,8 @@ boolean checkValidity(Stmt stmt) {
        (stmt.containsFieldRef() && stmt.getFieldRef().equals(stmt.getRightOp()))))
 }
 
-Collection getProtectingLocks(stmt, method, mon, mg) {
+Collection getProtectingLocks(stmt, method, mg) {
 	def result = []
-	out.println(mon.toString())
  	mg.getInterProcedurallyEnclosingMonitorTriples(stmt, method, true).values().each { 
  		it.each { trp -> 
 			result << new Pair(trp.getFirst(), trp.getThird())
@@ -56,10 +55,9 @@ Collection getProtectingLocks(stmt, method, mon, mg) {
 
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
-	def mon = slicer.getMonitorInfo()
-	def mg = mon.getMonitorGraph(slicer.getCallGraph())
+	def mg = slicer.getMonitorInfo().getMonitorGraph(slicer.getCallGraph())
 	exprs.each { expr -> 
-		r += getProtectingLocks(expr.getFirst(), expr.getSecond(), mon, mg)
+		r += getProtectingLocks(expr.getFirst(), expr.getSecond(), mg)
 	}
 	return new HashSet(r)
 }
@@ -104,7 +102,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def i = 0
 				def b = true
 				def destExprs = getDestExprs(srcExprs, monitor)
-				out.println(destExprs.toString())
 				if (!destExprs.isEmpty()) {
 					destExprs.each { destExpr ->
 						if (monitor.isCanceled()) {

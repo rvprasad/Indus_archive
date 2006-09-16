@@ -127,7 +127,6 @@ if (slicer.getSlicerTool().isStable()) {
 				def destExprs = getDestExprs(srcExprs, monitor)
 				if (!destExprs.isEmpty()) {
 					destExprs.each { destExpr ->
-					out.println(destExpr.toString())
 						if (monitor.isCanceled()) {
 							return
 						}
