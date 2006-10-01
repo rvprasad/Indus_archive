@@ -28,7 +28,6 @@ import soot.jimple.InstanceFieldRef;
 import soot.jimple.ArrayRef;
 import soot.RefType;
 import soot.ArrayType;
-
 def BANNER = "Calculating referring allocations for given variables..."
 def SRC_MARK_DESC = "Referring source expression"
 def DEST_MARK_DESC = "Referring allocation site"
@@ -37,7 +36,6 @@ def SOME_IN_BINARY_MSG = "There were some allocation sites in classes with no so
 def ENTITY_MSG = " allocation sites."
 def INVALID_SELECTION_MSG = "Please select a line containing a reference variable in a Java file."
 def EMPTY_RESULT_MSG = "There are no allocation sites for the reference variables in the current selection."
-
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
 	def sootMethod = slicer.getJimpleMethodForSelection()
@@ -52,7 +50,6 @@ Collection getSrcExpressionsInSelection() {
 	}
 	return result
 }
-
 Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def ofa = slicer.getOFAnalyzer()
@@ -65,12 +62,13 @@ Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 		ctxt.setStmt(expr.getSecond())
 		def first = expr.getFirst()
 		def value = first.getValue()
-		if (first instanceof InstanceFieldRef || first instanceof ArrayRef) {
+		if (value instanceof InstanceFieldRef || value instanceof ArrayRef) {
 			ctxt.setProgramPoint(value.getBaseBox())
-			ofa.getValues(value.getBase(), ctxt).each { b ->
-				ctxt.setProgramPoint(first)					
-				ctxt.setAllocationSite(b)
-				r += ofa.getValues(value, ctxt)
+			receivers = ofa.getValues(value.getBase(), ctxt)
+			if (value instanceof InstanceFieldRef) {
+				r += ofa.getValues(value.getField(), receivers)
+			} else {
+				r += ofa.getValues(value.getBase().getType(), receivers)
 			}
 		} else {
 			ctxt.setProgramPoint(first)
@@ -79,7 +77,6 @@ Collection getAllocationSites(Collection exprs, NullProgressMonitor monitor) {
 	}
 	return new HashSet(r)
 }
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def allocs = getAllocationSites(exprs, monitor)
 	def r = []
@@ -99,21 +96,18 @@ Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	}
 	return new HashSet(r)
 }
-
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
 	def s = slicer.getSelection()
 	def n = f.getName()
 	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
 }
-
 if (slicer.getSlicerTool().isStable()) {
 	def monitor = new NullProgressMonitor()
 	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)

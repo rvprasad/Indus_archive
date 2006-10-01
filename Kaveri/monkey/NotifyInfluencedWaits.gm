@@ -22,7 +22,6 @@ import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
 import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 import soot.jimple.Stmt;
 import soot.jimple.InvokeStmt;
-
 def BANNER = "Calculating influencing waits for given notify..."
 def SRC_MARK_DESC = "Source notify expression"
 def DEST_MARK_DESC = "Influencing wait expression"
@@ -31,18 +30,14 @@ def SOME_IN_BINARY_MSG = "There were some influencing waits in classes with no s
 def ENTITY_MSG = " influencing waits."
 def INVALID_SELECTION_MSG = "Please select a line containing a notify expression in a Java file."
 def EMPTY_RESULT_MSG = "There are no influencing wait expressions for the notify expression(s) in the current selection."
-
 boolean checkValidity(Stmt stmt) {
 	return stmt instanceof InvokeStmt && Util.isNotifyMethod(stmt.getInvokeExpr().getMethod())
 }
-
 boolean areRelated(sStmt, sMethod, dStmt, dMethod, escape) {
 	return dStmt instanceof InvokeStmt && Util.isWaitMethod(dStmt.getInvokeExpr().getMethod()) && 
 	    escape.areWaitAndNotifyCoupled(dStmt, dMethod, sStmt, sMethod)
 }
-
 // Customiable part ENDS.  Non-customizable part BEGINS.
-
 Closure getClosure() {
 	def escape = slicer.getEscapeInfo()
 	closure = { sStmt, sMethod, monitor -> 
@@ -63,7 +58,6 @@ Closure getClosure() {
 	}
 	return closure
 }
-
 Collection getSrcExpressionsInSelection() {
 	def r = slicer.getJimpleStmtsForSelection()
 	def sootMethod = slicer.getJimpleMethodForSelection()
@@ -75,7 +69,6 @@ Collection getSrcExpressionsInSelection() {
 	}
 	return result
 }
-
 Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	def r = []
 	def c = getClosure()
@@ -88,21 +81,18 @@ Collection getDestExprs(Collection exprs, NullProgressMonitor monitor) {
 	}
 	return new HashSet(r)
 }
-
 void bookmarkSelection(message, ts) {
     def selection = slicer.getSelection()
     m = slicer.getSelectionContainingFile().createMarker(IMarker.BOOKMARK)
     m.setAttribute(IMarker.MESSAGE, "[" + ts + "] " + message)
     m.setAttribute(IMarker.LINE_NUMBER, selection.getStartLine() + 1) // text editor uses 0-offset addressing for lines
 }
-
 boolean validSelectionExists() {
 	def f = slicer.getSelectionContainingFile()
 	def s = slicer.getSelection()
 	def n = f.getName()
 	return s instanceof ITextSelection && (n.indexOf(".java") == (n.size() - 5))
 }
-
 if (slicer.getSlicerTool().isStable()) {
 	def monitor = new NullProgressMonitor()
 	monitor.beginTask(BANNER, IProgressMonitor.UNKNOWN)
