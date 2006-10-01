@@ -87,7 +87,7 @@ public class AllocationSiteSensitiveIndexManager<E>
 
 		final AllocationContext _ctxt = (AllocationContext) c;
 		final Type _type = ((Value) _ctxt.allocationSite).getType();
-		if ((_type instanceof RefType && pattern != null && pattern.matcher(((RefType) _type).getClassName()).matches())
+		if ((_type instanceof RefType && (pattern == null || pattern.matcher(((RefType) _type).getClassName()).matches()))
 				|| (objectSensitiveArrayTracking && _type instanceof ArrayType)) {
 			return new OneContextInfoIndex<E, Object>(o, _ctxt.getAllocationSite());
 		}
