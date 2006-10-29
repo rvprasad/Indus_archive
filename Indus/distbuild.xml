@@ -38,15 +38,20 @@
              command="rtag v${version.cvsid}"/>
 	</target>
 
-    <target name="dist-all" depends="init, cleanAll, buildAllCode, buildAllDoc">
-		<antcall target="package"/>
-    	<delete dir="${projects.dir}"/>
-    </target>
+  <target name="dist-all" depends="init, cleanAll, buildAllCode, buildAllDoc">
+    <antcall target="package"/>
+    <delete dir="${projects.dir}"/>
+  </target>
 
 	<target name="dist-bin" depends="init, cleanAll, buildAllCode">
 		<antcall target="package-bin"/>
     	<delete dir="${projects.dir}"/>
-    </target>
+  </target>
+
+  <target name="dist-docs" depends="buildAllDoc">
+    <antcall target="package"/>
+    <delete dir="${projects.dir}"/>
+  </target>
 		
 	<target name="prepare-docs">
 		<mkdir dir="${dist.doc.dir}/${module}/docs/ug"/>
@@ -76,7 +81,7 @@
         </move>
 	</target>
 	
-    <target name="package-doc">
+    <target name="package-docs">
         <mkdir dir="${dist.doc.dir}"/>
 		<foreach list="${cvs.modules}" target="prepare-docs" param="module" delimiter=" " inheritall="true"/>		
         <zip destfile="${docs.zip.filename}">
@@ -86,7 +91,7 @@
     </target>
         
 	<target name="package">
-		<antcall target="package-doc"/>
+		<antcall target="package-docs"/>
 		<antcall target="package-bin"/>
 		
         <zip destfile="${examples.src.zip.filename}">
