@@ -27,6 +27,19 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.8.3.5
+------------------- 
+	- Added a Java source line based criteria generation.
+
+Version 0.8.3.1
+------------------- 
+	- An accuracy affecting bug was fixed.
+
+Version 0.8.3 
+----------------
+	- No major changes.
+	- Depends on JiBX version 1.1
+
 Version 0.8.1
 ----------------
 	- Based on JiBX version 1.0.2.
