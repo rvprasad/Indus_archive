@@ -1,3 +1,14 @@
+2006-10-29 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/LineNumberBasedCriteriaGenerator.java: 
+		- A new class that can generate criteria based on java line numbers.
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/FieldBasedCriteriaGenerator.java: 
+		- ripple effect of the change to AbstractStmtBasedSliceCriteriaGenerator.
+	* src/edu/ksu/cis/indus/tools/slicer/criteria/generators/AbstractStmtBasedSliceCriteriaGenerator.java: 
+		- refactored methods to lighten method interface complexity and improve extensibility.
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: 
+		- added support to slice programs based on Java line numbers.
+		
 2006-06-01 venku <venku@boss.dreamsoft.com>
 
 	* src-test/edu/ksu/cis/indus/tools/slicer/SlicerTestSetup.java: 

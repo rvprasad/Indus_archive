@@ -35,6 +35,7 @@ import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
 import edu.ksu.cis.indus.tools.IToolProgressListener;
 import edu.ksu.cis.indus.tools.Phase;
+import edu.ksu.cis.indus.tools.slicer.criteria.generators.LineNumberBasedCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.generators.StmtTypeBasedSliceCriteriaGenerator;
 import edu.ksu.cis.indus.tools.slicer.criteria.predicates.AbstractSliceCriteriaPredicate;
 import edu.ksu.cis.indus.tools.slicer.criteria.specification.SliceCriteriaParser;
@@ -61,6 +62,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -100,6 +102,7 @@ import soot.jimple.ThrowStmt;
 public class SliceXMLizerCLI
 		extends SootBasedDriver
 		implements IToolProgressListener {
+
 	/**
 	 * This predicate allows only one statement to be considered as a criterion.
 	 * 
@@ -160,7 +163,7 @@ public class SliceXMLizerCLI
 			countingStatus = true;
 		}
 	}
-	
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
@@ -205,6 +208,11 @@ public class SliceXMLizerCLI
 	 * The name of the criteria specification file.
 	 */
 	private String criteriaSpecFileName;
+
+	/**
+	 * The line based criteria generator.
+	 */
+	private LineNumberBasedCriteriaGenerator lineBasedCriteriaGenerator;
 
 	/**
 	 * This is the name of the tag to be used to tag parts of the AST occurring in the slice.
@@ -372,7 +380,7 @@ public class SliceXMLizerCLI
 		}
 
 		final CustomCriteriaPredicate _filter = new CustomCriteriaPredicate();
-		
+
 		_generator.setCriteriaFilterPredicate(_filter);
 		slicer.addCriteriaGenerator(_generator);
 
@@ -431,6 +439,10 @@ public class SliceXMLizerCLI
 			slicer.addCriteriaGenerator(_generator);
 		}
 
+		if (lineBasedCriteriaGenerator != null) {
+			slicer.addCriteriaGenerator(lineBasedCriteriaGenerator);
+		}
+
 		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
 		slicer.setSliceScopeDefinition(sliceScope);
 		slicer.addCriteria(_criteria);
@@ -443,6 +455,25 @@ public class SliceXMLizerCLI
 			} catch (final JiBXException _e) {
 				LOGGER.info("JiBX failed during serialization.", _e);
 			}
+		}
+	}
+
+	/**
+	 * Processing for line based criteria specification.
+	 * 
+	 * @param lineBasedCritSpecFileName is the file containing the line based criteria specificaiton.
+	 */
+	private void setLineBasedCriteriaSpecFile(final String lineBasedCritSpecFileName) {
+		try {
+			final InputStream _io = new FileInputStream(new File(lineBasedCritSpecFileName));
+			final Properties _props = new Properties();
+			_props.load(_io);
+			lineBasedCriteriaGenerator = new LineNumberBasedCriteriaGenerator(_props);
+			soot.options.Options.v().set_keep_line_number(true);
+		} catch (final IOException _e) {
+			lineBasedCriteriaGenerator = null;
+			LOGGER.error("Error while handling line based criteria spec file", _e);
+			throw new IllegalArgumentException("Error while handling line based criteria spec file", _e);
 		}
 	}
 
@@ -577,6 +608,12 @@ public class SliceXMLizerCLI
 		_o = new Option("x", "output-slice-xml", false, "Output xml representation of the slice.");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
+		_o = new Option("l", true, "Generate criteria based on line number based criteria spec file. The format is "
+				+ "<class FQN>=<comma-separated list of line numbers from the class containing  Java file>.");
+		_o.setArgs(1);
+		_o.setArgName("line-based-criteria-spec-file");
+		_o.setOptionalArg(false);
+		_options.addOption(_o);
 
 		CommandLine _cl = null;
 
@@ -631,6 +668,10 @@ public class SliceXMLizerCLI
 		if (_cl.hasOption('S')) {
 			sliceScope = xmlizer.setScopeSpecFile(_cl.getOptionValue('S'));
 			xmlizer.setScopeSpecFile(null);
+		}
+
+		if (_cl.hasOption('l')) {
+			xmlizer.setLineBasedCriteriaSpecFile(_cl.getOptionValue('l'));
 		}
 
 		xmlizer.preserveThrowStatements = _cl.hasOption('e');

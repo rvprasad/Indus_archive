@@ -15,7 +15,6 @@
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
 import soot.SootField;
-import soot.SootMethod;
 import soot.jimple.Stmt;
 
 /**
@@ -33,7 +32,7 @@ public final class FieldBasedCriteriaGenerator
 	/**
 	 * @see AbstractStmtBasedSliceCriteriaGenerator#getEntityForCriteriaFiltering(soot.jimple.Stmt, soot.SootMethod)
 	 */
-	@Override protected SootField getEntityForCriteriaFiltering(final Stmt stmt, final SootMethod sm) {
+	@Override protected SootField getEntityForCriteriaFiltering(final Stmt stmt) {
 		return stmt.getFieldRef().getField();
 	}
 

@@ -1,4 +1,3 @@
-
 /*
  * Indus, a toolkit to customize and adapt Java programs.
  * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
@@ -38,28 +37,32 @@ import org.slf4j.LoggerFactory;
 import soot.SootMethod;
 import soot.jimple.Stmt;
 
-
 /**
- * This class contains the logic to generate slice criteria based on properties of statements.  The subclasses provide the
+ * This class contains the logic to generate slice criteria based on properties of statements. The subclasses provide the
  * logic pertaining to property-based criteria selection.
- *
+ * 
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
  * @version $Revision$ $Date$
- * @param <T1> is the type of objects that will be considered for being used as slice criteria. 
+ * @param <T1> is the type of objects that will be considered for being used as slice criteria.
  */
 public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
-  extends AbstractSliceCriteriaGenerator<SootMethod, T1> {
+		extends AbstractSliceCriteriaGenerator<SootMethod, T1> {
+
 	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(AbstractStmtBasedSliceCriteriaGenerator.class);
 
 	/**
+	 * * The is a cache field that stores the methods during <code>getCriteriaOperation</code>
+	 */
+	private SootMethod processingMethodCache;
+
+	/**
 	 * Retrieves the criteria based on the information set on this generator.
-	 *
+	 * 
 	 * @return a collection of criterion.
-	 *
 	 */
 	@NonNull @Override protected final Collection<ISliceCriterion> getCriteriaTemplateMethod() {
 		if (LOGGER.isDebugEnabled()) {
@@ -85,10 +88,10 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 		final int _iEnd = _reachableMethods.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final SootMethod _sm = _i.next();
+			processingMethodCache = _i.next();
 
-			if (shouldConsiderSite(_sm)) {
-				final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(_sm);
+			if (shouldConsiderSite(processingMethodCache)) {
+				final BasicBlockGraph _bbg = _bbgMgr.getBasicBlockGraph(processingMethodCache);
 				final List<BasicBlock> _nodeList = _bbg.getNodes();
 				final Iterator<BasicBlock> _j = _nodeList.iterator();
 				final int _jEnd = _nodeList.size();
@@ -104,12 +107,14 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 						final Stmt _stmt = _k.next();
 
 						if (shouldConsiderStmt(_stmt)
-							  && shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt, _sm))) {
+								&& shouldGenerateCriteriaFrom(getEntityForCriteriaFiltering(_stmt))) {
 							if (_sliceType.equals(SliceType.COMPLETE_SLICE)) {
-								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, true));
-								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, false));
+								_result.addAll(_criteriaFactory.getCriteria(processingMethodCache, _stmt, true));
+								_result.addAll(_criteriaFactory.getCriteria(processingMethodCache, _stmt, false));
 							} else {
-								_result.addAll(_criteriaFactory.getCriteria(_sm, _stmt, _considerExecution));
+								_result
+										.addAll(_criteriaFactory
+												.getCriteria(processingMethodCache, _stmt, _considerExecution));
 							}
 						}
 					}
@@ -120,29 +125,33 @@ public abstract class AbstractStmtBasedSliceCriteriaGenerator<T1>
 	}
 
 	/**
-	 * Retrieves the entity that should be used to filter the statement for criteria generation purposes.  The returned value
-	 * is used for filtering purposes only. <code>shouldConsiderStmt(stmt)</code> will be <code>true</code> when this method
-	 * is executed.
-	 *
+	 * Retrieves the entity that should be used to filter the statement for criteria generation purposes. The returned value
+	 * is used for filtering purposes only. <code>shouldConsiderStmt(stmt)</code> will be <code>true</code> when this
+	 * method is executed.
+	 * 
 	 * @param stmt of interest.
-	 * @param sm containing <code>stmt</code>.
-	 *
-	 * @return the entity.  This implementation returns <code>stmt</code>.
-	 *
+	 * @return the entity. This implementation returns <code>stmt</code>.
 	 */
-	@Functional protected T1 getEntityForCriteriaFiltering(@NonNull final Stmt stmt, @SuppressWarnings("unused") final SootMethod sm) {
+	@Functional protected T1 getEntityForCriteriaFiltering(@NonNull final Stmt stmt) {
 		return (T1) stmt;
 	}
 
 	/**
-	 * Checks if the given statement should be considered as slice criteria.  The subclasses should override this method and
+	 * Retrieves the value in <code>processingMethod</code>.
+	 * 
+	 * @return the value in <code>processingMethod</code>.
+	 */
+	protected final SootMethod getProcessingMethod() {
+		return processingMethodCache;
+	}
+
+	/**
+	 * Checks if the given statement should be considered as slice criteria. The subclasses should override this method and
 	 * provide the logic to check if the <code>stmt</code> has the required properties.
-	 *
+	 * 
 	 * @param stmt of interest.
-	 *
-	 * @return <code>true</code> if <code>stmt</code> should be considered; <code>false</code>, otherwise.  This
-	 * 		   implementation always returns <code>true</code>.
-	 *
+	 * @return <code>true</code> if <code>stmt</code> should be considered; <code>false</code>, otherwise. This
+	 *         implementation always returns <code>true</code>.
 	 */
 	@Functional protected boolean shouldConsiderStmt(@SuppressWarnings("unused") final Stmt stmt) {
 		return true;
