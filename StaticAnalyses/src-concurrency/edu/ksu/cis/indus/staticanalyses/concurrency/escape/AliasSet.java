@@ -323,6 +323,8 @@ final class AliasSet
 				_clone.writewriteEntities = (Collection) ((HashSet<Object>) writewriteEntities).clone();
 			}
 
+			_clone.intraThreadInterProcRefEntities = null;
+
 			final Collection<String> _emptySet = Collections.emptySet();
 			if (readFields != _emptySet) {
 				_clone.readFields = (Collection) ((HashSet<String>) readFields).clone();
