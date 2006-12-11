@@ -33,6 +33,9 @@ import org.znerd.xmlenc.XMLOutputter;
 
 import soot.SootClass;
 import soot.SootMethod;
+import soot.jimple.AssignStmt;
+import soot.jimple.DefinitionStmt;
+import soot.jimple.MonitorStmt;
 import soot.jimple.Stmt;
 
 /**
@@ -50,6 +53,76 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 		extends AbstractProcessor {
 
 	/**
+	 * A hack class to handle types of dependee and dependent triggers.  This would be unnecessary if Java generics retained
+	 * type parameters to be inspected at runtime.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	final class Handler {
+
+		/**
+		 * Checks if the given statement can pass as a dependee object.
+		 * 
+		 * @param stmt of interest.
+		 * @return <code>true</code> if the given statement can pass as a dependee object.
+		 */
+		boolean canHandleDependee(final Stmt stmt) {
+			final boolean _result;
+			if (analysis instanceof IdentifierBasedDataDA) {
+				_result = stmt instanceof DefinitionStmt;
+			} else if (analysis instanceof ReferenceBasedDataDA || analysis instanceof InterferenceDAv1) {
+				_result = stmt instanceof AssignStmt;
+			} else if (analysis instanceof SynchronizationDA) {
+				_result = stmt instanceof MonitorStmt;
+			} else {
+				_result = true;
+			}
+			return _result;
+		}
+
+		/**
+		 * Checks if the given statement can pass as a dependent object.
+		 * 
+		 * @param stmt of interest.
+		 * @return <code>true</code> if the given statement can pass as a dependent object.
+		 */
+		boolean canHandleDependent(final Stmt stmt) {
+			final boolean _result;
+			if (analysis instanceof ReferenceBasedDataDA || analysis instanceof InterferenceDAv1) {
+				_result = stmt instanceof AssignStmt;
+			} else {
+				_result = true;
+			}
+			return _result;
+		}
+
+		/**
+		 * Casts the given object into a form amenable as dependee trigger type.
+		 * 
+		 * @param stmt to be cast
+		 * @return the cast object.
+		 */
+		E2 castToCompatibleDependee(final Stmt stmt) {
+			return ((Class<E2>) StmtAndMethodBasedDependencyXMLizer.this.getClass().getTypeParameters()[1].getBounds()[0])
+					.cast(stmt);
+		}
+
+		/**
+		 * Casts the given object into a form amenable as dependent trigger type.
+		 * 
+		 * @param stmt to be cast
+		 * @return the cast object.
+		 */
+		T1 castToCompatibleDependent(final Stmt stmt) {
+			return ((Class<T1>) StmtAndMethodBasedDependencyXMLizer.this.getClass().getTypeParameters()[0].getBounds()[0])
+					.cast(stmt);
+		}
+
+	}
+
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(StmtAndMethodBasedDependencyXMLizer.class);
@@ -57,17 +130,17 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 	/**
 	 * This is the dependency analysis whose information should be xmlized.
 	 */
-	private IDependencyAnalysis<T1, SootMethod, ?, E2, SootMethod, ?> analysis;
+	IDependencyAnalysis<T1, SootMethod, ?, E2, SootMethod, ?> analysis;
+
+	/**
+	 * DOCUMENT ME!
+	 */
+	private Handler handler;
 
 	/**
 	 * This is used to generate id's for xml elements.
 	 */
 	private IJimpleIDGenerator idGenerator;
-
-	/**
-	 * This is the writer used to write the xml information.
-	 */
-	private XMLOutputter writer;
 
 	/**
 	 * This indicates if a class is being processed.
@@ -85,14 +158,9 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 	private int totalDependences;
 
 	/**
-	 * The class of dependee objects.
+	 * This is the writer used to write the xml information.
 	 */
-	private final Class<E2> classForE2;
-
-	/**
-	 * The class of dependent objects.
-	 */
-	private final Class<T1> classForT1;
+	private XMLOutputter writer;
 
 	/**
 	 * Creates a new StmtAndMethodBasedDependencyXMLizer object.
@@ -107,87 +175,7 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 		writer = out;
 		idGenerator = generator;
 		analysis = depAnalysis;
-		classForT1 = (Class<T1>) getClass().getTypeParameters()[0].getBounds()[0];
-		classForE2 = (Class<E2>) getClass().getTypeParameters()[1].getBounds()[0];
-	}
-
-	/**
-	 * {@inheritDoc}
-	 * 
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
-	 */
-	@Override public void callback(final Stmt stmt, final Context context) {
-		final SootMethod _method = context.getCurrentMethod();
-		try {
-			final Collection<?> _dependents;
-
-			if (classForE2.isInstance(stmt)) {
-				_dependents = analysis.getDependents((E2) stmt, _method);
-			} else {
-				_dependents = Collections.emptySet();
-			}
-
-			final Collection<?> _dependees;
-			if (classForT1.isInstance(stmt)) {
-				_dependees = analysis.getDependees((T1) stmt, _method);
-			} else {
-				_dependees = Collections.emptySet();
-			}
-
-			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
-				writer.startTag("dependency_info");
-				writer.attribute("stmtId", idGenerator.getIdForStmt(stmt, _method));
-				totalDependences += _dependents.size();
-
-				for (final Iterator<?> _i = _dependents.iterator(); _i.hasNext();) {
-					final Object _o = _i.next();
-					String _tid = null;
-
-					if (_o instanceof Pair) {
-						final Pair<Stmt, SootMethod> _pair = (Pair) _o;
-						_tid = idGenerator.getIdForStmt(_pair.getFirst(), _pair.getSecond());
-					} else if (_o instanceof Stmt) {
-						_tid = idGenerator.getIdForStmt((Stmt) _o, _method);
-					}
-
-					if (_tid != null) {
-						writer.startTag("dependent");
-						writer.attribute("tid", _tid);
-						writer.endTag();
-					}
-				}
-
-				for (final Iterator<?> _i = _dependees.iterator(); _i.hasNext();) {
-					final Object _o = _i.next();
-					String _eid = null;
-
-					if (_o instanceof Pair) {
-						final Pair<Stmt, SootMethod> _pair = (Pair) _o;
-						_eid = idGenerator.getIdForStmt(_pair.getFirst(), _pair.getSecond());
-					} else if (_o instanceof Stmt) {
-						_eid = idGenerator.getIdForStmt((Stmt) _o, _method);
-					}
-
-					if (_eid != null) {
-						writer.startTag("dependee");
-						writer.attribute("eid", _eid);
-						writer.endTag();
-					}
-				}
-				writer.endTag();
-			} else if (LOGGER.isDebugEnabled()) {
-				LOGGER.debug("No informtion: " + stmt + " @ " + _method + " -- Dependents = " + _dependents.isEmpty() + " "
-						+ "Dependees = " + _dependees.isEmpty() + " " + analysis.getIds());
-			}
-		} catch (final IOException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error while writing dependency info.", _e);
-			}
-		} catch (final ClassCastException _e) {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("Error retrieving dependency info for " + stmt + " in the context " + context, _e);
-			}
-		}
+		handler = new Handler();
 	}
 
 	/**
@@ -233,6 +221,95 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 		} catch (final IOException _e) {
 			if (LOGGER.isWarnEnabled()) {
 				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * 
+	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.jimple.Stmt, edu.ksu.cis.indus.processing.Context)
+	 */
+	@Override public void callback(final Stmt stmt, final Context context) {
+		final SootMethod _method = context.getCurrentMethod();
+		try {
+			final Collection<?> _dependents;
+
+			if (handler.canHandleDependee(stmt)) {
+				_dependents = analysis.getDependents(handler.castToCompatibleDependee(stmt), _method);
+			} else {
+				_dependents = Collections.emptySet();
+			}
+
+			final Collection<?> _dependees;
+			if (handler.canHandleDependent(stmt)) {
+				if (analysis instanceof IdentifierBasedDataDA) {
+					_dependees = ((IdentifierBasedDataDA) analysis).getDependees(stmt, _method);
+				} else {
+					_dependees = analysis.getDependees(handler.castToCompatibleDependent(stmt), _method);
+				}
+			} else {
+				_dependees = Collections.emptySet();
+			}
+
+			if (!(_dependents.isEmpty() && _dependees.isEmpty())) {
+				writer.startTag("dependency_info");
+				writer.attribute("stmtId", idGenerator.getIdForStmt(stmt, _method));
+				totalDependences += _dependents.size();
+
+				for (final Iterator<?> _i = _dependents.iterator(); _i.hasNext();) {
+					final Object _o = _i.next();
+					String _tid = null;
+
+					if (_o instanceof Pair) {
+						final Object _first = ((Pair) _o).getFirst();
+						if (_first instanceof Stmt) {
+							final Pair<Stmt, SootMethod> _pair = (Pair) _o;
+							_tid = idGenerator.getIdForStmt(_pair.getFirst(), _pair.getSecond());
+						} else {
+							final Pair<?, Stmt> _pair = (Pair) _o;
+							_tid = idGenerator.getIdForStmt(_pair.getSecond(), _method);
+						}
+					} else if (_o instanceof Stmt) {
+						_tid = idGenerator.getIdForStmt((Stmt) _o, _method);
+					}
+
+					if (_tid != null) {
+						writer.startTag("dependent");
+						writer.attribute("tid", _tid);
+						writer.endTag();
+					}
+				}
+
+				for (final Iterator<?> _i = _dependees.iterator(); _i.hasNext();) {
+					final Object _o = _i.next();
+					String _eid = null;
+
+					if (_o instanceof Pair) {
+						final Pair<Stmt, SootMethod> _pair = (Pair) _o;
+						_eid = idGenerator.getIdForStmt(_pair.getFirst(), _pair.getSecond());
+					} else if (_o instanceof Stmt) {
+						_eid = idGenerator.getIdForStmt((Stmt) _o, _method);
+					}
+
+					if (_eid != null) {
+						writer.startTag("dependee");
+						writer.attribute("eid", _eid);
+						writer.endTag();
+					}
+				}
+				writer.endTag();
+			} else if (LOGGER.isDebugEnabled()) {
+				LOGGER.debug("No informtion: " + stmt + " @ " + _method + " -- Dependents = " + _dependents.isEmpty() + " "
+						+ "Dependees = " + _dependees.isEmpty() + " " + analysis.getIds());
+			}
+		} catch (final IOException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error while writing dependency info.", _e);
+			}
+		} catch (final ClassCastException _e) {
+			if (LOGGER.isWarnEnabled()) {
+				LOGGER.warn("Error retrieving dependency info for " + stmt + " in the context " + context, _e);
 			}
 		}
 	}
