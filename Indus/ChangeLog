@@ -1,3 +1,8 @@
+2006-12-11 venku <venku@boss.dreamsoft.com>
+
+	* src/edu/ksu/cis/indus/common/soot/AbstractStmtGraphFactory.java: 
+		- locals were added to stub method impls but were not being added to the body.
+
 2006-06-01 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/common/soot/MetricsProcessor.java: 

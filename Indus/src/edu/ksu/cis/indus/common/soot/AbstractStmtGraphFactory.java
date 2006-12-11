@@ -28,6 +28,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.Local;
 import soot.RefType;
 import soot.SootMethod;
 import soot.Type;
@@ -98,7 +99,9 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 
 				if (!method.isStatic()) {
 					final RefType _thisType = method.getDeclaringClass().getType();
-					_units.add(_jimple.newIdentityStmt(_jimple.newLocal("r0", _thisType), _jimple.newThisRef(_thisType)));
+					final Local _newLocal = _jimple.newLocal("r0", _thisType);
+					_body.getLocals().add(_newLocal);
+					_units.add(_jimple.newIdentityStmt(_newLocal, _jimple.newThisRef(_thisType)));
 				}
 
 				if (method.getParameterCount() > 0) {
@@ -106,7 +109,9 @@ public abstract class AbstractStmtGraphFactory<T extends UnitGraph>
 					for (@SuppressWarnings("unchecked") final Iterator<Type> _i = method.getParameterTypes().iterator(); _i
 							.hasNext();) {
 						final Type _type = _i.next();
-						_units.add(_jimple.newIdentityStmt(_jimple.newLocal("p" + _j, _type), _jimple.newParameterRef(_type,
+						final Local _newLocal = _jimple.newLocal("p" + _j, _type);
+						_body.getLocals().add(_newLocal);
+						_units.add(_jimple.newIdentityStmt(_newLocal, _jimple.newParameterRef(_type,
 								_j++)));
 					}
 				}
