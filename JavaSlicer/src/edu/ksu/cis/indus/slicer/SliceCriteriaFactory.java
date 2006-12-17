@@ -64,11 +64,6 @@ import soot.jimple.Stmt;
  * that incides if the execution of the expression/statement should be captured or not. If you think that this is overly fine,
  * I would be interested in a discussion.
  * </p>
- * <p>
- * Please note that <code>ISliceCriterion</code> extends <code>IPoolable</code>. This means that all criteria that were
- * created should be returned to the pool. Hence, the user is responsible to call <code>returnToPool()</code> on all the
- * criterion created via <code>getCriterion()</code> methods in this class.
- * </p>
  *
  * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
  * @author $Author$
