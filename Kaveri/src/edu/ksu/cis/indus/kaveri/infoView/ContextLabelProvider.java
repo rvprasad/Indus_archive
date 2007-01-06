@@ -26,24 +26,25 @@ import edu.ksu.cis.indus.kaveri.callgraph.MethodCallContext;
  * 
  * Provide the labels for the context dialog tvLeft.
  */
-public class ContextLabelProvider extends LabelProvider implements
-        ITableLabelProvider {
+public class ContextLabelProvider extends LabelProvider implements ITableLabelProvider {
 
     /**
      * Constructor.
-     *
+     * 
      */
     public ContextLabelProvider() {
-        
+
     }
-    
+
     /**
      * (non-Javadoc).
      * 
      * @see org.eclipse.jface.viewers.ITableLabelProvider#getColumnImage(java.lang.Object,
      *      int)
      */
-    public Image getColumnImage(final Object element, final int columnIndex) {
+    public Image getColumnImage(@SuppressWarnings("unused")
+    final Object element, @SuppressWarnings("unused")
+    final int columnIndex) {
         return null;
     }
 
@@ -58,14 +59,13 @@ public class ContextLabelProvider extends LabelProvider implements
         if (element instanceof MethodCallContext) {
             switch (columnIndex) {
             case 0:
-                _retString = ((MethodCallContext) element).getCallSource()
-                        .getElementName();
+                _retString = ((MethodCallContext) element).getCallSource().getElementName();
                 break;
             case 1:
-                _retString = ((MethodCallContext) element).getCallRoot()
-                        .getElementName();
+                _retString = ((MethodCallContext) element).getCallRoot().getElementName();
                 break;
-            default: break;   
+            default:
+                break;
             }
         }
         return _retString;

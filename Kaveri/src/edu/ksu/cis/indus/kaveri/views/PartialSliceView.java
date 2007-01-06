@@ -14,29 +14,21 @@
 
 package edu.ksu.cis.indus.kaveri.views;
 
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.ksu.cis.indus.common.soot.NamedTag;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.ResourceManager;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.dialogs.MessageDialog;
@@ -67,6 +59,18 @@ import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import soot.jimple.Stmt;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.ResourceManager;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
+
 /**
  * <p>
  * Partial slice view. This class creates a view that shows the Jimple
@@ -76,56 +80,42 @@ import soot.jimple.Stmt;
  */
 public class PartialSliceView extends ViewPart {
     /**
-     * <p>
-     * The table tvLeft for this view.
-     * </p>
-     */
-    private TableViewer viewer;
-
-    /**
-     * The partial statement data.
-     */
-    private PartialStmtData partialData;
-
-    /**
-     * The list of Jimple stmts in the criteria.
-     */
-    private Map crtList;
-
-    /**
-     * <p>
-     * The text label for the statement
-     * </p>
-     */
-    Text txt;
-
-    /**
-     * View is ready to receive the data.
-     */
-    private boolean isReady = false;
-
-    /**
-     * The constructor.
-     */
-    public PartialSliceView() {
-        isReady = false;
-        crtList = new HashMap();
-    }
-
-    /**
      * The content provider class is responsible for providing objects to the
      * view. It can wrap existing objects in adapters or simply return objects
      * as-is. These objects may be sensitive to the current input of the view,
      * or ignore it and always show the same content
-     *  
+     * 
      */
-    class ViewContentProvider implements IStructuredContentProvider,
-            IDeltaListener {
+    class ViewContentProvider implements IStructuredContentProvider, IDeltaListener {
+        /**
+         * Dispose any created resources.
+         */
+        public void dispose() {
+            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().removeListener(this);
+        }
+
+        /**
+         * Returns the set of criteria stored for the given project.
+         * 
+         * @param project
+         * @return CriteriaData The set of stored criteria.
+         */
+        private CriteriaData getCriteriaDataForProject(IProject project) {
+            try {
+                return retrieveCriteria(project);
+            } catch (CoreException _ce) {
+                KaveriErrorLog.logException("Core Exception Exception", _ce);
+                return null;
+            } catch (IOException _e) {
+                KaveriErrorLog.logException("Core Exception Exception", _e);
+                return null;
+            }
+        }
+
         /**
          * Returns the elements to show in the view.
          * 
-         * @param parent
-         *            The parent.
+         * @param parent The parent.
          * 
          * @return Object[] The list of statements if any present.
          */
@@ -141,8 +131,7 @@ public class PartialSliceView extends ViewPart {
                 if (_lst != null && _file != null) {
                     final List _sub = _lst.subList(2, _lst.size());
                     setupCriteriaStmts(_psd);
-                    txt.setText(_psd.getSelectedStatement() + " ("
-                            + _file.getName() + ")");
+                    txt.setText(_psd.getSelectedStatement() + " (" + _file.getName() + ")");
                     // Eliminate the first two elements.
                     _retObj = _sub.toArray();
                 } else {
@@ -153,106 +142,14 @@ public class PartialSliceView extends ViewPart {
         }
 
         /**
-         * Setup the list of jimple statements which are criteria.
-         * 
-         * @param psd
-         *            The partial statement data.
-         */
-        private void setupCriteriaStmts(PartialStmtData psd) {
-            final String _className = psd.getClassName();
-            final String _methodName = psd.getMethodName();
-            final int _nLineno = psd.getLineNo();
-            final List _jimpleList = psd.getStmtList().subList(2,
-                    psd.getStmtList().size());
-
-            final IProject _project = psd.getJavaFile().getProject();
-            final CriteriaData _cd = getCriteriaDataForProject(_project);
-            if (_cd == null)
-                return;
-            final List _crtList = _cd.getCriterias();
-            boolean criteriaDeleted = false;
-            for (Iterator iter = _crtList.iterator(); iter.hasNext();) {
-                Criteria _crt = (Criteria) iter.next();
-                if (_crt.getStrClassName().equals(_className) && _crt.getStrMethodName().equals(_methodName)
-                        && _crt.getNLineNo() == _nLineno) {
-                    // Found a criteria at the given point, hooray!
-                    if (_jimpleList.size() > _crt.getNJimpleIndex()) {
-                        crtList.put(_jimpleList.get(_crt.getNJimpleIndex()),
-                                Boolean.valueOf(_crt.isBConsiderValue()));
-                    } else {
-                        iter.remove();
-                        criteriaDeleted = true;
-                    }
-                }
-            }
-            if (criteriaDeleted) {
-                MessageDialog.openError(null, "Criteria Erased",
-                "Previous criteria at line #" + _nLineno + " were deleted.  If you need them, you will need to re-add them.");
-                storeCriteriaDataForProject(_cd, _project);
-            }
-        }
-
-        /**
-         * Returns the set of criteria stored for the given project.
-         * 
-         * @param project
-         * @return CriteriaData The set of stored criteria.
-         */
-        private CriteriaData getCriteriaDataForProject(IProject project) {
-
-            final QualifiedName _name = new QualifiedName(
-                    "edu.ksu.cis.indus.kaveri", "criterias");
-            CriteriaData _data = null;
-            final XStream _xstream = new XStream();
-            _xstream.alias("CriteriaData", CriteriaData.class);
-            try {
-                final String _propVal = project.getPersistentProperty(_name);
-                if (_propVal == null) {
-                    _data = new CriteriaData();
-                    _data.setCriterias(new ArrayList());
-                } else {
-                    _data = (CriteriaData) _xstream.fromXML(_propVal);
-                }
-            } catch (CoreException _ce) {
-                KaveriErrorLog.logException("Core Exception Exception", _ce);
-                return null;
-            }
-            return _data;
-        }
-
-        private void storeCriteriaDataForProject(final CriteriaData cd, final IProject project) {
-
-           /* final QualifiedName _name = new QualifiedName(
-                    "edu.ksu.cis.indus.kaveri", "criterias");
-            final XStream _xstream = new XStream();
-            _xstream.alias("CriteriaData", CriteriaData.class);
-            try {
-                final String _propVal = _xstream.toXML(cd);
-                project.setPersistentProperty(_name, _propVal);
-            } catch (CoreException _ce) {
-                KaveriErrorLog.logException("Core Exception Exception", _ce);
-            }*/
-        }
-        
-        /**
-         * Dispose any created resources.
-         */
-        public void dispose() {
-            KaveriPlugin.getDefault().getIndusConfiguration().getStmtList().removeListener(this);
-        }
-
-        /**
          * The input has changed. Register for receiving any changes.
          * 
-         * @param v
-         *            The current tvLeft
-         * @param oldInput
-         *            The old input to the view.
-         * @param newInput
-         *            The new input to the view.
+         * @param v The current tvLeft
+         * @param oldInput The old input to the view.
+         * @param newInput The new input to the view.
          */
-        public void inputChanged(final Viewer v, final Object oldInput,
-                final Object newInput) {
+        public void inputChanged(@SuppressWarnings("unused")
+        final Viewer v, final Object oldInput, final Object newInput) {
 
             if (oldInput != null) {
                 ((PartialStmtData) oldInput).removeListener(this);
@@ -261,6 +158,15 @@ public class PartialSliceView extends ViewPart {
             if (newInput != null) {
                 ((PartialStmtData) newInput).addListener(this);
             }
+        }
+
+        /**
+         * (non-Javadoc)
+         * 
+         * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#isReady()
+         */
+        public boolean isReady() {
+            return isReady;
         }
 
         /**
@@ -279,47 +185,79 @@ public class PartialSliceView extends ViewPart {
             }
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Setup the list of jimple statements which are criteria.
          * 
-         * @see edu.ksu.cis.indus.kaveri.views.IDeltaListener#isReady()
+         * @param psd The partial statement data.
          */
-        public boolean isReady() {
-            return isReady;
+        private void setupCriteriaStmts(PartialStmtData psd) {
+            final String _className = psd.getClassName();
+            final String _methodName = psd.getMethodName();
+            final int _nLineno = psd.getLineNo();
+            final List _jimpleList = psd.getStmtList().subList(2, psd.getStmtList().size());
+
+            final IProject _project = psd.getJavaFile().getProject();
+            final CriteriaData _cd = getCriteriaDataForProject(_project);
+            if (_cd == null) return;
+            final List _crtList = _cd.getCriterias();
+            boolean criteriaDeleted = false;
+            for (Iterator iter = _crtList.iterator(); iter.hasNext();) {
+                Criteria _crt = (Criteria) iter.next();
+                if (_crt.getStrClassName().equals(_className) && _crt.getStrMethodName().equals(_methodName)
+                        && _crt.getNLineNo() == _nLineno) {
+                    // Found a criteria at the given point, hooray!
+                    if (_jimpleList.size() > _crt.getNJimpleIndex()) {
+                        crtList.put(_jimpleList.get(_crt.getNJimpleIndex()), Boolean.valueOf(_crt.isBConsiderValue()));
+                    } else {
+                        iter.remove();
+                        criteriaDeleted = true;
+                    }
+                }
+            }
+            if (criteriaDeleted) {
+                MessageDialog.openError(null, "Criteria Erased", "Previous criteria at line #" + _nLineno
+                        + " were deleted.  If you need them, you will need to re-add them.");
+            }
         }
     }
 
-    
     /**
      * <p>
      * This class provides the labels for the elements shown in the view.
      * </p>
      * 
-     *  
+     * 
      */
-    class ViewLabelProvider extends LabelProvider implements
-            ITableLabelProvider, IColorProvider {
+    class ViewLabelProvider extends LabelProvider implements ITableLabelProvider, IColorProvider {
+
+        /**
+         * (non-Javadoc)
+         * 
+         * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
+         */
+        public Color getBackground(@SuppressWarnings("unused") Object element) {
+
+            return null;
+        }
 
         /**
          * Get the image label for the given column.
          * 
-         * @param obj
-         *            The object for which the image is needed
-         * @param index
-         *            The column
+         * @param obj The object for which the image is needed
+         * @param index The column
          * @return Image The image for the given column
          */
-        public Image getColumnImage(final Object obj, final int index) {
+        public Image getColumnImage(@SuppressWarnings("unused")
+        final Object obj, @SuppressWarnings("unused")
+        final int index) {
             return null;
         }
 
         /**
          * Returns the textual representation of the element to be shown.
          * 
-         * @param obj
-         *            The object whose value is to be shown
-         * @param index
-         *            The column number
+         * @param obj The object whose value is to be shown
+         * @param index The column number
          * 
          * @return String The textual representation of the object
          */
@@ -337,40 +275,6 @@ public class PartialSliceView extends ViewPart {
         }
 
         /**
-         * Returns the image label for the given object.
-         * 
-         * @param obj
-         *            The object for which the image label is needed.
-         * @return Image The image for the given object.
-         */
-        public Image getImage(final Object obj) {
-            return PlatformUI.getWorkbench().getSharedImages().getImage(
-                    ISharedImages.IMG_OBJ_ELEMENT);
-        }
-
-        /**
-         * Indicates if the given Jimple statement has the slice tag.
-         * 
-         * @param stmt
-         *            The jimple statement for which the presence of the tag is
-         *            to be tested
-         * 
-         * @return boolean Whether the statement has the tag or not.
-         */
-        private boolean isSliceTagPresent(final Stmt stmt) {
-            boolean _btagpresent = false;
-            final EclipseIndusDriver _driver = KaveriPlugin.getDefault()
-                    .getIndusConfiguration().getEclipseIndusDriver();
-            final NamedTag _sTag = (NamedTag) stmt.getTag(_driver
-                    .getNameOfSliceTag());
-
-            if (_sTag != null) {
-                _btagpresent = true;
-            }
-            return _btagpresent;
-        }
-
-        /*
          * (non-Javadoc)
          * 
          * @see org.eclipse.jface.viewers.IColorProvider#getForeground(java.lang.Object)
@@ -379,40 +283,158 @@ public class PartialSliceView extends ViewPart {
             if (element instanceof Stmt && crtList.keySet().contains(element)) {
                 final Boolean _bConsiderVal = (Boolean) crtList.get(element);
                 if (_bConsiderVal.booleanValue()) {
-                    return KaveriPlugin.getDefault().getIndusConfiguration()
-                            .getRManager().getColor(new RGB(0, 0, 189));
-                } else {
-                    return KaveriPlugin.getDefault().getIndusConfiguration()
-                            .getRManager().getColor(new RGB(255, 0, 0));
+                    return KaveriPlugin.getDefault().getIndusConfiguration().getRManager().getColor(new RGB(0, 0, 189));
                 }
+                return KaveriPlugin.getDefault().getIndusConfiguration().getRManager().getColor(new RGB(255, 0, 0));
             }
             return null;
         }
 
-        /*
-         * (non-Javadoc)
+        /**
+         * Returns the image label for the given object.
          * 
-         * @see org.eclipse.jface.viewers.IColorProvider#getBackground(java.lang.Object)
+         * @param obj The object for which the image label is needed.
+         * @return Image The image for the given object.
          */
-        public Color getBackground(Object element) {
+        public Image getImage(@SuppressWarnings("unused")
+        final Object obj) {
+            return PlatformUI.getWorkbench().getSharedImages().getImage(ISharedImages.IMG_OBJ_ELEMENT);
+        }
 
-            return null;
+        /**
+         * Indicates if the given Jimple statement has the slice tag.
+         * 
+         * @param stmt The jimple statement for which the presence of the tag is
+         *            to be tested
+         * 
+         * @return boolean Whether the statement has the tag or not.
+         */
+        private boolean isSliceTagPresent(final Stmt stmt) {
+            boolean _btagpresent = false;
+            final EclipseIndusDriver _driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
+            final NamedTag _sTag = (NamedTag) stmt.getTag(_driver.getNameOfSliceTag());
+
+            if (_sTag != null) {
+                _btagpresent = true;
+            }
+            return _btagpresent;
         }
     }
 
     /**
-     * Passing the focus request to the tvLeft's control.
+     * Retrieves criteria data.
+     * 
+     * @param project for which criteria should be retrieved.
+     * @return the criteria data.
+     * @throws IOException when IO error occurs.
+     * @throws CoreException when workspace related error occurs.
      */
-    public void setFocus() {
-        viewer.getControl().setFocus();
+    public static CriteriaData retrieveCriteria(final IProject project) throws IOException, CoreException {
+        final CriteriaData _result;
+        final IPath _path = project.getWorkingLocation(KaveriPlugin.getDefault().getDescriptor().getUniqueIdentifier());
+        final IPath _fileName = _path.addTrailingSeparator().append("Criteria.data");
+        if (_fileName.toFile().exists()) {
+            final XStream _xstream = new XStream(new DomDriver());
+            _xstream.alias("CriteriaData", CriteriaData.class);
+            final String _contents = FileUtils.readFileToString(_fileName.toFile(), null);
+            _result = (CriteriaData) _xstream.fromXML(_contents);
+        } else {
+            _result = new CriteriaData();
+            _result.setCriterias(new ArrayList());
+        }
+
+        return _result;
+    }
+
+    /**
+     * Save criteria data.
+     * 
+     * @param project for which the criteria will be stored.
+     * @param data to be written.
+     * @throws IOException when criteria saving fails.
+     */
+    public static void saveCriteria(final IProject project, final CriteriaData data) throws IOException {
+        final IPath _path = project.getWorkingLocation(KaveriPlugin.getDefault().getDescriptor().getUniqueIdentifier());
+        final IPath _fileName = _path.addTrailingSeparator().append("Criteria.data");
+        final XStream _xstream = new XStream(new DomDriver());
+        _xstream.alias("CriteriaData", CriteriaData.class);
+        final String _contents = _xstream.toXML(data);
+        FileUtils.writeStringToFile(_fileName.toFile(), _contents, null);
+    }
+
+    /**
+     * The list of Jimple stmts in the criteria.
+     */
+    Map crtList;
+
+    /**
+     * View is ready to receive the data.
+     */
+    boolean isReady = false;
+
+    /**
+     * The partial statement data.
+     */
+    PartialStmtData partialData;
+
+    /**
+     * <p>
+     * The text label for the statement
+     * </p>
+     */
+    Text txt;
+
+    /**
+     * <p>
+     * The table tvLeft for this view.
+     * </p>
+     */
+    TableViewer viewer;
+
+    /**
+     * The constructor.
+     */
+    public PartialSliceView() {
+        isReady = false;
+        crtList = new HashMap();
+    }
+
+    /**
+     * Add the criteria as specified by the given jimple index.
+     * 
+     * @param considerVal Consider the value.
+     * @param selectionIndex
+     */
+    void addToCriteria(int selectionIndex, final boolean considerVal) {
+        final IFile _file = partialData.getJavaFile();
+        final IProject _project = _file.getProject();
+
+        try {
+            final CriteriaData _data = retrieveCriteria(_project);
+            final Criteria _c = new Criteria();
+            _c.setStrClassName(partialData.getClassName());
+            _c.setStrMethodName(partialData.getMethodName());
+            _c.setNLineNo(partialData.getLineNo());
+            _c.setNJimpleIndex(selectionIndex);
+            _c.setBConsiderValue(considerVal);
+
+            _data.getCriterias().add(_c);
+
+            saveCriteria(_project, _data);
+        } catch (IOException _e) {
+            KaveriErrorLog.logException("IO Exception", _e);
+            SECommons.handleException(_e);
+        } catch (CoreException _e) {
+            KaveriErrorLog.logException("IO Exception", _e);
+            SECommons.handleException(_e);
+        }
     }
 
     /**
      * This is a callback that will allow us to create the tvLeft and initialize
      * it.
      * 
-     * @param parent
-     *            The parent control
+     * @param parent The parent control
      */
     public void createPartControl(final Composite parent) {
         final Composite _comp = new Composite(parent, SWT.NONE);
@@ -434,11 +456,9 @@ public class PartialSliceView extends ViewPart {
         _dataL.horizontalAlignment = GridData.FILL;
         _dataL.grabExcessHorizontalSpace = true;
         txt.setLayoutData(_dataL);
-        final ResourceManager _rm = KaveriPlugin.getDefault().
-        getIndusConfiguration().getRManager();
+        final ResourceManager _rm = KaveriPlugin.getDefault().getIndusConfiguration().getRManager();
         txt.setBackground(_rm.getColor(new RGB(255, 255, 255)));
         txt.setEditable(false);
-        
 
         final Table _table = createTable(_comp);
         final GridData _data = new GridData();
@@ -447,11 +467,11 @@ public class PartialSliceView extends ViewPart {
         _data.horizontalAlignment = GridData.FILL;
         _data.grabExcessVerticalSpace = true;
         _data.verticalAlignment = GridData.FILL;
-        //_data.grabExcessVerticalSpace = true;
+        // _data.grabExcessVerticalSpace = true;
         _table.setLayoutData(_data);
 
         _comp.addControlListener(new ControlAdapter() {
-            public void controlResized(ControlEvent e) {
+            public void controlResized(@SuppressWarnings("unused") ControlEvent e) {
                 for (int i = 0; i < _table.getColumnCount(); i++) {
                     _table.getColumn(i).pack();
                 }
@@ -460,342 +480,23 @@ public class PartialSliceView extends ViewPart {
 
         viewer = new TableViewer(_table);
 
-        //tvLeft = new CheckboxTableViewer(_table);
+        // tvLeft = new CheckboxTableViewer(_table);
         viewer.setContentProvider(new ViewContentProvider());
         viewer.setLabelProvider(new ViewLabelProvider());
-        viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration()
-                .getStmtList());
-        final IToolBarManager _manager = getViewSite().getActionBars()
-                .getToolBarManager();
+        viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
+        final IToolBarManager _manager = getViewSite().getActionBars().getToolBarManager();
         fillToolBar(_manager);
-    }
-
-    /**
-     * Fills the toolbar.
-     * 
-     * @param manager
-     */
-    private void fillToolBar(IToolBarManager manager) {
-        Action _actionLoad = new Action() {
-            public void run() {
-                if (isReady) {
-                    isReady = false;
-                    final ImageDescriptor _desc = AbstractUIPlugin
-                            .imageDescriptorFromPlugin(
-                                    "edu.ksu.cis.indus.kaveri",
-                                    "data/icons/trackView.gif");
-                    this.setImageDescriptor(_desc);
-                    this.setToolTipText("Track Java Statements (Inactive)");
-                } else {
-                    final ImageDescriptor _desc = AbstractUIPlugin
-                            .imageDescriptorFromPlugin(
-                                    "edu.ksu.cis.indus.kaveri",
-                                    "data/icons/trackViewAct.gif");
-                    this.setImageDescriptor(_desc);
-                    isReady = true;
-                    this.setToolTipText("Track Java Statements (Active)");
-                    viewer.setInput(KaveriPlugin.getDefault()
-                            .getIndusConfiguration().getStmtList());
-                }
-            }
-        };
-
-        _actionLoad.setToolTipText("Track Java Statements (Inactive)");
-        final ImageDescriptor _desc = AbstractUIPlugin
-                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                        "data/icons/trackView.gif");
-        _actionLoad.setImageDescriptor(_desc);
-        manager.add(_actionLoad);
-
-        Action _actionAddCriteriaTop = new Action() {
-            public void run() {
-                if (partialData != null
-                        && partialData.getClassName() != null) {
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-
-                    if (_stmtList.size() == 0) return;
-                    int _index = 0;
-                    if (viewer.getTable().getSelectionIndex() != -1) {
-                        _index = viewer.getTable().getSelectionIndex();
-                    }
-                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
-                    if (crtList.containsKey(_stmt)) {
-                        MessageDialog.openError(null, "Error",
-                                "Duplicate Criteria are not allowed!");
-                    } else {
-                        addToCriteria(_index, false);
-                        crtList.put(_stmt, new Boolean(false));
-                        viewer.refresh();
-                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
-                    }
-                }
-            }
-
-        };
-
-        _actionAddCriteriaTop.setToolTipText("Add as criteria (Pre execution)");
-        final ImageDescriptor _descCrt = AbstractUIPlugin
-                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                        "data/icons/addCriteriaTop.gif");
-        _actionAddCriteriaTop.setImageDescriptor(_descCrt);
-        manager.add(_actionAddCriteriaTop);
-
-        Action _actionAddCriteriaBottom = new Action() {
-            public void run() {
-                if (partialData != null
-                        && partialData.getClassName() != null) {                    
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-                    if (_stmtList.size() == 0) return;
-                    int _index = _stmtList.size() - 1;
-                    if (viewer.getTable().getSelectionIndex() != -1) {
-                        _index = viewer.getTable().getSelectionIndex();
-                    }
-                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
-                    if (crtList.containsKey(_stmt)) {
-                        MessageDialog.openError(null, "Error",
-                                "Duplicate Criteria are not allowed!");
-                    } else {
-                        addToCriteria(_index,
-                                true);
-                        crtList.put(_stmt, new Boolean(true));
-                        viewer.refresh();
-                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
-                    }
-                }
-            }
-
-        };
-
-        _actionAddCriteriaBottom.setToolTipText("Add as criteria (Post execution)");
-        final ImageDescriptor _descCrtBot = AbstractUIPlugin
-                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                        "data/icons/addCriteriaBot.gif");
-        _actionAddCriteriaBottom.setImageDescriptor(_descCrtBot);
-        manager.add(_actionAddCriteriaBottom);
-
-        Action _actionRemoveCriteria = new Action() {
-            public void run() {
-                if (viewer.getTable().getSelectionIndex() != -1
-                        && partialData != null
-                        && partialData.getClassName() != null) {
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable()
-                            .getSelectionIndex());
-                    if (!crtList.containsKey(_stmt)) {
-                        MessageDialog.openError(null, "Error",
-                                "Statement is not a criteria");
-                    } else {
-                        removeCriteria(viewer.getTable().getSelectionIndex());
-                        crtList.remove(_stmt);
-                        viewer.refresh();
-                    }
-                }
-            }
-
-        };
-
-        _actionRemoveCriteria.setToolTipText("Remove criteria");
-        final ImageDescriptor _descCrtRem = AbstractUIPlugin
-                .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                        "data/icons/remCriteria.gif");
-        _actionRemoveCriteria.setImageDescriptor(_descCrtRem);
-        manager.add(_actionRemoveCriteria);
-        
-        Action _actionJavaAddCrtTop = new Action() {
-            public void run() {
-                if (partialData != null
-                        && partialData.getClassName() != null) {                    
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-                    if (_stmtList.size() == 0) return;
-                    for (int _i=0; _i < _stmtList.size(); _i++) {
-                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
-                        if (crtList.containsKey(_stmt)) {
-                            MessageDialog.openError(null, "Error",
-                                    "Can't add " + _stmt + " as a criteria.");
-                            return;
-                        } else {
-                            addToCriteria(_i, false);
-                            crtList.put(_stmt, new Boolean(false));                            
-                        }
-
-                    }                    
-                    viewer.refresh();
-                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
-                }
-            }
-        };
-        final ImageDescriptor _descJCrtTop = AbstractUIPlugin
-        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                "data/icons/jCriteriaTop.gif");
-        _actionJavaAddCrtTop.setImageDescriptor(_descJCrtTop);
-        _actionJavaAddCrtTop.setToolTipText("Add as criteria (Pre execution)");
-        manager.add(_actionJavaAddCrtTop);
-        
-        Action _actionJavaAddCrtBot = new Action() {
-            public void run() {
-                if (partialData != null
-                        && partialData.getClassName() != null) {                    
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-                    if (_stmtList.size() == 0) return;
-                    for (int _i=0; _i < _stmtList.size(); _i++) {
-                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
-                        if (crtList.containsKey(_stmt)) {
-                            MessageDialog.openError(null, "Error",
-                                    "Can't add " + _stmt + " as a criteria.");
-                            return;
-                        } else {
-                            addToCriteria(_i, true);
-                            crtList.put(_stmt, new Boolean(true));                            
-                        }
-
-                    }
-                    viewer.refresh();
-                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
-                }                
-            }
-        };
-        _actionJavaAddCrtBot.setToolTipText("Add as criteria (Post execution)");
-        
-        final ImageDescriptor _descJCrtBot = AbstractUIPlugin
-        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                "data/icons/jCriteriaBot.gif");
-        _actionJavaAddCrtBot.setImageDescriptor(_descJCrtBot);
-        manager.add(_actionJavaAddCrtBot);
-
-        
-        Action _actionJavaremCrt = new Action() {
-            public void run() {
-                if (partialData != null && partialData.getStmtList() != null && partialData.getStmtList().size() > 0
-                        && partialData.getClassName() != null) {
-                    final List _stmtList = partialData.getStmtList().subList(2,
-                            partialData.getStmtList().size());
-                 for (int _i = 0 ; _i < _stmtList.size(); _i++) {   
-                    final Stmt _stmt = (Stmt) _stmtList.get(_i);
-                    if (crtList.containsKey(_stmt)) {
-                        removeCriteria(_i);
-                        crtList.remove(_stmt);
-                    }
-                }
-                        viewer.refresh();
-                }
-            }
-        };
-        _actionJavaremCrt.setToolTipText("Remove all criteria");
-        
-        final ImageDescriptor _descJRemCrt = AbstractUIPlugin
-        .imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
-                "data/icons/jremCriteria.gif");
-        _actionJavaremCrt.setImageDescriptor(_descJRemCrt);
-        manager.add(_actionJavaremCrt);
-        
-    }
-
-    /**
-     * Removes the statement as specified by the index from the criteria.
-     * 
-     * @param selectionIndex
-     */
-    protected void removeCriteria(int selectionIndex) {
-        final IFile _file = partialData.getJavaFile();
-        final IResource _resource = _file.getProject();
-        final QualifiedName _name = new QualifiedName(
-                "edu.ksu.cis.indus.kaveri", "criterias");
-        CriteriaData _data = null;
-        final XStream _xstream = new XStream(new DomDriver());
-        _xstream.alias("CriteriaData", CriteriaData.class);
-
-        try {
-            final String _propVal = _resource.getPersistentProperty(_name);
-
-            if (_propVal == null) {
-                _data = new CriteriaData();
-                _data.setCriterias(new ArrayList());
-            } else {
-                _data = (CriteriaData) _xstream.fromXML(_propVal);
-            }
-
-            for (Iterator iter = _data.getCriterias().iterator(); iter
-                    .hasNext();) {
-                final Criteria _c = (Criteria) iter.next();
-                if (_c.getStrClassName().equals(partialData.getClassName())
-                        && _c.getStrMethodName().equals(
-                                partialData.getMethodName())
-                        && _c.getNLineNo() == partialData.getLineNo()
-                        && _c.getNJimpleIndex() == selectionIndex) {
-                    _data.getCriterias().remove(_c);
-                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
-                    break;
-                }
-
-            }
-
-            final String _xml = _xstream.toXML(_data);
-            _resource.setPersistentProperty(_name, _xml);
-        } catch (CoreException _e) {
-            SECommons.handleException(_e);
-            KaveriErrorLog.logException("Core Exception", _e);
-        }
-
-    }
-
-    /**
-     * Add the criteria as specified by the given jimple index.
-     * 
-     * @param considerVal
-     *            Consider the value.
-     * @param selectionIndex
-     */
-    private void addToCriteria(int selectionIndex, final boolean considerVal) {
-        final IFile _file = partialData.getJavaFile();
-        final IResource _resource = _file.getProject();
-        final QualifiedName _name = new QualifiedName(
-                "edu.ksu.cis.indus.kaveri", "criterias");
-        CriteriaData _data = null;
-        final XStream _xstream = new XStream(new DomDriver());
-        _xstream.alias("CriteriaData", CriteriaData.class);
-
-        try {
-            final String _propVal = _resource.getPersistentProperty(_name);
-
-            if (_propVal == null) {
-                _data = new CriteriaData();
-                _data.setCriterias(new ArrayList());
-            } else {
-                _data = (CriteriaData) _xstream.fromXML(_propVal);
-            }
-            final Criteria _c = new Criteria();
-            _c.setStrClassName(partialData.getClassName());
-            _c.setStrMethodName(partialData.getMethodName());
-            _c.setNLineNo(partialData.getLineNo());
-            _c.setNJimpleIndex(selectionIndex);
-            _c.setBConsiderValue(considerVal);
-
-            _data.getCriterias().add(_c);
-
-            final String _xml = _xstream.toXML(_data);
-            _resource.setPersistentProperty(_name, _xml);
-        } catch (CoreException _e) {
-            KaveriErrorLog.logException("Core Exception", _e);
-            SECommons.handleException(_e);
-        }
     }
 
     /**
      * Creates the table.
      * 
-     * @param parent
-     *            The parent composite
+     * @param parent The parent composite
      * 
      * @return Table The table
      */
     private Table createTable(final Composite parent) {
-        final Table _table = new Table(parent, SWT.SINGLE | SWT.BORDER
-                | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
+        final Table _table = new Table(parent, SWT.SINGLE | SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION
                 | SWT.HIDE_SELECTION);
         _table.setLinesVisible(true);
         _table.setHeaderVisible(true);
@@ -814,7 +515,241 @@ public class PartialSliceView extends ViewPart {
      * 
      * @see org.eclipse.ui.IWorkbenchPart#dispose()
      */
-    public void dispose() {        
+    public void dispose() {
         super.dispose();
+    }
+
+    /**
+     * Fills the toolbar.
+     * 
+     * @param manager
+     */
+    private void fillToolBar(IToolBarManager manager) {
+        Action _actionLoad = new Action() {
+            public void run() {
+                if (isReady) {
+                    isReady = false;
+                    final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                            "data/icons/trackView.gif");
+                    this.setImageDescriptor(_desc);
+                    this.setToolTipText("Track Java Statements (Inactive)");
+                } else {
+                    final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                            "data/icons/trackViewAct.gif");
+                    this.setImageDescriptor(_desc);
+                    isReady = true;
+                    this.setToolTipText("Track Java Statements (Active)");
+                    viewer.setInput(KaveriPlugin.getDefault().getIndusConfiguration().getStmtList());
+                }
+            }
+        };
+
+        _actionLoad.setToolTipText("Track Java Statements (Inactive)");
+        final ImageDescriptor _desc = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/trackView.gif");
+        _actionLoad.setImageDescriptor(_desc);
+        manager.add(_actionLoad);
+
+        Action _actionAddCriteriaTop = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+
+                    if (_stmtList.size() == 0) return;
+                    int _index = 0;
+                    if (viewer.getTable().getSelectionIndex() != -1) {
+                        _index = viewer.getTable().getSelectionIndex();
+                    }
+                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
+                    if (crtList.containsKey(_stmt)) {
+                        MessageDialog.openError(null, "Error", "Duplicate Criteria are not allowed!");
+                    } else {
+                        addToCriteria(_index, false);
+                        crtList.put(_stmt, Boolean.FALSE);
+                        viewer.refresh();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
+                    }
+                }
+            }
+
+        };
+
+        _actionAddCriteriaTop.setToolTipText("Add as criteria (Pre execution)");
+        final ImageDescriptor _descCrt = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/addCriteriaTop.gif");
+        _actionAddCriteriaTop.setImageDescriptor(_descCrt);
+        manager.add(_actionAddCriteriaTop);
+
+        Action _actionAddCriteriaBottom = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+                    if (_stmtList.size() == 0) return;
+                    int _index = _stmtList.size() - 1;
+                    if (viewer.getTable().getSelectionIndex() != -1) {
+                        _index = viewer.getTable().getSelectionIndex();
+                    }
+                    final Stmt _stmt = (Stmt) _stmtList.get(_index);
+                    if (crtList.containsKey(_stmt)) {
+                        MessageDialog.openError(null, "Error", "Duplicate Criteria are not allowed!");
+                    } else {
+                        addToCriteria(_index, true);
+                        crtList.put(_stmt, Boolean.TRUE);
+                        viewer.refresh();
+                        KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
+                    }
+                }
+            }
+
+        };
+
+        _actionAddCriteriaBottom.setToolTipText("Add as criteria (Post execution)");
+        final ImageDescriptor _descCrtBot = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/addCriteriaBot.gif");
+        _actionAddCriteriaBottom.setImageDescriptor(_descCrtBot);
+        manager.add(_actionAddCriteriaBottom);
+
+        Action _actionRemoveCriteria = new Action() {
+            public void run() {
+                if (viewer.getTable().getSelectionIndex() != -1 && partialData != null && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+                    final Stmt _stmt = (Stmt) _stmtList.get(viewer.getTable().getSelectionIndex());
+                    if (!crtList.containsKey(_stmt)) {
+                        MessageDialog.openError(null, "Error", "Statement is not a criteria");
+                    } else {
+                        removeCriteria(viewer.getTable().getSelectionIndex());
+                        crtList.remove(_stmt);
+                        viewer.refresh();
+                    }
+                }
+            }
+
+        };
+
+        _actionRemoveCriteria.setToolTipText("Remove criteria");
+        final ImageDescriptor _descCrtRem = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/remCriteria.gif");
+        _actionRemoveCriteria.setImageDescriptor(_descCrtRem);
+        manager.add(_actionRemoveCriteria);
+
+        Action _actionJavaAddCrtTop = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+                    if (_stmtList.size() == 0) return;
+                    for (int _i = 0; _i < _stmtList.size(); _i++) {
+                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                        if (crtList.containsKey(_stmt)) {
+                            MessageDialog.openError(null, "Error", "Can't add " + _stmt + " as a criteria.");
+                            return;
+                        } else {
+                            addToCriteria(_i, false);
+                            crtList.put(_stmt, new Boolean(false));
+                        }
+
+                    }
+                    viewer.refresh();
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
+                }
+            }
+        };
+        final ImageDescriptor _descJCrtTop = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jCriteriaTop.gif");
+        _actionJavaAddCrtTop.setImageDescriptor(_descJCrtTop);
+        _actionJavaAddCrtTop.setToolTipText("Add as criteria (Pre execution)");
+        manager.add(_actionJavaAddCrtTop);
+
+        Action _actionJavaAddCrtBot = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+                    if (_stmtList.size() == 0) return;
+                    for (int _i = 0; _i < _stmtList.size(); _i++) {
+                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                        if (crtList.containsKey(_stmt)) {
+                            MessageDialog.openError(null, "Error", "Can't add " + _stmt + " as a criteria.");
+                            return;
+                        } else {
+                            addToCriteria(_i, true);
+                            crtList.put(_stmt, new Boolean(true));
+                        }
+
+                    }
+                    viewer.refresh();
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
+                }
+            }
+        };
+        _actionJavaAddCrtBot.setToolTipText("Add as criteria (Post execution)");
+
+        final ImageDescriptor _descJCrtBot = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jCriteriaBot.gif");
+        _actionJavaAddCrtBot.setImageDescriptor(_descJCrtBot);
+        manager.add(_actionJavaAddCrtBot);
+
+        Action _actionJavaremCrt = new Action() {
+            public void run() {
+                if (partialData != null && partialData.getStmtList() != null && partialData.getStmtList().size() > 0
+                        && partialData.getClassName() != null) {
+                    final List _stmtList = partialData.getStmtList().subList(2, partialData.getStmtList().size());
+                    for (int _i = 0; _i < _stmtList.size(); _i++) {
+                        final Stmt _stmt = (Stmt) _stmtList.get(_i);
+                        if (crtList.containsKey(_stmt)) {
+                            removeCriteria(_i);
+                            crtList.remove(_stmt);
+                        }
+                    }
+                    viewer.refresh();
+                }
+            }
+        };
+        _actionJavaremCrt.setToolTipText("Remove all criteria");
+
+        final ImageDescriptor _descJRemCrt = AbstractUIPlugin.imageDescriptorFromPlugin("edu.ksu.cis.indus.kaveri",
+                "data/icons/jremCriteria.gif");
+        _actionJavaremCrt.setImageDescriptor(_descJRemCrt);
+        manager.add(_actionJavaremCrt);
+
+    }
+
+    /**
+     * Removes the statement as specified by the index from the criteria.
+     * 
+     * @param selectionIndex
+     * @throws IOException
+     */
+    protected void removeCriteria(int selectionIndex) {
+        final IFile _file = partialData.getJavaFile();
+        final IProject _project = _file.getProject();
+        try {
+            final CriteriaData _data = retrieveCriteria(_project);
+
+            for (Iterator iter = _data.getCriterias().iterator(); iter.hasNext();) {
+                final Criteria _c = (Criteria) iter.next();
+                if (_c.getStrClassName().equals(partialData.getClassName())
+                        && _c.getStrMethodName().equals(partialData.getMethodName())
+                        && _c.getNLineNo() == partialData.getLineNo() && _c.getNJimpleIndex() == selectionIndex) {
+                    _data.getCriterias().remove(_c);
+                    KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().update();
+                    break;
+                }
+            }
+
+            saveCriteria(_project, _data);
+        } catch (CoreException _e) {
+            SECommons.handleException(_e);
+            KaveriErrorLog.logException("Core Exception", _e);
+        } catch (IOException _e) {
+            SECommons.handleException(_e);
+            KaveriErrorLog.logException("Core Exception", _e);
+        }
+
+    }
+
+    /**
+     * Passing the focus request to the tvLeft's control.
+     */
+    public void setFocus() {
+        viewer.getControl().setFocus();
     }
 }

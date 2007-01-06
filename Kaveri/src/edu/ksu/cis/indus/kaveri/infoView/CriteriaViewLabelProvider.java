@@ -13,10 +13,16 @@ import org.eclipse.swt.graphics.Image;
 
 /**
  * @author Ganeshan
- *
+ * 
  * Presents the label for the criteria tab.
  */
 public class CriteriaViewLabelProvider extends LabelProvider implements ITableLabelProvider {
+    public Image getColumnImage(@SuppressWarnings("unused")
+    Object obj, @SuppressWarnings("unused")
+    int index) {
+        return null;
+    }
+
     public String getColumnText(Object obj, int index) {
         String _retString = "";
         if (obj instanceof Criteria) {
@@ -32,18 +38,15 @@ public class CriteriaViewLabelProvider extends LabelProvider implements ITableLa
                 _retString = _c.getNJimpleIndex() + "";
                 break;
             case 3:
-                _retString = _c.isBConsiderValue() + "";                
+                _retString = _c.isBConsiderValue() + "";
                 break;
             }
         }
         return _retString;
     }
 
-    public Image getColumnImage(Object obj, int index) {
-        return null;
-    }
-
-    public Image getImage(Object obj) {
+    public Image getImage(@SuppressWarnings("unused")
+    Object obj) {
         return null;
     }
 }

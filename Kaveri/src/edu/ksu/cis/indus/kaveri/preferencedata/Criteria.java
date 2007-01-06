@@ -26,16 +26,6 @@ package edu.ksu.cis.indus.kaveri.preferencedata;
  */
 public class Criteria {
     /**
-     * The class name.
-     */
-    private String strClassName;
-
-    /**
-     * The method name.
-     */
-    private String strMethodName;
-
-    /**
      * Consider the exceution.
      */
     private boolean bConsiderValue;
@@ -56,98 +46,26 @@ public class Criteria {
     private int nLineNo;
 
     /**
-     * Set consider excecution to considerValue.
-     * 
-     * @param considerValue
-     *            The bConsiderValue to set.
+     * The class name.
      */
-    public void setBConsiderValue(final boolean considerValue) {
-        bConsiderValue = considerValue;
-    }
+    private String strClassName;
 
     /**
-     * Returns whether consider execution is enabled.
-     * 
-     * @return Returns the bConsiderValue.
+     * The method name.
      */
-    public boolean isBConsiderValue() {
-        return bConsiderValue;
-    }
+    private String strMethodName;
 
     /**
-     * Sets the Jimple index.
-     * 
-     * @param jimpleIndex
-     *            The nJimpleIndex to set.
+     * @see java.lang.Object#equals(java.lang.Object)
      */
-    public void setNJimpleIndex(final int jimpleIndex) {
-        nJimpleIndex = jimpleIndex;
-    }
-
-    /**
-     * Get the chosen Jimple index.
-     * 
-     * @return int Returns the index.
-     */
-    public int getNJimpleIndex() {
-        return nJimpleIndex;
-    }
-
-    /**
-     * Sets the line number.
-     * 
-     * @param lineNo
-     *            The line number.
-     */
-    public void setNLineNo(final int lineNo) {
-        nLineNo = lineNo;
-    }
-
-    /**
-     * Returns the line number.
-     * 
-     * @return int The line number.
-     */
-    public int getNLineNo() {
-        return nLineNo;
-    }
-
-    /**
-     * Sets the classname to strClass.
-     * 
-     * @param strClass
-     *            The class name
-     */
-    public void setStrClassName(final String strClass) {
-        this.strClassName = strClass;
-    }
-
-    /**
-     * Returns the class name in which the criteria is present.
-     * 
-     * @return String The classname
-     */
-    public String getStrClassName() {
-        return strClassName;
-    }
-
-    /**
-     * Sets the method name to strMethod.
-     * 
-     * @param strMethod
-     *            The method name.
-     */
-    public void setStrMethodName(final String strMethod) {
-        this.strMethodName = strMethod;
-    }
-
-    /**
-     * Returns the name of the method in which the criteria is present.
-     * 
-     * @return String The method name.
-     */
-    public String getStrMethodName() {
-        return strMethodName;
+    public boolean equals(Object obj) {
+        if (obj instanceof Criteria) {
+            final Criteria _c = (Criteria) obj;
+            return (_c.getStrClassName().equals(strClassName) && _c.getStrMethodName().equals(strMethodName)
+                    && _c.getNLineNo() == nLineNo && _c.getNJimpleIndex() == nJimpleIndex);
+        }
+        
+        return super.equals(obj);
     }
 
     /**
@@ -160,28 +78,101 @@ public class Criteria {
     }
 
     /**
-     * Sets the serialized form of the criteria.
+     * Get the chosen Jimple index.
      * 
-     * @param criteriaSpec
-     *            The criteriaSpec to set.
+     * @return int Returns the index.
      */
-    public void setCriteriaSpec(String criteriaSpec) {
-        this.criteriaSpec = criteriaSpec;
+    public int getNJimpleIndex() {
+        return nJimpleIndex;
     }
 
-    /*
-     * (non-Javadoc)
+    /**
+     * Returns the line number.
      * 
-     * @see java.lang.Object#equals(java.lang.Object)
+     * @return int The line number.
      */
-    public boolean equals(Object obj) {
-        if (obj instanceof Criteria) {
-            final Criteria _c = (Criteria) obj;
-            return (_c.getStrClassName().equals(strClassName)
-                    && _c.getStrMethodName().equals(strMethodName)
-                    && _c.getNLineNo() == nLineNo && _c.getNJimpleIndex() == nJimpleIndex);
-        } else {
-            return super.equals(obj);
-        }
+    public int getNLineNo() {
+        return nLineNo;
+    }
+
+    /**
+     * Returns the class name in which the criteria is present.
+     * 
+     * @return String The classname
+     */
+    public String getStrClassName() {
+        return strClassName;
+    }
+
+    /**
+     * Returns the name of the method in which the criteria is present.
+     * 
+     * @return String The method name.
+     */
+    public String getStrMethodName() {
+        return strMethodName;
+    }
+
+    /**
+     * Returns whether consider execution is enabled.
+     * 
+     * @return Returns the bConsiderValue.
+     */
+    public boolean isBConsiderValue() {
+        return bConsiderValue;
+    }
+
+    /**
+     * Set consider excecution to considerValue.
+     * 
+     * @param considerValue The bConsiderValue to set.
+     */
+    public void setBConsiderValue(final boolean considerValue) {
+        bConsiderValue = considerValue;
+    }
+
+    /**
+     * Sets the serialized form of the criteria.
+     * 
+     * @param cs The criteriaSpec to set.
+     */
+    public void setCriteriaSpec(String cs) {
+        this.criteriaSpec = cs;
+    }
+
+    /**
+     * Sets the Jimple index.
+     * 
+     * @param jimpleIndex The nJimpleIndex to set.
+     */
+    public void setNJimpleIndex(final int jimpleIndex) {
+        nJimpleIndex = jimpleIndex;
+    }
+
+    /**
+     * Sets the line number.
+     * 
+     * @param lineNo The line number.
+     */
+    public void setNLineNo(final int lineNo) {
+        nLineNo = lineNo;
+    }
+
+    /**
+     * Sets the classname to strClass.
+     * 
+     * @param strClass The class name
+     */
+    public void setStrClassName(final String strClass) {
+        this.strClassName = strClass;
+    }
+
+    /**
+     * Sets the method name to strMethod.
+     * 
+     * @param strMethod The method name.
+     */
+    public void setStrMethodName(final String strMethod) {
+        this.strMethodName = strMethod;
     }
 }

@@ -96,7 +96,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * The user modified classpathset.
      */
     private Set classpathSet;
-    
+
     /**
      * <p>
      * The eclipse indus driver.
@@ -120,15 +120,14 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * Reachable warning given
      */
     boolean reachableWarningGiven = false;
-    
+
     /**
-     * Residualize the scene. 
-     * The entity that does this is resposible for 
+     * Residualize the scene. The entity that does this is resposible for
      * restoring the changes.
      * 
      */
     boolean residualize = false;
-    
+
     /**
      * All the java files in the given project.
      */
@@ -137,16 +136,12 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Creates a new KaveriIndusRunner object.
      * 
-     * @param filesList
-     *            The file pointing to the java file being sliced
-     * @param bar
-     *            The slice progress bar to which to report the messages.
+     * @param filesList The file pointing to the java file being sliced
+     * @param bar The slice progress bar to which to report the messages.
      */
-    public AbstractIndusRunner(final List filesList, SliceProgressBar bar
-            , final Set classPathSet) {
+    public AbstractIndusRunner(final List filesList, SliceProgressBar bar, final Set classPathSet) {
         this.fileList = filesList;
-        driver = KaveriPlugin.getDefault().getIndusConfiguration()
-                .getEclipseIndusDriver();
+        driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
         editor = null;
         completeFileList = null;
         opCancelled = false;
@@ -158,8 +153,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * Sets the current editor. Used to show the highlighting in case of
      * backward and forward slicing.
      * 
-     * @param ceditor
-     *            The editor to set.
+     * @param ceditor The editor to set.
      */
     public void setEditor(final CompilationUnitEditor ceditor) {
         this.editor = ceditor;
@@ -179,19 +173,16 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * 
      * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
      */
-    public abstract void run(final IProgressMonitor monitor)
-            throws InvocationTargetException, InterruptedException ;
+    public abstract void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException;
 
     /**
      * Process the contexts.
      * 
-     * @param ctx
-     *            The collection of contexts.
+     * @param ctx The collection of contexts.
      * @pre ctx.oclIsKindOf(Collection(MethodCallContext))
      */
     protected void processContexts(Collection ctx) throws InterruptedException {
-        final EclipseIndusDriver _driver = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getEclipseIndusDriver();
+        final EclipseIndusDriver _driver = KaveriPlugin.getDefault().getIndusConfiguration().getEclipseIndusDriver();
         for (Iterator _i = ctx.iterator(); _i.hasNext();) {
             final MethodCallContext _mcc = (MethodCallContext) _i.next();
             final Collection _stkColl = _mcc.getContextStacks();
@@ -200,26 +191,19 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                 final edu.ksu.cis.indus.common.collections.Stack _ctxStack = new edu.ksu.cis.indus.common.collections.Stack();
                 for (Iterator _k = _stk.iterator(); _k.hasNext();) {
                     final Triple _triple = (Triple) _k.next();
-                    final MethodWrapper _m1 = (MethodWrapper) _triple
-                            .getFirst();
-                    final MethodWrapper _m2 = (MethodWrapper) _triple
-                            .getSecond();
+                    final MethodWrapper _m1 = (MethodWrapper) _triple.getFirst();
+                    final MethodWrapper _m2 = (MethodWrapper) _triple.getSecond();
                     final CallLocation _cl = (CallLocation) _triple.getThird();
-                    final SootMethod _sm1 = SootConvertor
-                            .getSootMethod((IMethod) _m1.getMember());
-                    final SootMethod _sm2 = SootConvertor
-                            .getSootMethod((IMethod) _m2.getMember());
-                    if (_sm1 == null || _sm2 == null) {
-                        throw new InterruptedException(
-                                "Unable to find a binding for the context");
-                    }
-                    final CallTriple _ctriple = fetchInvokeExpr(_sm1, _sm2, _cl
-                            .getLineNumber());
+                    final SootMethod _sm1 = SootConvertor.getSootMethod((IMethod) _m1.getMember());
+                    final SootMethod _sm2 = SootConvertor.getSootMethod((IMethod) _m2.getMember());
+                    if (_sm1 == null || _sm2 == null) { throw new InterruptedException(
+                            "Unable to find a binding for the context"); }
+                    final CallTriple _ctriple = fetchInvokeExpr(_sm1, _sm2, _cl.getLineNumber());
                     if (_ctriple != null) {
 
                     } else {
-                        throw new InterruptedException("Unable to convert call chain between " +
-                                _m1.getName() + " and " + _m2.getName());
+                        throw new InterruptedException("Unable to convert call chain between " + _m1.getName() + " and "
+                                + _m2.getName());
                     }
                     _ctxStack.push(_ctriple);
                 }
@@ -238,8 +222,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * @param sm2
      * @return
      */
-    private CallTriple fetchInvokeExpr(final SootMethod sm1,
-            final SootMethod sm2, final int nLineno) {
+    private CallTriple fetchInvokeExpr(final SootMethod sm1, final SootMethod sm2, final int nLineno) {
         CallTriple _triple = null;
         Body _body = null;
         if (sm1.hasActiveBody()) {
@@ -273,12 +256,11 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * @return boolean True if the slicer is setup correctly.
      */
     protected boolean setUp() {
-        final String _currConfig = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getCurrentConfiguration();
+        final String _currConfig = KaveriPlugin.getDefault().getIndusConfiguration().getCurrentConfiguration();
         driver.setSlicer(KaveriPlugin.getDefault().getSlicerTool());
         driver.reset();
-        
-        setupRootMethodCollection();                
+
+        setupRootMethodCollection();
 
         driver.getSlicer().setActiveConfiguration(_currConfig);
         removeAnnotations();
@@ -286,33 +268,24 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
         boolean _indusRun = true;
 
         try {
-            
-            
-            String _sootClassPath = ""; //$NON-NLS-1$
-            IPath _jreclasspath = JavaCore.getClasspathVariable(Messages
-                    .getString("AbstractIndusRunner.5")); //$NON-NLS-1$
-            _jreclasspath = JavaCore.getClasspathVariable(Messages
-                    .getString("AbstractIndusRunner.6")); //$NON-NLS-1$		
 
-            final String _pathseparator = System.getProperty(Messages
-                    .getString("AbstractIndusRunner.7")); //$NON-NLS-1$
-            final String _fileseparator = System.getProperty(Messages
-                    .getString("AbstractIndusRunner.8")); //$NON-NLS-1$
+            String _sootClassPath = ""; //$NON-NLS-1$
+            IPath _jreclasspath = JavaCore.getClasspathVariable(Messages.getString("AbstractIndusRunner.5")); //$NON-NLS-1$
+            _jreclasspath = JavaCore.getClasspathVariable(Messages.getString("AbstractIndusRunner.6")); //$NON-NLS-1$		
+
+            final String _pathseparator = System.getProperty(Messages.getString("AbstractIndusRunner.7")); //$NON-NLS-1$
+            final String _fileseparator = System.getProperty(Messages.getString("AbstractIndusRunner.8")); //$NON-NLS-1$
 
             if (_jreclasspath != null) {
-                
-                
+
                 if (classpathSet.size() == 0) {
                     final Set _classPathCollection = new HashSet();
                     _classPathCollection.add(_jreclasspath.toOSString() + _pathseparator);
-               
 
                     if (fileList.size() > 0) {
                         final IFile _file = (IFile) fileList.get(0);
-                        final IJavaProject _jproject = JavaCore.create(_file
-                            .getProject());
-                        final Set _set = SECommons.getClassPathForProject(
-                            _jproject, new HashSet(), false, true);
+                        final IJavaProject _jproject = JavaCore.create(_file.getProject());
+                        final Set _set = SECommons.getClassPathForProject(_jproject, new HashSet(), false, true);
                         _classPathCollection.addAll(_set);
                         for (Iterator iter = _set.iterator(); iter.hasNext();) {
                             _sootClassPath += (String) iter.next();
@@ -321,18 +294,17 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                 } else {
                     for (Iterator iter = classpathSet.iterator(); iter.hasNext();) {
                         _sootClassPath += (String) iter.next();
-                        
+
                     }
                 }
-               
+
                 driver.addToPath(_sootClassPath);
 
                 final Set _classNamesList = new HashSet();
 
                 for (int _i = 0; _i < fileList.size(); _i++) {
                     final IFile _javaFile = (IFile) fileList.get(_i);
-                    final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
-                            .create(_javaFile);
+                    final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(_javaFile);
 
                     if (_icunit != null) {
                         IType[] _types = null;
@@ -340,8 +312,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                         _types = _icunit.getAllTypes();
 
                         for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-                            final String _elemName = _types[_nrun]
-                                    .getFullyQualifiedName();
+                            final String _elemName = _types[_nrun].getFullyQualifiedName();
                             _classNamesList.add(_elemName);
                         }
                     }
@@ -353,8 +324,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                 setupCriteria();
             } else {
                 _indusRun = false;
-                MessageDialog.openError(null, Messages
-                        .getString("AbstractIndusRunner.9"), Messages
+                MessageDialog.openError(null, Messages.getString("AbstractIndusRunner.9"), Messages
                         .getString("AbstractIndusRunner.12"));
             }
         } catch (JavaModelException _jme) {
@@ -379,7 +349,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                 try {
                     final IResource _resource = _jp.getCorrespondingResource();
                     final QualifiedName _name = new QualifiedName("edu.ksu.cis.indus.kaveri", "rootMethodCollection");
-                    final String _propVal =  _resource.getPersistentProperty(_name);
+                    final String _propVal = _resource.getPersistentProperty(_name);
                     final XStream _xstream = new XStream(new DomDriver());
                     _xstream.alias("RootMethodCollection", RootMethodCollection.class);
                     RootMethodCollection _rmc = null;
@@ -394,7 +364,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
                     SECommons.handleException(_e);
                     KaveriErrorLog.logException("Java Model Exception", _e);
                 }
-                
+
             }
         }
         driver.setRootMethodTrapper(_rm);
@@ -402,7 +372,7 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
 
     /**
      * Sets all the classes in the file to application classes.
-     *  
+     * 
      */
     protected void setApplicationClasses() {
         if (fileList.size() > 0) {
@@ -426,42 +396,29 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     /**
      * Sets the criteria.
      * 
-     * @param file
-     *            The Java file in which the criteria is present
-     * @param type
-     *            The JDT class of the criteria.
-     * @param array
-     *            The set of criteria chosen.
-     * @param methodName
-     *            The method name
-     * @param stindex
-     *            The index of the chosen Jimple Stmt in the list of Stmts
-     * @param nLine
-     *            The selected line number.
-     * @param considerVal
-     *            Consider value for execution.
+     * @param file The Java file in which the criteria is present
+     * @param type The JDT class of the criteria.
+     * @param array The set of criteria chosen.
+     * @param methodName The method name
+     * @param stindex The index of the chosen Jimple Stmt in the list of Stmts
+     * @param nLine The selected line number.
+     * @param considerVal Consider value for execution.
      */
-    private void setCriteria(final IFile file, final IType type,
-            final List array, final String methodName, final int stindex,
-            final int nLine, final boolean considerVal) {
+    private void setCriteria(final IFile file, final IType type, final String methodName,
+            final int stindex, final int nLine, final boolean considerVal) {
         try {
             final IMethod[] _methods = type.getMethods();
 
             for (int _j = 0; _j < _methods.length; _j++) {
                 final IMethod _method = _methods[_j];
 
-                if (PrettySignature.getMethodSignature(_method).equals(
-                        methodName)) {
-                    final List _stmtlist = SootConvertor.getStmtForLine(file,
-                            type, _method, nLine);
+                if (SECommons.normalizeSignature(PrettySignature.getMethodSignature(_method)).equals(methodName)) {
+                    final List _stmtlist = SootConvertor.getStmtForLine(file, type, _method, nLine);
 
                     if (_stmtlist != null && _stmtlist.size() >= 3) {
-                        final SootMethod _sootmethod = (SootMethod) _stmtlist
-                                .get(1);
+                        final SootMethod _sootmethod = (SootMethod) _stmtlist.get(1);
                         final Stmt _stmt = (Stmt) _stmtlist.get(2 + stindex);
                         driver.setCriteria(_sootmethod, _stmt, considerVal);
-                        //	System.out.println(Messages.getString("AbstractIndusRunner.15")
-                        // + _stmt); //$NON-NLS-1$
                     }
                     break;
                 }
@@ -486,25 +443,19 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * forward slicing.
      */
     protected void highlightEditor() {
-        final Map _map = KaveriPlugin.getDefault().getIndusConfiguration()
-                .getLineNumbers();
-        final AddIndusAnnotation _manager = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getIndusAnnotationManager();
-        _manager.setEditor(editor, _map);        
+        final Map _map = KaveriPlugin.getDefault().getIndusConfiguration().getLineNumbers();
+        final AddIndusAnnotation _manager = KaveriPlugin.getDefault().getIndusConfiguration().getIndusAnnotationManager();
+        _manager.setEditor(editor, _map);
     }
 
     /**
      * Matches the set of criteria with the set of files chosen.
      * 
-     * @param file
-     *            One of the chosen Java files.
-     * @param type
-     *            The JDT class
-     * @param array
-     *            The set of criteria
+     * @param file One of the chosen Java files.
+     * @param type The JDT class
+     * @param array The set of criteria
      */
-    private void matchAndSet(final IFile file, final IType type,
-            final List array) {
+    private void matchAndSet(final IFile file, final IType type, final List array) {
         for (int _i = 0; _i < array.size(); _i++) {
             final Criteria _c = (Criteria) array.get(_i);
             final String _classname = _c.getStrClassName();
@@ -513,9 +464,8 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
             final int _stindex = _c.getNJimpleIndex();
             final boolean _considerVal = _c.isBConsiderValue();
 
-            if (PrettySignature.getSignature(type).equals(_classname)) {
-                setCriteria(file, type, array, _methodname, _stindex, _nLine,
-                        _considerVal);
+            if (type.getFullyQualifiedName().equals(_classname)) {
+                setCriteria(file, type, _methodname, _stindex, _nLine, _considerVal);
             }
         }
     }
@@ -524,26 +474,22 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
      * Removes all current slice annotations on all open Java editors.
      */
     protected void removeAnnotations() {
-        final IWorkbenchWindow[] _windows = PlatformUI.getWorkbench()
-                .getWorkbenchWindows();
-        final AddIndusAnnotation _manager = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getIndusAnnotationManager();
+        final IWorkbenchWindow[] _windows = PlatformUI.getWorkbench().getWorkbenchWindows();
+        final AddIndusAnnotation _manager = KaveriPlugin.getDefault().getIndusConfiguration().getIndusAnnotationManager();
 
         for (int _i = 0; _windows != null && _i < _windows.length; _i++) {
             final IWorkbenchWindow _window = _windows[_i];
             final IWorkbenchPage[] _pages = _window.getPages();
 
             for (int _j = 0; _pages != null && _j < _pages.length; _j++) {
-                final IEditorReference[] _references = _pages[_j]
-                        .getEditorReferences();
+                final IEditorReference[] _references = _pages[_j].getEditorReferences();
 
                 for (int _k = 0; _references != null && _k < _references.length; _k++) {
                     final IEditorReference _reference = _references[_k];
                     final String _id = _reference.getId();
 
                     if (_id.equals("org.eclipse.jdt.ui.CompilationUnitEditor")) {
-                        final CompilationUnitEditor _edPart = (CompilationUnitEditor) _reference
-                                .getEditor(false);
+                        final CompilationUnitEditor _edPart = (CompilationUnitEditor) _reference.getEditor(false);
 
                         if (_edPart != null) {
                             _manager.setEditor(_edPart, false);
@@ -560,26 +506,24 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     protected void returnCriteriaToPool() {
         final Collection _coll = driver.getSlicer().getCriteria();
         final Iterator _it = _coll.iterator();
-        
-        
+
         while (_it.hasNext()) {
             final ISliceCriterion _crt = (ISliceCriterion) _it.next();
             final SootMethod _sm = _crt.getOccurringMethod();
             final SlicerTool _slicer = driver.getSlicer();
             if (_slicer != null) {
-                if(!_slicer.getCallGraph().getReachableMethods().contains(_sm) && !reachableWarningGiven) {
+                if (!_slicer.getCallGraph().getReachableMethods().contains(_sm) && !reachableWarningGiven) {
                     reachableWarningGiven = true;
                     Display.getDefault().asyncExec(new Runnable() {
                         public void run() {
-                        final String _msg = "Some criteria were in unreachable part of the system.  " +
-                		"Please use appropriate root methods or select criteria appropriately.";
-                        MessageDialog.openError(null, "Warning", _msg);                        
+                            final String _msg = "Some criteria were in unreachable part of the system.  "
+                                    + "Please use appropriate root methods or select criteria appropriately.";
+                            MessageDialog.openError(null, "Warning", _msg);
                         }
                     });
-                    
+
                 }
-                
-                
+
             }
         }
     }
@@ -590,24 +534,18 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
     protected void setupCriteria() {
         final List _crArray = fetchCriteria();
 
-        if (_crArray != null) {
+        if (_crArray != null && _crArray.size() > 0) {
             for (int _i = 0; _i < fileList.size(); _i++) {
                 final IFile _file = (IFile) fileList.get(_i);
-                final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
-                        .create(_file);
+                final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(_file);
 
                 if (_icunit != null) {
-                    IType[] _types = null;
 
                     try {
-                        _types = _icunit.getAllTypes();
+                        Collection<IType> _types = SECommons.getTypesIn(_icunit);
 
-                        for (int _j = 0; _j < _types.length; _j++) {
-                            final IType _type = _types[_j];
-
-                            if (_crArray.size() > 0) {
-                                matchAndSet(_file, _type, _crArray);
-                            }
+                        for (Iterator<IType> _j = _types.iterator(); _j.hasNext();) {
+                            matchAndSet(_file, _j.next(), _crArray);
                         }
                     } catch (JavaModelException _e) {
                         KaveriErrorLog.logException("Java Model Exception", _e);
@@ -618,4 +556,3 @@ public abstract class AbstractIndusRunner implements IRunnableWithProgress {
         }
     }
 }
-

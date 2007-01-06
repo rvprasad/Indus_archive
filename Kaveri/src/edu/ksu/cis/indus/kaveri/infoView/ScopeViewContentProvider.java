@@ -20,21 +20,16 @@ import edu.ksu.cis.indus.common.scoping.SpecificationBasedScopeDefinition;
 
 /**
  * @author Ganeshan
- *
- * Generates the content for the scope tab of the slice
- * information view.
+ * 
+ * Generates the content for the scope tab of the slice information view.
  */
 public class ScopeViewContentProvider implements IStructuredContentProvider {
-
-    public void inputChanged(Viewer v, Object oldInput, Object newInput) {
-    }
 
     public void dispose() {
     }
 
     public Object[] getElements(Object parent) {
-        if (parent != null
-                && parent instanceof SpecificationBasedScopeDefinition) {
+        if (parent != null && parent instanceof SpecificationBasedScopeDefinition) {
             final SpecificationBasedScopeDefinition _sbsd = (SpecificationBasedScopeDefinition) parent;
             final List _lstSpecs = new LinkedList();
             final Collection _collClassSpecs = _sbsd.getClassSpecs();
@@ -45,8 +40,7 @@ public class ScopeViewContentProvider implements IStructuredContentProvider {
             }
             final Collection _collMethodSpecs = _sbsd.getMethodSpecs();
             for (Iterator iter = _collMethodSpecs.iterator(); iter.hasNext();) {
-                final MethodSpecification _ms = (MethodSpecification) iter
-                        .next();
+                final MethodSpecification _ms = (MethodSpecification) iter.next();
                 _lstSpecs.add(_ms);
 
             }
@@ -61,6 +55,12 @@ public class ScopeViewContentProvider implements IStructuredContentProvider {
             return new Object[0];
         }
 
+    }
+
+    public void inputChanged(@SuppressWarnings("unused")
+    Viewer v, @SuppressWarnings("unused")
+    Object oldInput, @SuppressWarnings("unused")
+    Object newInput) {
     }
 
 }

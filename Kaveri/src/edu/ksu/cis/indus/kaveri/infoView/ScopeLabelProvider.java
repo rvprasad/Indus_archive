@@ -15,11 +15,17 @@ import edu.ksu.cis.indus.common.scoping.MethodSpecification;
 
 /**
  * @author Ganeshan
- *
+ * 
  * Provides the labelling for the scope.
  */
 class ScopeLabelProvider extends LabelProvider implements ITableLabelProvider {
-    public String getColumnText(Object obj, int index) {        
+    public Image getColumnImage(@SuppressWarnings("unused")
+    Object obj, @SuppressWarnings("unused")
+    int index) {
+        return null;
+    }
+
+    public String getColumnText(Object obj, int index) {
         if (obj instanceof ClassSpecification) {
             final ClassSpecification _cs = (ClassSpecification) obj;
             switch (index) {
@@ -58,11 +64,8 @@ class ScopeLabelProvider extends LabelProvider implements ITableLabelProvider {
         return getText(obj);
     }
 
-    public Image getColumnImage(Object obj, int index) {
-        return null;
-    }
-
-    public Image getImage(Object obj) {
+    public Image getImage(@SuppressWarnings("unused")
+    Object obj) {
         return null;
     }
 }
