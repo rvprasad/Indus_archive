@@ -14,16 +14,6 @@
 
 package edu.ksu.cis.indus.kaveri;
 
-import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
-import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
-import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
-import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
-import edu.ksu.cis.indus.kaveri.soot.SootState;
-import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
-import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
-import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
-import edu.ksu.cis.indus.tools.slicer.SlicerTool;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,8 +25,6 @@ import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 import org.eclipse.core.resources.IResourceChangeListener;
-import org.eclipse.core.resources.IWorkspace;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.jobs.IJobManager;
 import org.eclipse.jdt.core.JavaCore;
@@ -48,6 +36,15 @@ import org.osgi.framework.BundleContext;
 import soot.Type;
 import soot.Value;
 import soot.toolkits.graph.UnitGraph;
+import edu.ksu.cis.indus.common.soot.CompleteStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.ExceptionFlowSensitiveStmtGraphFactory;
+import edu.ksu.cis.indus.common.soot.IStmtGraphFactory;
+import edu.ksu.cis.indus.kaveri.driver.KaveriRootMethodTrapper;
+import edu.ksu.cis.indus.kaveri.soot.SootState;
+import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
+import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
+import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
+import edu.ksu.cis.indus.tools.slicer.SlicerTool;
 
 /**
  * The main plugin class.
@@ -69,7 +66,7 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	 * The resource change listener.
 	 */
 	private IResourceChangeListener listener;
-    
+
 	/**
 	 * This is the annotation cache map.
 	 */
@@ -90,18 +87,18 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	 */
 	private KaveriRootMethodTrapper rmTrapper;
 
-    /**
-     * This tracks the state of soot.
-     */
-    private SootState sootState;
-    
-    /**
-     * @return provides the object that contains info about Soot's state.
-     */
-    public SootState getSootState() {
-        return sootState;
-    }
-    
+	/**
+	 * This tracks the state of soot.
+	 */
+	private SootState sootState;
+
+	/**
+	 * @return provides the object that contains info about Soot's state.
+	 */
+	public SootState getSootState() {
+		return sootState;
+	}
+
 	/**
 	 * Constructor.
 	 */
@@ -177,10 +174,10 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 				new CompleteStmtGraphFactory());
 		cacheMap = new HashMap();
 		rmTrapper = new KaveriRootMethodTrapper();
-		
-        sootState = new SootState();
-        JavaCore.addElementChangedListener(sootState);
-        indusConfiguration.getEclipseIndusDriver().addObserver(sootState);
+
+		sootState = new SootState();
+		JavaCore.addElementChangedListener(sootState);
+		indusConfiguration.getEclipseIndusDriver().addObserver(sootState);
 	}
 
 	/**
@@ -189,7 +186,6 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	 * @throws IllegalArgumentException When an valid configuration is used.
 	 */
 	public void loadDefaultConfigurations() throws IllegalArgumentException {
-		final IPreferenceStore _store = getPreferenceStore();
 		final StringBuffer _userConfiguration = new StringBuffer();
 		final URL _url = KaveriPlugin.getDefault().getBundle().getEntry(
 				"data/default_config/default_slicer_configuration.xml");
@@ -285,11 +281,7 @@ public class KaveriPlugin<T extends ITokens<T, Value>>
 	 * 
 	 * @see org.osgi.framework.BundleActivator#stop(org.osgi.framework.BundleContext)
 	 */
-	public void stop(final BundleContext context) throws Exception {
-		/*
-		 * if (listener != null) { final IWorkspace _workspace = ResourcesPlugin.getWorkspace();
-		 * _workspace.removeResourceChangeListener(listener); }
-		 */
+	public void stop(@SuppressWarnings("unused") final BundleContext context) throws Exception {
 		getIndusConfiguration().getRManager().dispose();
 		final IJobManager _manager = Platform.getJobManager();
 		final String _myJobFamily = "edu.ksu.cis.indus.kaveri.soottagremover";

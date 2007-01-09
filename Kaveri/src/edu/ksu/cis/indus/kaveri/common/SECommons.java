@@ -63,484 +63,476 @@ import edu.ksu.cis.indus.kaveri.driver.Messages;
  */
 public final class SECommons {
 
-    /** Map between class names and the IFile they belong to. */
-    private static Map classNameToFileMap = new HashMap();
+	/** Map between class names and the IFile they belong to. */
+	private static Map classNameToFileMap = new HashMap();
 
-    /** The java file to Document map. */
-    private static Map javaFileToDocumentMap = new HashMap();
+	/** The java file to Document map. */
+	private static Map javaFileToDocumentMap = new HashMap();
 
-    /**
-     * Checks if the object is an instance of the specified class.
-     * 
-     * @param objChk The object to be checked.
-     * @param classChk The class to be checked against.
-     * @return boolean True if the object is of the specified class.
-     */
-    public static boolean checkForClassEquality(final Object objChk, final Class classChk) {
-        boolean _returnVal = false;
+	/**
+	 * Checks if the object is an instance of the specified class.
+	 * 
+	 * @param objChk The object to be checked.
+	 * @param classChk The class to be checked against.
+	 * @return boolean True if the object is of the specified class.
+	 */
+	public static boolean checkForClassEquality(final Object objChk, final Class classChk) {
+		boolean _returnVal = false;
 
-        if (!(checkForNull(objChk) && checkForNull(classChk))) {
-            _returnVal = classChk.isInstance(objChk);
-        }
-        return _returnVal;
-    }
+		if (!(checkForNull(objChk) && checkForNull(classChk))) {
+			_returnVal = classChk.isInstance(objChk);
+		}
+		return _returnVal;
+	}
 
-    /**
-     * Returns true if the object is null.
-     * 
-     * @param objChk The object to be checked for nullness.
-     * @return boolean True if the object is null.
-     */
-    public static boolean checkForNull(final Object objChk) {
-        boolean _retVal = false;
+	/**
+	 * Returns true if the object is null.
+	 * 
+	 * @param objChk The object to be checked for nullness.
+	 * @return boolean True if the object is null.
+	 */
+	public static boolean checkForNull(final Object objChk) {
+		boolean _retVal = false;
 
-        if (objChk == null) {
-            _retVal = true;
-        } else {
-            _retVal = false;
-        }
-        return _retVal;
-    }
+		if (objChk == null) {
+			_retVal = true;
+		} else {
+			_retVal = false;
+		}
+		return _retVal;
+	}
 
-    /**
-     * Checks if root methods exist in the given file. Else finds a file with a
-     * root method in the project in which the file belongs.
-     * 
-     * @param file The file to check.
-     * @return List The list of necessary files.
-     */
-    public static List checkForRootMethods(final IFile file) {
-        final List _lst = new LinkedList();
-        final boolean _isMainPresent = isMainPresent(file);
-        _lst.add(file);
+	/**
+	 * Checks if root methods exist in the given file. Else finds a file with a root method in the project in which the file
+	 * belongs.
+	 * 
+	 * @param file The file to check.
+	 * @return List The list of necessary files.
+	 */
+	public static List checkForRootMethods(final IFile file) {
+		final List _lst = new LinkedList();
+		final boolean _isMainPresent = isMainPresent(file);
+		_lst.add(file);
 
-        if (!_isMainPresent) {
-            searchAndFindRoots(_lst, file);
-        }
-        return _lst;
-    }
+		if (!_isMainPresent) {
+			searchAndFindRoots(_lst, file);
+		}
+		return _lst;
+	}
 
-    /**
-     * Returns the classes in the file.
-     * 
-     * @param file The Java file
-     * @return List The list of classes in the file.
-     */
-    public static List getClassesInFile(final IFile file) {
-        final List _lst = new LinkedList();
-        final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(file);
+	/**
+	 * Returns the classes in the file.
+	 * 
+	 * @param file The Java file
+	 * @return List The list of classes in the file.
+	 */
+	public static List getClassesInFile(final IFile file) {
+		final List _lst = new LinkedList();
+		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(file);
 
-        if (_icunit != null) {
-            try {
-                Collection<IType> _types = getTypesIn(_icunit);
-                for (Iterator<IType> _i = _types.iterator(); _i.hasNext();) {
-                    _lst.add(_i.next().getFullyQualifiedName());
-                }
-            } catch (JavaModelException _jme) {
-                KaveriErrorLog.logException("Java Mode Exception", _jme);
-            }
-        }
-        return _lst;
-    }
+		if (_icunit != null) {
+			try {
+				Collection<IType> _types = getTypesIn(_icunit);
+				for (Iterator<IType> _i = _types.iterator(); _i.hasNext();) {
+					_lst.add(_i.next().getFullyQualifiedName());
+				}
+			} catch (JavaModelException _jme) {
+				KaveriErrorLog.logException("Java Mode Exception", _jme);
+			}
+		}
+		return _lst;
+	}
 
-    /**
-     * Returns a set of strings indicating the class path.
-     * 
-     * @author Daniel Berg jdt-dev@eclipse.org.
-     * @param jproject The java project.
-     * @param visitedProjects The set of visited projets.
-     * @param isFirst Whether the entry is exported.
-     * @param addTrailingSep Indicates if the trailing path separator is to be
-     *            added
-     * @return Set The set of all the classpaths.
-     */
-    public static Set getClassPathForProject(final IJavaProject jproject, final Set visitedProjects, final boolean isFirst,
-            boolean addTrailingSep) {
-        final Set _retSet = new HashSet();
-        final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3")); //$NON-NLS-1$		
-        if (jproject == null || visitedProjects.contains(jproject)) { return _retSet; }
-        visitedProjects.add(jproject);
-        try {
-            final IClasspathEntry[] _entries = jproject.getResolvedClasspath(true);
-            for (int _i = 0; _i < _entries.length; _i++) {
-                switch (_entries[_i].getEntryKind()) {
-                case IClasspathEntry.CPE_SOURCE:
-                    IPath _opLoc = _entries[_i].getOutputLocation();
-                    if (_opLoc == null) {
-                        _opLoc = jproject.getOutputLocation();
-                    }
-                    if (_opLoc != null) {
-                        if (_opLoc.segmentCount() == 1) {
-                            _opLoc = jproject.getProject().getLocation();
-                        } else {
-                            _opLoc = jproject.getProject().getParent().getFile(_opLoc).getLocation();
-                        }
+	/**
+	 * Returns a set of strings indicating the class path.
+	 * 
+	 * @author Daniel Berg jdt-dev@eclipse.org.
+	 * @param jproject The java project.
+	 * @param visitedProjects The set of visited projets.
+	 * @param isFirst Whether the entry is exported.
+	 * @param addTrailingSep Indicates if the trailing path separator is to be added
+	 * @return Set The set of all the classpaths.
+	 */
+	public static Set getClassPathForProject(final IJavaProject jproject, final Set visitedProjects, final boolean isFirst,
+			boolean addTrailingSep) {
+		final Set _retSet = new HashSet();
+		final String _pathseparator = System.getProperty(Messages.getString("SootConvertor.3")); //$NON-NLS-1$		
+		if (jproject == null || visitedProjects.contains(jproject)) {
+			return _retSet;
+		}
+		visitedProjects.add(jproject);
+		try {
+			final IClasspathEntry[] _entries = jproject.getResolvedClasspath(true);
+			for (int _i = 0; _i < _entries.length; _i++) {
+				switch (_entries[_i].getEntryKind()) {
+					case IClasspathEntry.CPE_SOURCE:
+						IPath _opLoc = _entries[_i].getOutputLocation();
+						if (_opLoc == null) {
+							_opLoc = jproject.getOutputLocation();
+						}
+						if (_opLoc != null) {
+							if (_opLoc.segmentCount() == 1) {
+								_opLoc = jproject.getProject().getLocation();
+							} else {
+								_opLoc = jproject.getProject().getParent().getFile(_opLoc).getLocation();
+							}
 
-                        String _entry = _opLoc.addTrailingSeparator().toOSString();
-                        if (addTrailingSep) {
-                            _entry += _pathseparator;
-                        }
-                        _retSet.add(_entry);
-                    }
-                    IPath _srcpath = _entries[_i].getPath();
-                    if (_srcpath.segmentCount() == 1) {
-                        _srcpath = jproject.getProject().getLocation();
-                    } else {
-                        _srcpath = jproject.getProject().getParent().getFile(_srcpath).getLocation();
-                    }
-                    String _entry = _srcpath.addTrailingSeparator().toOSString();
-                    if (addTrailingSep) {
-                        _entry += _pathseparator;
-                    }
-                    _retSet.add(_entry);
-                    break;
-                case IClasspathEntry.CPE_LIBRARY:
-                    final IContainer parent = jproject.getProject().getParent();
-                    IPath _libPath = parent.getFile(_entries[_i].getPath()).getLocation();
-                    if (_libPath == null) {
-                        _libPath = _entries[_i].getPath();
-                    }
-                    String _centry = _libPath.toOSString();
-                    if (addTrailingSep) {
-                        _centry += _pathseparator;
-                    }
-                    _retSet.add(_centry);
-                    break;
-                case IClasspathEntry.CPE_PROJECT:
-                    if (isFirst || _entries[_i].isExported()) {
-                        final IProject _dProject = ResourcesPlugin.getWorkspace().getRoot().getProject(
-                                _entries[_i].getPath().segment(0));
-                        final IJavaProject _jdproject = JavaCore.create(_dProject);
-                        _retSet.addAll(getClassPathForProject(_jdproject, visitedProjects, false, addTrailingSep));
-                    }
-                    break;
-                default:
-                    break;
+							String _entry = _opLoc.addTrailingSeparator().toOSString();
+							if (addTrailingSep) {
+								_entry += _pathseparator;
+							}
+							_retSet.add(_entry);
+						}
+						IPath _srcpath = _entries[_i].getPath();
+						if (_srcpath.segmentCount() == 1) {
+							_srcpath = jproject.getProject().getLocation();
+						} else {
+							_srcpath = jproject.getProject().getParent().getFile(_srcpath).getLocation();
+						}
+						String _entry = _srcpath.addTrailingSeparator().toOSString();
+						if (addTrailingSep) {
+							_entry += _pathseparator;
+						}
+						_retSet.add(_entry);
+						break;
+					case IClasspathEntry.CPE_LIBRARY:
+						final IContainer parent = jproject.getProject().getParent();
+						IPath _libPath = parent.getFile(_entries[_i].getPath()).getLocation();
+						if (_libPath == null) {
+							_libPath = _entries[_i].getPath();
+						}
+						String _centry = _libPath.toOSString();
+						if (addTrailingSep) {
+							_centry += _pathseparator;
+						}
+						_retSet.add(_centry);
+						break;
+					case IClasspathEntry.CPE_PROJECT:
+						if (isFirst || _entries[_i].isExported()) {
+							final IProject _dProject = ResourcesPlugin.getWorkspace().getRoot().getProject(
+									_entries[_i].getPath().segment(0));
+							final IJavaProject _jdproject = JavaCore.create(_dProject);
+							_retSet.addAll(getClassPathForProject(_jdproject, visitedProjects, false, addTrailingSep));
+						}
+						break;
+					default:
+						break;
 
-                }
-            }
-        } catch (JavaModelException _jme) {
-            SECommons.handleException(_jme);
-            KaveriErrorLog.logException("Java Mode Exception", _jme);
-        }
-        return _retSet;
-    }
+				}
+			}
+		} catch (JavaModelException _jme) {
+			SECommons.handleException(_jme);
+			KaveriErrorLog.logException("Java Mode Exception", _jme);
+		}
+		return _retSet;
+	}
 
-    public static Document getDocumentForJavaFile(final IFile javaFile) {
-        Document _d = (Document) javaFileToDocumentMap.get(javaFile);
-        if (_d == null) {
-            try {
-                _d = new Document(JavaCore.createCompilationUnitFrom(javaFile).getSource());
-                javaFileToDocumentMap.put(javaFile, _d);
-            } catch (JavaModelException e) {
-                KaveriErrorLog.logException("Java Model Exception", e);
-                SECommons.handleException(e);
-            }
+	public static Document getDocumentForJavaFile(final IFile javaFile) {
+		Document _d = (Document) javaFileToDocumentMap.get(javaFile);
+		if (_d == null) {
+			try {
+				_d = new Document(JavaCore.createCompilationUnitFrom(javaFile).getSource());
+				javaFileToDocumentMap.put(javaFile, _d);
+			} catch (JavaModelException e) {
+				KaveriErrorLog.logException("Java Model Exception", e);
+				SECommons.handleException(e);
+			}
 
-        }
+		}
 
-        return _d;
-    }
+		return _d;
+	}
 
-    /**
-     * Returns the Java file containing the method whose soot equivalent is
-     * sootMethod TODO Add fix for multiple projects.
-     * 
-     * @param sootMethod
-     * @param sampleFile A Java file from the project. Used to obtain the
-     *            project.
-     * @return IFile The file containing the given method, or null if no such
-     *         file is present.
-     */
-    public static IFile getFileContainingClass(SootMethod sootMethod, final IFile sampleFile) {
-        IFile _file = null;
+	/**
+	 * Returns the Java file containing the method whose soot equivalent is sootMethod TODO Add fix for multiple projects.
+	 * 
+	 * @param sootMethod
+	 * @param sampleFile A Java file from the project. Used to obtain the project.
+	 * @return IFile The file containing the given method, or null if no such file is present.
+	 */
+	public static IFile getFileContainingClass(SootMethod sootMethod, final IFile sampleFile) {
+		IFile _file = null;
 
-        final IProject _project = sampleFile.getProject();
-        final IJavaProject _jProject = JavaCore.create(_project);
-        final Object _mapVal = classNameToFileMap.get(sootMethod.getDeclaringClass().getName());
-        if (_mapVal != null) {
-            _file = (IFile) _mapVal;
-        } else {
-            final List _fileList = SECommons.processForFiles(_jProject);
-            for (Iterator iter = _fileList.iterator(); iter.hasNext();) {
-                final IFile _jfile = (IFile) iter.next();
-                final List _classNameList = SECommons.getClassesInFile(_jfile);
-                for (Iterator iterator = _classNameList.iterator(); iterator.hasNext();) {
-                    final String _className = (String) iterator.next();
-                    if (_className.equals(sootMethod.getDeclaringClass().getName())) {
-                        _file = _jfile;
-                        classNameToFileMap.put(sootMethod.getDeclaringClass().getName(), _file);
-                    } else {
-                        classNameToFileMap.put(_className, _jfile);
-                    }
+		final IProject _project = sampleFile.getProject();
+		final IJavaProject _jProject = JavaCore.create(_project);
+		final Object _mapVal = classNameToFileMap.get(sootMethod.getDeclaringClass().getName());
+		if (_mapVal != null) {
+			_file = (IFile) _mapVal;
+		} else {
+			final List _fileList = SECommons.processForFiles(_jProject);
+			for (Iterator iter = _fileList.iterator(); iter.hasNext();) {
+				final IFile _jfile = (IFile) iter.next();
+				final List _classNameList = SECommons.getClassesInFile(_jfile);
+				for (Iterator iterator = _classNameList.iterator(); iterator.hasNext();) {
+					final String _className = (String) iterator.next();
+					if (_className.equals(sootMethod.getDeclaringClass().getName())) {
+						_file = _jfile;
+						classNameToFileMap.put(sootMethod.getDeclaringClass().getName(), _file);
+					} else {
+						classNameToFileMap.put(_className, _jfile);
+					}
 
-                }
-            }
-        }
+				}
+			}
+		}
 
-        return _file;
-    }
+		return _file;
+	}
 
-    /**
-     * @param _st
-     * @return
-     */
-    public static int getLineNumberForStmt(Stmt _st) {
-        int _nLine = -1;
-        final LineNumberTag _lntag = (LineNumberTag) _st.getTag(Messages.getString("EclipseIndusDriver.4")); //$NON-NLS-1$
-        final SourceLnPosTag _stag = (SourceLnPosTag) _st.getTag(Messages.getString("EclipseIndusDriver.5")); //$NON-NLS-1$
+	/**
+	 * @param _st
+	 * @return
+	 */
+	public static int getLineNumberForStmt(Stmt _st) {
+		int _nLine = -1;
+		final LineNumberTag _lntag = (LineNumberTag) _st.getTag(Messages.getString("EclipseIndusDriver.4")); //$NON-NLS-1$
+		final SourceLnPosTag _stag = (SourceLnPosTag) _st.getTag(Messages.getString("EclipseIndusDriver.5")); //$NON-NLS-1$
 
-        if (_stag != null) {
-            _nLine = _stag.startLn();
-        } else {
-            if (_lntag != null) {
-                // _nLine = Integer.parseInt(_lntag.toString()); // To be used
-                // with unpatched soot versions
-                _nLine = _lntag.getLineNumber();
-            }
-        }
+		if (_stag != null) {
+			_nLine = _stag.startLn();
+		} else {
+			if (_lntag != null) {
+				// _nLine = Integer.parseInt(_lntag.toString()); // To be used
+				// with unpatched soot versions
+				_nLine = _lntag.getLineNumber();
+			}
+		}
 
-        return _nLine;
-    }
+		return _nLine;
+	}
 
-    /**
-     * Returns a proper name for the IMethod to match with sootmethod.
-     * 
-     * @param method The IMethod
-     * @return String The proper string representation of the method
-     *         declaration.
-     */
-    public static String getProperMethodName(final IMethod method) {
-        String _methodPattern = PrettySignature.getMethodSignature(method);
-        final int _index = _methodPattern.indexOf('(');
-        final String _fullclassString = _methodPattern.substring(0, _index);
-        final int _index1 = _fullclassString.lastIndexOf(".");
+	/**
+	 * Returns a proper name for the IMethod to match with sootmethod.
+	 * 
+	 * @param method The IMethod
+	 * @return String The proper string representation of the method declaration.
+	 */
+	public static String getProperMethodName(final IMethod method) {
+		String _methodPattern = PrettySignature.getMethodSignature(method);
+		final int _index = _methodPattern.indexOf('(');
+		final String _fullclassString = _methodPattern.substring(0, _index);
+		final int _index1 = _fullclassString.lastIndexOf(".");
 
-        if (_index1 > 0) {
-            final String _funcname = _fullclassString.substring(_index1 + 1, _index);
-            _methodPattern = _funcname + _methodPattern.substring(_index);
-        }
+		if (_index1 > 0) {
+			final String _funcname = _fullclassString.substring(_index1 + 1, _index);
+			_methodPattern = _funcname + _methodPattern.substring(_index);
+		}
 
-        if (method.getDeclaringType().getElementName().equals(method.getElementName())) {
-            _methodPattern = _methodPattern.replaceFirst(method.getElementName(), "<init>");
-            // Change method name to <init> for compatibility
-        }
-        return _methodPattern;
-    }
+		if (method.getDeclaringType().getElementName().equals(method.getElementName())) {
+			_methodPattern = _methodPattern.replaceFirst(method.getElementName(), "<init>");
+			// Change method name to <init> for compatibility
+		}
+		return _methodPattern;
+	}
 
-    /**
-     * Returns a search pattern for the IMethod corressponding to the given
-     * SootMethod.
-     * 
-     * @param selectedSootMethod The SootMethod from which to generate the
-     *            search pattern
-     * @return The string pattern of the type function-name(type-arg1,
-     *         type-arg2...)
-     */
-    public static String getSearchPattern(final SootMethod selectedSootMethod) {
-        final StringBuffer _pattern = new StringBuffer("");
-        _pattern.append(selectedSootMethod.getName() + "("); //$NON-NLS-1$
+	/**
+	 * Returns a search pattern for the IMethod corressponding to the given SootMethod.
+	 * 
+	 * @param selectedSootMethod The SootMethod from which to generate the search pattern
+	 * @return The string pattern of the type function-name(type-arg1, type-arg2...)
+	 */
+	public static String getSearchPattern(final SootMethod selectedSootMethod) {
+		final StringBuffer _pattern = new StringBuffer("");
+		_pattern.append(selectedSootMethod.getName() + "("); //$NON-NLS-1$
 
-        final int _parameterCount = selectedSootMethod.getParameterCount();
-        String _retString = null;
+		final int _parameterCount = selectedSootMethod.getParameterCount();
+		String _retString = null;
 
-        if (_parameterCount < 1) {
-            _retString = _pattern + ")"; //$NON-NLS-1$
-        } else {
-            final Type[] _paramTypes = new Type[_parameterCount];
+		if (_parameterCount < 1) {
+			_retString = _pattern + ")"; //$NON-NLS-1$
+		} else {
+			final Type[] _paramTypes = new Type[_parameterCount];
 
-            for (int _i = 0; _i < _parameterCount; _i++) {
-                _paramTypes[_i] = (selectedSootMethod.getParameterType(_i));
-            }
+			for (int _i = 0; _i < _parameterCount; _i++) {
+				_paramTypes[_i] = (selectedSootMethod.getParameterType(_i));
+			}
 
-            if (_paramTypes.length > 0) {
-                String _tempPattern = _paramTypes[0].toString();
-                int _index = _tempPattern.lastIndexOf("."); //$NON-NLS-1$
+			if (_paramTypes.length > 0) {
+				String _tempPattern = _paramTypes[0].toString();
+				int _index = _tempPattern.lastIndexOf("."); //$NON-NLS-1$
 
-                if (_index > 0 && _index < _tempPattern.length()) {
-                    _tempPattern = _tempPattern.substring(_index + 1);
-                }
-                _pattern.append(_tempPattern);
+				if (_index > 0 && _index < _tempPattern.length()) {
+					_tempPattern = _tempPattern.substring(_index + 1);
+				}
+				_pattern.append(_tempPattern);
 
-                for (int _nCtr = 1; _nCtr < _paramTypes.length; _nCtr++) {
-                    _pattern.append(", "); //$NON-NLS-1$
-                    _tempPattern = _paramTypes[_nCtr].toString();
-                    _index = _tempPattern.lastIndexOf("."); //$NON-NLS-1$
+				for (int _nCtr = 1; _nCtr < _paramTypes.length; _nCtr++) {
+					_pattern.append(", "); //$NON-NLS-1$
+					_tempPattern = _paramTypes[_nCtr].toString();
+					_index = _tempPattern.lastIndexOf("."); //$NON-NLS-1$
 
-                    // Eclipse doesn't add class names to the parameter type.
-                    // Hence this.
-                    if (_index > 0 && _index < _tempPattern.length()) {
-                        _tempPattern = _tempPattern.substring(_index + 1);
-                    }
-                    _pattern.append(_tempPattern);
-                }
-            }
-            _pattern.append(")"); //$NON-NLS-1$
-            _retString = _pattern.toString();
-        }
-        return _retString;
-    }
+					// Eclipse doesn't add class names to the parameter type.
+					// Hence this.
+					if (_index > 0 && _index < _tempPattern.length()) {
+						_tempPattern = _tempPattern.substring(_index + 1);
+					}
+					_pattern.append(_tempPattern);
+				}
+			}
+			_pattern.append(")"); //$NON-NLS-1$
+			_retString = _pattern.toString();
+		}
+		return _retString;
+	}
 
-    public static Collection<IType> getTypesIn(final ICompilationUnit _icunit) throws JavaModelException {
-        final Collection<IType> _result = new HashSet<IType>();
-        final List<IJavaElement> _temp = new ArrayList<IJavaElement>();
-        for (IType _t : _icunit.getTypes()) {
-            _temp.add(_t);
-            _result.add(_t);
-        }
-        for (int i = 0; i < _temp.size(); i++) {
-            IJavaElement _e = _temp.get(i);
-            if (_e instanceof IMethod) {
-                final IMethod _method = (IMethod) _e;
-                IType _type = _method.getType("", 1);
-                for (int _j = 2; _type.exists(); _j++) {
-                    _temp.add(_type);
-                    _type = _method.getType("", _j);
-                }
-            } else if (_e instanceof IType) {
-                final IType _type = (IType) _e;
-                _result.add(_type);
-                final IMethod[] _methods = _type.getMethods();
-                for (int _j = 0; _j < _methods.length; _j++) {
-                    _temp.add(_methods[_j]);
-                }
-            }
-        }
+	public static Collection<IType> getTypesIn(final ICompilationUnit _icunit) throws JavaModelException {
+		final Collection<IType> _result = new HashSet<IType>();
+		final List<IJavaElement> _temp = new ArrayList<IJavaElement>();
+		for (IType _t : _icunit.getTypes()) {
+			_temp.add(_t);
+			_result.add(_t);
+		}
+		for (int i = 0; i < _temp.size(); i++) {
+			IJavaElement _e = _temp.get(i);
+			if (_e instanceof IMethod) {
+				final IMethod _method = (IMethod) _e;
+				IType _type = _method.getType("", 1);
+				for (int _j = 2; _type.exists(); _j++) {
+					_temp.add(_type);
+					_type = _method.getType("", _j);
+				}
+			} else if (_e instanceof IType) {
+				final IType _type = (IType) _e;
+				_result.add(_type);
+				final IMethod[] _methods = _type.getMethods();
+				for (int _j = 0; _j < _methods.length; _j++) {
+					_temp.add(_methods[_j]);
+				}
+			}
+		}
 
-        return _result;
-    }
+		return _result;
+	}
 
-    /**
-     * @param _sm
-     * @param statement
-     * @param file
-     * @param lineNumber
-     * @return
-     */
-    public static String getUniqueSignature(SootMethod _sm, String statement, int lineNumber) {
-        return _sm.hashCode() + _sm.getSignature() + statement + "" + lineNumber;
-    }
+	/**
+	 * @param _sm
+	 * @param statement
+	 * @param file
+	 * @param lineNumber
+	 * @return
+	 */
+	public static String getUniqueSignature(SootMethod _sm, String statement, int lineNumber) {
+		return _sm.hashCode() + _sm.getSignature() + statement + "" + lineNumber;
+	}
 
-    /**
-     * Displays the exception trace in a dialog box.
-     * 
-     * @param exception The exception to be handled.
-     */
-    public static void handleException(final Exception exception) {
-        final StringWriter _sw = new StringWriter();
-        final PrintWriter _pw = new PrintWriter(_sw);
-        exception.printStackTrace(_pw);
-        exception.printStackTrace();
-        final IWorkbenchWindow _iww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
-        Shell _shell = null;
-        if (_iww != null) {
-            _shell = _iww.getShell();
-        } else {
-            _shell = Display.getDefault().getActiveShell();
-        }
-        final ExceptionDialog _ed = new ExceptionDialog(_shell, _sw.getBuffer().toString());
-        _ed.open();
-    }
+	/**
+	 * Displays the exception trace in a dialog box.
+	 * 
+	 * @param exception The exception to be handled.
+	 */
+	public static void handleException(final Exception exception) {
+		final StringWriter _sw = new StringWriter();
+		final PrintWriter _pw = new PrintWriter(_sw);
+		exception.printStackTrace(_pw);
+		exception.printStackTrace();
+		final IWorkbenchWindow _iww = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		Shell _shell = null;
+		if (_iww != null) {
+			_shell = _iww.getShell();
+		} else {
+			_shell = Display.getDefault().getActiveShell();
+		}
+		final ExceptionDialog _ed = new ExceptionDialog(_shell, _sw.getBuffer().toString());
+		_ed.open();
+	}
 
-    /**
-     * Return whether the file has a main method present or not.
-     * 
-     * @param javafile The java file
-     * @return boolean Whether a main function exists in the file
-     */
-    private static boolean isMainPresent(final IFile javafile) {
-        final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(javafile);
-        boolean _result = false;
+	/**
+	 * Return whether the file has a main method present or not.
+	 * 
+	 * @param javafile The java file
+	 * @return boolean Whether a main function exists in the file
+	 */
+	private static boolean isMainPresent(final IFile javafile) {
+		final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(javafile);
+		boolean _result = false;
 
-        try {
-            if (_icunit != null) {
-                IType[] _types = null;
-                _types = _icunit.getAllTypes();
+		try {
+			if (_icunit != null) {
+				IType[] _types = null;
+				_types = _icunit.getAllTypes();
 
-                for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-                    final IType _type = _types[_nrun];
-                    final IMethod[] _methods = _type.getMethods();
+				for (int _nrun = 0; _nrun < _types.length; _nrun++) {
+					final IType _type = _types[_nrun];
+					final IMethod[] _methods = _type.getMethods();
 
-                    for (int _i = 0; _i < _methods.length; _i++) {
-                        final IMethod _method = _methods[_i];
+					for (int _i = 0; _i < _methods.length; _i++) {
+						final IMethod _method = _methods[_i];
 
-                        if (_method.isMainMethod()) {
-                            _result = true;
-                            break;
-                        }
-                    }
-                }
-            }
-        } catch (JavaModelException _jme) {
-            KaveriErrorLog.logException("Java Model Exception", _jme);
-            SECommons.handleException(_jme);
-        }
-        return _result;
-    }
+						if (_method.isMainMethod()) {
+							_result = true;
+							break;
+						}
+					}
+				}
+			}
+		} catch (JavaModelException _jme) {
+			KaveriErrorLog.logException("Java Model Exception", _jme);
+			SECommons.handleException(_jme);
+		}
+		return _result;
+	}
 
-    /**
-     * Returns list of java files in the currently chosen project.
-     * 
-     * @param jproject The java project.
-     * @return List The list of java files. PostCondition:
-     *         result.oclIsKindOf(List) and
-     *         result.elements.oclIsKindOf(IResource)
-     */
-    public static List processForFiles(final IJavaProject jproject) {
-        List _javaFileList = new ArrayList();
+	/**
+	 * Returns list of java files in the currently chosen project.
+	 * 
+	 * @param jproject The java project.
+	 * @return List The list of java files. PostCondition: result.oclIsKindOf(List) and result.elements.oclIsKindOf(IResource)
+	 */
+	public static List processForFiles(final IJavaProject jproject) {
+		List _javaFileList = new ArrayList();
 
-        try {
-            final IPackageFragment[] _fragments = jproject.getPackageFragments();
+		try {
+			final IPackageFragment[] _fragments = jproject.getPackageFragments();
 
-            for (int _i = 0; _i < _fragments.length; _i++) {
-                final IPackageFragment _fragment = _fragments[_i];
+			for (int _i = 0; _i < _fragments.length; _i++) {
+				final IPackageFragment _fragment = _fragments[_i];
 
-                if (_fragment.containsJavaResources()) {
-                    final ICompilationUnit[] _units = _fragment.getCompilationUnits();
+				if (_fragment.containsJavaResources()) {
+					final ICompilationUnit[] _units = _fragment.getCompilationUnits();
 
-                    for (int _j = 0; _j < _units.length; _j++) {
-                        if (_units[_j].getElementType() == IJavaElement.COMPILATION_UNIT) {
-                            final IResource _resource = _units[_j].getCorrespondingResource();
-                            _javaFileList.add(_resource);
-                        }
-                    }
-                }
-            }
-        } catch (JavaModelException _jme) {
-            SECommons.handleException(_jme);
-            _javaFileList = null;
-            KaveriErrorLog.logException("Java Model Exception", _jme);
-        }
-        return _javaFileList;
-    }
+					for (int _j = 0; _j < _units.length; _j++) {
+						if (_units[_j].getElementType() == IJavaElement.COMPILATION_UNIT) {
+							final IResource _resource = _units[_j].getCorrespondingResource();
+							_javaFileList.add(_resource);
+						}
+					}
+				}
+			}
+		} catch (JavaModelException _jme) {
+			SECommons.handleException(_jme);
+			_javaFileList = null;
+			KaveriErrorLog.logException("Java Model Exception", _jme);
+		}
+		return _javaFileList;
+	}
 
-    /**
-     * Search for files with main methods in the project where file exists.
-     * 
-     * @param lst The list to add the roots to
-     * @param file The file to search for the main() function
-     */
-    private static void searchAndFindRoots(final List lst, final IFile file) {
-        final IProject _project = file.getProject();
-        final IJavaProject _jProject = JavaCore.create(_project);
-        final List _lst = processForFiles(_jProject);
+	/**
+	 * Search for files with main methods in the project where file exists.
+	 * 
+	 * @param lst The list to add the roots to
+	 * @param file The file to search for the main() function
+	 */
+	private static void searchAndFindRoots(final List lst, final IFile file) {
+		final IProject _project = file.getProject();
+		final IJavaProject _jProject = JavaCore.create(_project);
+		final List _lst = processForFiles(_jProject);
 
-        for (int _i = 0; _i < _lst.size(); _i++) {
-            final IFile _newfile = (IFile) _lst.get(_i);
+		for (int _i = 0; _i < _lst.size(); _i++) {
+			final IFile _newfile = (IFile) _lst.get(_i);
 
-            if (isMainPresent(_newfile)) {
-                lst.add(_newfile);
-            }
-        }
-    }
+			if (isMainPresent(_newfile)) {
+				lst.add(_newfile);
+			}
+		}
+	}
 
-    /**
-     * Constructor.
-     */
-    private SECommons() {
-    }
+	/**
+	 * Constructor.
+	 */
+	private SECommons() {
+	}
 
-    public static  String normalizeSignature(String signature) {
-        return signature.replaceAll("\\.[0-9]+", "\\$\\1");
-    }
+	public static String normalizeSignature(String signature) {
+		return signature.replaceAll("\\.[0-9]+", "\\$\\1");
+	}
 }

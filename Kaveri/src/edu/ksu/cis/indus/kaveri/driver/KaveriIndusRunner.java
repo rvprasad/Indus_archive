@@ -12,21 +12,8 @@
  *     Manhattan, KS 66506, USA
  */
 
-/*
- * Created on Apr 5, 2004
- *
- *
- *
- */
 package edu.ksu.cis.indus.kaveri.driver;
 
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
-import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
-import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
-import edu.ksu.cis.indus.tools.IToolProgressListener;
-
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -34,11 +21,15 @@ import java.util.Set;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.internal.ui.javaeditor.CompilationUnitEditor;
 import org.eclipse.jface.operation.IRunnableWithProgress;
 import org.eclipse.swt.widgets.Display;
+
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.decorator.IndusDecorator;
+import edu.ksu.cis.indus.kaveri.dialogs.SliceProgressBar;
+import edu.ksu.cis.indus.kaveri.soot.SootIndusTagCleaner;
+import edu.ksu.cis.indus.tools.IToolProgressListener;
 
 /**
  * This does the bulk of the call to the eclipse indus driver. The settings for the slice are currently stored in
@@ -54,11 +45,11 @@ public class KaveriIndusRunner
 	 * Creates a new KaveriIndusRunner object.
 	 * 
 	 * @param filesList The file pointing to the java file being sliced
-	 * @param bar The slice progress bar to which to report the messages.
+	 * @param progressBar The slice progress bar to which to report the messages.
 	 * @param cpSet The collection of classpath entries.
 	 */
-	public KaveriIndusRunner(final List filesList, SliceProgressBar bar, final Set cpSet) {
-		super(filesList, bar, cpSet);
+	public KaveriIndusRunner(final List filesList, SliceProgressBar progressBar, final Set cpSet) {
+		super(filesList, progressBar, cpSet);
 	}
 
 	/**
@@ -84,7 +75,7 @@ public class KaveriIndusRunner
 	 * 
 	 * @see org.eclipse.jface.operation.IRunnableWithProgress#run(org.eclipse.core.runtime.IProgressMonitor)
 	 */
-	public void run(final IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
+	public void run(final IProgressMonitor monitor) throws InterruptedException {
 		monitor.beginTask(Messages.getString("AbstractIndusRunner.1"), 100); //$NON-NLS-1$
 		final Collection _ctx = KaveriPlugin.getDefault().getIndusConfiguration().getChosenContext();
 		if (_ctx.size() > 0) {
@@ -135,14 +126,11 @@ public class KaveriIndusRunner
 			throw new InterruptedException("Slice was stopped");
 		}
 
-		// KaveriPlugin.getDefault().getIndusConfiguration().setLineNumbers(driver.getAnnotationLineNumbers());
-
 		final IndusDecorator _decorator = IndusDecorator.getIndusDecorator();
 		if (fileList.size() > 0) {
 			final IFile _file = (IFile) fileList.get(0);
 			final IProject _pr = _file.getProject();
 			KaveriPlugin.getDefault().getIndusConfiguration().setSliceProject(_pr);
-			final IJavaProject _jp = JavaCore.create(_pr);
 			final List _flist = completeFileList;
 			if (_flist != null) {
 				KaveriPlugin.getDefault().getIndusConfiguration().setSliceFileList(_flist);

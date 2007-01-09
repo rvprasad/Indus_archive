@@ -563,10 +563,10 @@ public class IndusConfiguration {
         return doResidualize;
     }
     /**
-     * @param doResidualize The doResidualize to set.
+     * @param value The doResidualize to set.
      */
-    public void setDoResidualize(boolean doResidualize) {
-        this.doResidualize = doResidualize;
+    public void setDoResidualize(boolean value) {
+        this.doResidualize = value;
     }
     /**
      * @return Returns the crtMaintainer.

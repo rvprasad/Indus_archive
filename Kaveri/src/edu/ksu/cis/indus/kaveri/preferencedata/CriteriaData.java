@@ -38,7 +38,7 @@ public class CriteriaData {
      * @param criteria
      *            The criterias to set.
      */
-    public void setCriterias(final List criteria) {
+    public void setCriteria(final List criteria) {
         this.criterias = criteria;
     }
 

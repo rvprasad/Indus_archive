@@ -20,13 +20,6 @@
  */
 package edu.ksu.cis.indus.kaveri.presentation;
 
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.common.PrettySignature;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
-import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
-
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +55,12 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IFileEditorInput;
 
 import soot.Scene;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.common.PrettySignature;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.soot.SootConvertor;
+import edu.ksu.cis.indus.kaveri.views.PartialStmtData;
 
 /**
  * This class implements the slice toggle action.
@@ -72,7 +71,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
     /**
      * The java editor instance.
      */
-    private CompilationUnitEditor editor;
+    CompilationUnitEditor editor;
 
     /**
      * The previous file chosen
@@ -83,211 +82,186 @@ public class SliceAnnotate implements IEditorActionDelegate {
      * The previous line number chosen, used to avoid redundant calls.
      */
     private int nLineno = -1;
-    
+
     private ISelectionChangedListener listener;
-    
-    
-    
+
     /**
      * Indicates the current java editor.
      * 
      * @see org.eclipse.ui.IEditorActionDelegate#setActiveEditor(org.eclipse.jface.action.IAction,
      *      org.eclipse.ui.IEditorPart)
      */
-    public void setActiveEditor(final IAction action,
-            final IEditorPart targetEditor) {
+    public void setActiveEditor(@SuppressWarnings("unused")
+    final IAction action, final IEditorPart targetEditor) {
         if (listener == null) {
             listener = new ISelectionChangedListener() {
 
                 public void selectionChanged(SelectionChangedEvent event) {
-                   if(editor != null) {
-                       if (event.getSelection() instanceof ITextSelection) {
-                           final ITextSelection _selection = (ITextSelection) event.getSelection();
-                           processSelection(_selection);
-                       }
-                   }
-                    
+                    if (editor != null) {
+                        if (event.getSelection() instanceof ITextSelection) {
+                            final ITextSelection _selection = (ITextSelection) event.getSelection();
+                            processSelection(_selection);
+                        }
+                    }
+
                 }
-                
+
             };
-            
+
         }
-        
+
         if (editor != null) {
             if (editor.getSelectionProvider() instanceof IPostSelectionProvider) {
                 final IPostSelectionProvider _ipp = (IPostSelectionProvider) editor.getSelectionProvider();
                 _ipp.addPostSelectionChangedListener(listener);
             }
         }
-        
-        if (targetEditor != null) {            
+
+        if (targetEditor != null) {
             if (((CompilationUnitEditor) targetEditor).getSelectionProvider() instanceof IPostSelectionProvider) {
-                final IPostSelectionProvider _ipp = (IPostSelectionProvider) ((CompilationUnitEditor) targetEditor).getSelectionProvider();
+                final IPostSelectionProvider _ipp = (IPostSelectionProvider) ((CompilationUnitEditor) targetEditor)
+                        .getSelectionProvider();
                 _ipp.addPostSelectionChangedListener(listener);
             }
         }
-        
+
         this.editor = (CompilationUnitEditor) targetEditor;
-        
+
         if (editor != null) {
             IWorkspaceRunnable _runnable = new IWorkspaceRunnable() {
 
-                public void run(IProgressMonitor monitor) throws CoreException {        
+                public void run(@SuppressWarnings("unused")
+                IProgressMonitor monitor) throws CoreException {
                     final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
                     if (_file != null) {
                         final IProject _prj = _file.getProject();
-                        KaveriPlugin.getDefault().getIndusConfiguration().setCurrentProject(_prj, _file);    
+                        KaveriPlugin.getDefault().getIndusConfiguration().setCurrentProject(_prj, _file);
                     }
-                    
+
                 }
-                
+
             };
             try {
                 ResourcesPlugin.getWorkspace().run(_runnable, null);
             } catch (CoreException e) {
                 KaveriErrorLog.logException("Unable to update criteria view", e);
             }
-        }
-        
-        Display.getCurrent().asyncExec(new Runnable() {
-            public void run() {
-                final IFile _file = ((IFileEditorInput) editor.getEditorInput())
-                        .getFile();                
-                final Map _map = KaveriPlugin.getDefault().getCacheMap();
+            Display.getCurrent().asyncExec(new Runnable() {
+                public void run() {
+                    final Map _map = KaveriPlugin.getDefault().getCacheMap();
 
-                if (editor != null && _map != null && _map.size() > 0) {
-                    final IDecoratorManager _manager = KaveriPlugin
-                            .getDefault().getWorkbench().getDecoratorManager();
+                    if (editor != null && _map != null && _map.size() > 0) {
+                        final IDecoratorManager _manager = KaveriPlugin.getDefault().getWorkbench().getDecoratorManager();
 
-                    if (_manager
-                            .getEnabled("edu.ksu.cis.indus.kaveri.decorator")) {
-                        final IFile _fl = ((IFileEditorInput) editor
-                                .getEditorInput()).getFile();
-                        boolean _hasNature = false;
-                        try {
-                            _hasNature = _fl.getProject().hasNature("org.eclipse.jdt.core.javanature");
-                        } catch (CoreException e) {
-                            return;
-                        }
-                        if (_hasNature) {
-                        final AddIndusAnnotation _indusA = KaveriPlugin
-                                .getDefault().getIndusConfiguration()
-                                .getIndusAnnotationManager();
+                        if (_manager.getEnabled("edu.ksu.cis.indus.kaveri.decorator")) {
+                            final IFile _fl = ((IFileEditorInput) editor.getEditorInput()).getFile();
+                            boolean _hasNature = false;
+                            try {
+                                _hasNature = _fl.getProject().hasNature("org.eclipse.jdt.core.javanature");
+                            } catch (CoreException e) {
+                                return;
+                            }
+                            if (_hasNature) {
+                                final AddIndusAnnotation _indusA = KaveriPlugin.getDefault().getIndusConfiguration()
+                                        .getIndusAnnotationManager();
 
-                        if (!_indusA.isAreAnnotationsPresent(editor)
-                                && classesPresent(_fl, _map)) {
-                            _indusA.setEditor(editor, _map);
-                        }
-                        }
-                    }
-                }
-            }
-
-            /**
-             * Indicates if atleast one class in the file has a slice
-             * associated.
-             * 
-             * @param fl
-             *            The file in which to check.
-             * @param map
-             *            The map of class names to line numbers
-             * 
-             * @return boolean Whether the file is worth annotating
-             */
-            private boolean classesPresent(final IFile fl, final Map map) {
-                final ICompilationUnit _icunit = (ICompilationUnit) JavaCore
-                        .create(fl);
-                boolean _result = false;
-
-                try {
-                    if (_icunit != null) {
-                        IType[] _types = null;
-                        _types = _icunit.getAllTypes();
-
-                        for (int _nrun = 0; _nrun < _types.length; _nrun++) {
-                            final IType _type = _types[_nrun];
-                            final String _className = _type
-                                    .getFullyQualifiedName();
-
-                            if (map.keySet().contains(_className)) {
-                                _result = true;
-                                break;
+                                if (!_indusA.isAreAnnotationsPresent(editor) && classesPresent(_fl, _map)) {
+                                    _indusA.setEditor(editor, _map);
+                                }
                             }
                         }
                     }
-                } catch (JavaModelException _jme) {
-                    KaveriErrorLog.logException("Java Model Exception", _jme);
-                    SECommons.handleException(_jme);
                 }
-                return _result;
-            }
-        });
+
+                /**
+                 * Indicates if atleast one class in the file has a slice
+                 * associated.
+                 * 
+                 * @param fl The file in which to check.
+                 * @param map The map of class names to line numbers
+                 * 
+                 * @return boolean Whether the file is worth annotating
+                 */
+                private boolean classesPresent(final IFile fl, final Map map) {
+                    final ICompilationUnit _icunit = (ICompilationUnit) JavaCore.create(fl);
+                    boolean _result = false;
+
+                    try {
+                        if (_icunit != null) {
+                            IType[] _types = null;
+                            _types = _icunit.getAllTypes();
+
+                            for (int _nrun = 0; _nrun < _types.length; _nrun++) {
+                                final IType _type = _types[_nrun];
+                                final String _className = _type.getFullyQualifiedName();
+
+                                if (map.keySet().contains(_className)) {
+                                    _result = true;
+                                    break;
+                                }
+                            }
+                        }
+                    } catch (JavaModelException _jme) {
+                        KaveriErrorLog.logException("Java Model Exception", _jme);
+                        SECommons.handleException(_jme);
+                    }
+                    return _result;
+                }
+            });
+        }
     }
 
     /**
      * Process the selection.
-     * @param _selection
+     * 
+     * @param selection DOCUMENT ME!
      */
-    protected void processSelection(final ITextSelection _selection) {
+    protected void processSelection(final ITextSelection selection) {
         final KaveriPlugin _default1 = KaveriPlugin.getDefault();
-        if (_default1.getIndusConfiguration()
-                        .getStmtList().isListenersPresent()) {
-            if (_default1.getIndusConfiguration().getStmtList()
-                    .isListenersReady()
-                    && editor != null) {
-                final IFile _file = ((IFileEditorInput) editor.getEditorInput())
-                .getFile();
-                if (_file == null) {
-                    return;
-                }
-                if (!hasJavaNature(_file)) {
-                    return;
-                }
-                if (prevFile != null
-                        && ((IFileEditorInput) editor.getEditorInput())
-                                .getFile().equals(prevFile)) {
-                    
-                    if (nLineno == _selection.getStartLine()) {
-                        return;
-                    } else {
-                        nLineno = _selection.getStartLine();
-                    }
+        if (_default1.getIndusConfiguration().getStmtList().isListenersPresent()) {
+            if (_default1.getIndusConfiguration().getStmtList().isListenersReady() && editor != null) {
+                final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+                if (_file == null) { return; }
+                if (!hasJavaNature(_file)) { return; }
+                if (prevFile != null && ((IFileEditorInput) editor.getEditorInput()).getFile().equals(prevFile)) {
 
+                    if (nLineno == selection.getStartLine()) { return; }
+                    nLineno = selection.getStartLine();
                 } else {
-                    prevFile = ((IFileEditorInput) editor.getEditorInput())
-                            .getFile();
-                    nLineno = _selection.getStartLine();
+                    prevFile = ((IFileEditorInput) editor.getEditorInput()).getFile();
+                    nLineno = selection.getStartLine();
                 }
-                
+
                 if (isSootClassAlreadyPresent(_file) && !_default1.getSootState().doesSceneNeedUpdate()) {
-                    handleSelectionForSliceView(_selection);
+                    handleSelectionForSliceView(selection);
                 } else {
                     final ProgressMonitorDialog _pmd = new ProgressMonitorDialog(Display.getCurrent().getActiveShell());
                     final IRunnableWithProgress _progress = new IRunnableWithProgress() {
-    
-                        public void run(IProgressMonitor monitor) throws InvocationTargetException, InterruptedException {
-                            monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);                            
-                            handleSelectionForSliceView(_selection);
+
+                        public void run(IProgressMonitor monitor) {
+                            monitor.beginTask("Loading Soot", IProgressMonitor.UNKNOWN);
+                            handleSelectionForSliceView(selection);
                         }
-                        
+
                     };
                     try {
-                    _pmd.run(false, false, _progress );
+                        _pmd.run(false, false, _progress);
                     } catch (InterruptedException _ie) {
                         SECommons.handleException(_ie);
                         KaveriErrorLog.logException("Interrupted Exception", _ie);
                     } catch (InvocationTargetException _ie) {
                         SECommons.handleException(_ie);
                         KaveriErrorLog.logException("Interrupted Exception", _ie);
-                    }     
+                    }
                 }
             }
         }
-        
+
     }
 
     /**
      * Determines if the file has already been loaded into soot.
+     * 
      * @param file
      * @return
      */
@@ -295,7 +269,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
         final ICompilationUnit _unit = JavaCore.createCompilationUnitFrom(_file);
         boolean _result = false;
         try {
-            final IType[] _types  =_unit.getAllTypes();
+            final IType[] _types = _unit.getAllTypes();
             for (int i = 0; i < _types.length; i++) {
                 final IType _type = _types[i];
                 if (Scene.v().containsClass(_type.getFullyQualifiedName())) {
@@ -307,7 +281,7 @@ public class SliceAnnotate implements IEditorActionDelegate {
             SECommons.handleException(e);
             KaveriErrorLog.logException("Java Model Exception", e);
         }
-        
+
         return _result;
     }
 
@@ -316,30 +290,26 @@ public class SliceAnnotate implements IEditorActionDelegate {
      * 
      * @see org.eclipse.ui.IActionDelegate#run(org.eclipse.jface.action.IAction)
      */
-    public void run(final IAction action) {
-        final AddIndusAnnotation _indusA = KaveriPlugin.getDefault()
-                .getIndusConfiguration().getIndusAnnotationManager();
+    public void run(@SuppressWarnings("unused") final IAction action) {
+        final AddIndusAnnotation _indusA = KaveriPlugin.getDefault().getIndusConfiguration().getIndusAnnotationManager();
 
-        if (editor == null) {
-            return;
-            
+        if (editor == null) { return;
+
         }
         final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
         if (_file != null && hasJavaNature(_file)) {
-        if (editor != null && _indusA.isAreAnnotationsPresent(editor)) {
-            _indusA.setEditor(editor, false);
-        } else {
-            final IFile _fl = ((IFileEditorInput) editor.getEditorInput())
-                    .getFile();
-            final Map _map = KaveriPlugin.getDefault().getIndusConfiguration()
-                    .getLineNumbers();
-            _indusA.setEditor(editor, _map);
-        }
+            if (editor != null && _indusA.isAreAnnotationsPresent(editor)) {
+                _indusA.setEditor(editor, false);
+            } else {
+                final Map _map = KaveriPlugin.getDefault().getIndusConfiguration().getLineNumbers();
+                _indusA.setEditor(editor, _map);
+            }
         }
     }
 
     /**
      * Checks for the java nature of the file.
+     * 
      * @param file
      * @return
      */
@@ -364,12 +334,10 @@ public class SliceAnnotate implements IEditorActionDelegate {
             String _text = "";
             final int _nSelLine = _tSelect.getEndLine() + 1;
             try {
-                final IRegion _region = editor.getDocumentProvider()
-                        .getDocument(editor.getEditorInput())
-                        .getLineInformation(_nSelLine - 1);
+                final IRegion _region = editor.getDocumentProvider().getDocument(editor.getEditorInput()).getLineInformation(
+                        _nSelLine - 1);
 
-                _text = editor.getDocumentProvider().getDocument(
-                        editor.getEditorInput()).get(_region.getOffset(),
+                _text = editor.getDocumentProvider().getDocument(editor.getEditorInput()).get(_region.getOffset(),
                         _region.getLength());
             } catch (BadLocationException _ble) {
                 KaveriErrorLog.logException("Bad Location Exception", _ble);
@@ -380,24 +348,19 @@ public class SliceAnnotate implements IEditorActionDelegate {
 
             try {
                 final IType _type = SelectionConverter.getTypeAtOffset(editor);
-                final IJavaElement _element = SelectionConverter
-                        .getElementAtOffset(editor);
+                final IJavaElement _element = SelectionConverter.getElementAtOffset(editor);
                 if (_element != null && _element instanceof IMethod) {
-                    final IFile _file = ((IFileEditorInput) editor
-                            .getEditorInput()).getFile();
-                    
-                    final List _stmtlist = SootConvertor.getStmtForLine(_file,
-                            _type, (IMethod) _element, _nSelLine);
+                    final IFile _file = ((IFileEditorInput) editor.getEditorInput()).getFile();
+
+                    final List _stmtlist = SootConvertor.getStmtForLine(_file, _type, (IMethod) _element, _nSelLine);
 
                     if (_stmtlist != null && _stmtlist.size() >= 3) {
-                        final PartialStmtData _psd = KaveriPlugin.getDefault()
-                                .getIndusConfiguration().getStmtList();
+                        final PartialStmtData _psd = KaveriPlugin.getDefault().getIndusConfiguration().getStmtList();
 
                         _psd.setJavaFile(_file);
                         _psd.setSelectedStatement(_text);
-                        _psd.setClassName(PrettySignature.getSignature(_type));                        
-                        _psd.setMethodName(PrettySignature
-                                .getSignature((IMethod) _element));
+                        _psd.setClassName(PrettySignature.getSignature(_type));
+                        _psd.setMethodName(PrettySignature.getSignature(_element));
                         _psd.setLineNo(_nSelLine);
                         _psd.setStmtList(_stmtlist);
                     }
@@ -410,7 +373,9 @@ public class SliceAnnotate implements IEditorActionDelegate {
         }
     }
 
-    public void selectionChanged(final IAction action, final ISelection selection) {
-        // empty        
+    public void selectionChanged(@SuppressWarnings("unused")
+    final IAction action, @SuppressWarnings("unused")
+    final ISelection selection) {
+        // empty
     }
 }

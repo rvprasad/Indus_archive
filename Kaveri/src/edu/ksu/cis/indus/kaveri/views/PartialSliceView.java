@@ -340,7 +340,7 @@ public class PartialSliceView extends ViewPart {
             _result = (CriteriaData) _xstream.fromXML(_contents);
         } else {
             _result = new CriteriaData();
-            _result.setCriterias(new ArrayList());
+            _result.setCriteria(new ArrayList());
         }
 
         return _result;

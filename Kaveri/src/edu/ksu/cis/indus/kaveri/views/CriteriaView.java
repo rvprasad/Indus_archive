@@ -87,7 +87,7 @@ public class CriteriaView extends ViewPart {
                         final Criteria _c = (Criteria) _t.next();
                         _lst.remove(_c);
                     }
-                    _cd.setCriterias(_lst);
+                    _cd.setCriteria(_lst);
                     final IProject _prj = KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().getProject();
                     saveNewCriteria(_prj, _cd);
                     crtViewer.getTable().removeAll();
@@ -109,7 +109,7 @@ public class CriteriaView extends ViewPart {
                         final Criteria _c = (Criteria) _t.next();
                         _lst.remove(_c);
                     }
-                    _cd.setCriterias(_lst);
+                    _cd.setCriteria(_lst);
                     final IProject _prj = KaveriPlugin.getDefault().getIndusConfiguration().getCrtMaintainer().getProject();
                     saveNewCriteria(_prj, _cd);
                     crtViewer.getTable().removeAll();
