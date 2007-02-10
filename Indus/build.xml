@@ -108,7 +108,7 @@ at Kansas State University.
 		<antcall target="doxydocs">
 			<param name="configFile" value="Doxyfile" />
 		</antcall>
-		<antcall target="docbook-doc" />
+	<!--	<antcall target="docbook-doc" /> -->
 	</target>
 
 	<target name="privatedocs" depends="init">
