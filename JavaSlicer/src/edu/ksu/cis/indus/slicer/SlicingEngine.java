@@ -1,16 +1,18 @@
-/*
- * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
- *
- * This software is licensed under the KSU Open Academic License.
- * You should have received a copy of the license with the distribution.
- * A copy can be found at
- *     http://www.cis.ksu.edu/santos/license.html
- * or you can contact the lab at:
- *     SAnToS Laboratory
- *     234 Nichols Hall
- *     Manhattan, KS 66506, USA
- */
+/*******************************************************************************
+ * Indus, a program analysis and transformation toolkit for Java.
+ * Copyright (c) 2001, 2007 Venkatesh Prasad Ranganath
+ * 
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
+ * 
+ * For questions about the license, copyright, and software, contact 
+ * 	Venkatesh Prasad Ranganath at venkateshprasad.ranganath@gmail.com
+ *                                 
+ * This software was developed by Venkatesh Prasad Ranganath in SAnToS Laboratory 
+ * at Kansas State University.
+ *******************************************************************************/
 
 package edu.ksu.cis.indus.slicer;
 
@@ -829,7 +831,8 @@ public final class SlicingEngine {
 				setCallStackCache(_context);
 
 				if (_stmtToBeIncluded != null) {
-					final boolean _b = generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, true);
+					final boolean _b = generateStmtLevelSliceCriterion(_stmtToBeIncluded, _methodToBeIncluded, !sliceType
+							.equals(SliceType.FORWARD_SLICE));
 
 					if (!_b) {
 						generateMethodLevelSliceCriteria(_methodToBeIncluded);
@@ -1004,7 +1007,7 @@ public final class SlicingEngine {
 	}
 
 	/**
-	 * Records information to indicate that all invocation sites of the given method have been included in the slice.  
+	 * Records information to indicate that all invocation sites of the given method have been included in the slice.
 	 * 
 	 * @param method of interest.
 	 */
@@ -1053,8 +1056,9 @@ public final class SlicingEngine {
 	 * Records the call stack for the method stored in the given node.
 	 * 
 	 * @param methodNode of interest.
-	 * @return <code>true</code> if new method nodes were created or if current call stack needs to be considered for processing.  In other words,
-	 * <code>true</code> is returned when the call stack to the given method node extended call stack graph; <code>false</code>, otherwise.
+	 * @return <code>true</code> if new method nodes were created or if current call stack needs to be considered for
+	 *         processing. In other words, <code>true</code> is returned when the call stack to the given method node
+	 *         extended call stack graph; <code>false</code>, otherwise.
 	 */
 	private boolean recordCallStackForVisitedMethod(final SimpleNode<Object> methodNode) {
 		final int _limit = callStackCache.size() - 1;

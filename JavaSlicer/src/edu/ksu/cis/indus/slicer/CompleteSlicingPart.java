@@ -1,16 +1,18 @@
-/*
- * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003, 2004, 2005 SAnToS Laboratory, Kansas State University
- *
- * This software is licensed under the KSU Open Academic License.
- * You should have received a copy of the license with the distribution.
- * A copy can be found at
- *     http://www.cis.ksu.edu/santos/license.html
- * or you can contact the lab at:
- *     SAnToS Laboratory
- *     234 Nichols Hall
- *     Manhattan, KS 66506, USA
- */
+/*******************************************************************************
+ * Indus, a program analysis and transformation toolkit for Java.
+ * Copyright (c) 2001, 2007 Venkatesh Prasad Ranganath
+ * 
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
+ * 
+ * For questions about the license, copyright, and software, contact 
+ * 	Venkatesh Prasad Ranganath at venkateshprasad.ranganath@gmail.com
+ *                                 
+ * This software was developed by Venkatesh Prasad Ranganath in SAnToS Laboratory 
+ * at Kansas State University.
+ *******************************************************************************/
 
 package edu.ksu.cis.indus.slicer;
 
@@ -101,8 +103,13 @@ public class CompleteSlicingPart
 	 */
 	public Collection<Object> getDependences(final IDependencyAnalysis analysis, final Object entity, final SootMethod method) {
 		final Collection<Object> _result = new HashSet<Object>();
-		_result.addAll(backwardPart.getDependences(analysis, ((Pair) entity).getFirst(), method));
-		_result.addAll(forwardPart.getDependences(analysis, ((Pair) entity).getSecond(), method));
+		if (entity instanceof Pair) {
+			_result.addAll(backwardPart.getDependences(analysis, ((Pair) entity).getSecond(), method));
+			_result.addAll(forwardPart.getDependences(analysis, ((Pair) entity).getSecond(), method));
+		} else {
+			_result.addAll(backwardPart.getDependences(analysis, entity, method));
+			_result.addAll(forwardPart.getDependences(analysis, entity, method));			
+		}
 		return _result;
 	}
 

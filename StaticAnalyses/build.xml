@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
+<!--
+Indus, a program analysis and transformation toolkit for Java.
+Copyright (c) ${date} Venkatesh Prasad Ranganath
+
+All rights reserved.  This program and the accompanying materials are made 
+available under the terms of the Eclipse Public License v1.0 which accompanies 
+the distribution containing this program, and is available at 
+http://www.opensource.org/licenses/eclipse-1.0.php.
+
+For questions about the license, copyright, and software, contact 
+	Venkatesh Prasad Ranganath at venkateshprasad.ranganath@gmail.com
+                                
+This software was developed by Venkatesh Prasad Ranganath in SAnToS Laboratory 
+at Kansas State University.
+-->
 <!-- $Revision$ -->
 <project name="indus.staticanalyses" default="build" basedir=".">
 
@@ -148,24 +163,32 @@
 	</target>
 
 	<target name="dist" depends="build, docs">
-		<antcall target="backup" />
+		<antcall target="src-dist" />
 	</target>
 
 	<target name="privatebuild" depends="build, privatedocs" />
 
-	<target name="backup" depends="init">
+	<target name="src-dist" depends="init">
 		<mkdir dir="${dist}" />
-		<property name="filename" value="${dist}/${ant.project.name}-${DSTAMP}" />
+		<property name="filename" value="${dist}/${ant.project.name}-src-${DSTAMP}" />
 		<jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz" />
-		<tar tarfile="${filename}.tar"
-		     basedir="."
-		     excludes="**/\..*, **/rational/html/**"
-		     includes="src*/, ${filename}.jar, ${docs}/**, temp/, build.xml"
-		/>
-		<gzip src="${filename}.tar" zipfile="${filename}.tgz" />
+		<zip destfile="${filename}.zip" level="9">
+			<zipfileset dir="." prefix="${ant.project.name}">
+				<patternset refid="dist.srcpath"/>
+				<include name="src-/**"/>
+				<include name="${filename}.jar"/>
+				<include name="${docs}/**"/>
+				<include name="build.xml"/>
+				<include name="prelocalbuild.xml"/>
+				<include name="antbuild.properties"/>
+				<include name="guidelines.txt"/>
+				<include name="LICENSE.TXT"/>
+				<exclude name="dist"/>
+			</zipfileset>
+		</zip>
 		<delete file="${filename}.tar" />
 	</target>
-
+	
 	<target name="clean" depends="init">
 		<delete includeEmptyDirs="true" quiet="true">
 			<fileset dir="${build.dir}" includes="**/*" />

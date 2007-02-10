@@ -1,24 +1,17 @@
 /*******************************************************************************
  * Indus, a program analysis and transformation toolkit for Java.
- * Copyright (c) 2003, 2006 Venkatesh Prasad Ranganath
+ * Copyright (c) 2001, 2007 Venkatesh Prasad Ranganath
  * 
- * This software is licensed under the KSU Open Academic License.
- * You should have received a copy of the license with the distribution.
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
  * 
- * A copy can be found at  http://www.cis.ksu.edu/santos/license.html
- * or you can contact the lab at:
- *     SAnToS Laboratory
- *     234 Nichols Hall
- *     Manhattan, KS 66506, USA
- * 
- * You can contact Venkatesh Prasad Ranganath at 
- * 	venkateshprasad.ranganath@gmail.com
- * 
- * SAnToS Laboratory and Venkatesh Prasad Ranganath jointly own 
- * copyrights to 0.8 and earlier versions of this software.  
- * 
- * Venkatesh Prasad Ranganath owns sole copyrights to artifacts 
- * and implementation introduced into Indus beyond version 0.8.
+ * For questions about the license, copyright, and software, contact 
+ * 	Venkatesh Prasad Ranganath at venkateshprasad.ranganath@gmail.com
+ *                                 
+ * This software was developed by Venkatesh Prasad Ranganath in SAnToS Laboratory 
+ * at Kansas State University.
  *******************************************************************************/
 package edu.ksu.cis.indus.tools.slicer.criteria.generators;
 
