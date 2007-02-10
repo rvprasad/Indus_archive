@@ -15,6 +15,8 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 	href="http://www.eclipse.org">Eclipse</a>.</li>   
 </ul>
  
+ <p><i><u>Starting from v0.8.3.6, the source code from Indus project is available under Eclipse Public License (EPL).<u><i></p> 
+ 
 <p>At present, there are 3 modules that are part of Indus. More modules are expected to be added over the course of time.  We
    provide an overview of the intent of each module that are available at present.</p>
 <ul>
