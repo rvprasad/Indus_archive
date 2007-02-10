@@ -1,23 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="lib" path="lib/commons-cli-1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/commons-lang-2.0.jar"/>
-	<classpathentry kind="lib" path="lib/commons-pool-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jibx-run.jar"/>
-	<classpathentry kind="lib" path="lib/xmlunit1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xpp3.jar"/>
-	<classpathentry kind="lib" path="lib/commons-io-1.0.jar"/>
-	<classpathentry kind="lib" path="lib/trove.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/jasminclasses-sable-1.2.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/polyglot-1.1.0.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/soot-2.1.0-modified.jar"/>
-	<classpathentry exported="true" sourcepath="/Indus" kind="lib" path="lib/indus.jar"/>
-	<classpathentry exported="true" sourcepath="/JavaSlicer" kind="lib" path="lib/slicer.jar"/>
-	<classpathentry exported="true" sourcepath="/StaticAnalyses" kind="lib" path="lib/staticanalyses.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/slf4j.jar"/>
-	<classpathentry exported="true" kind="lib" path="lib/xmlenc.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry kind="con" path="org.eclipse.pde.core.requiredPlugins"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry path="src" kind="src"/>
+	<classpathentry path="lib/jibx-run.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/xpp3.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/trove.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/jasminclasses-sable-1.2.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/polyglot-1.1.0.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/soot-2.1.0-modified.jar" exported="true" kind="lib"/>
+	<classpathentry sourcepath="/Indus" path="lib/indus.jar" exported="true" kind="lib"/>
+	<classpathentry sourcepath="/JavaSlicer" path="lib/slicer.jar" exported="true" kind="lib"/>
+	<classpathentry sourcepath="/StaticAnalyses" path="lib/staticanalyses.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/slf4j.jar" exported="true" kind="lib"/>
+	<classpathentry path="lib/xmlenc.jar" exported="true" kind="lib"/>
+	<classpathentry path="org.eclipse.jdt.launching.JRE_CONTAINER" kind="con"/>
+	<classpathentry path="org.eclipse.pde.core.requiredPlugins" kind="con"/>
+	<classpathentry path="lib/commons-cli.jar" kind="lib"/>
+	<classpathentry path="lib/commons-io.jar" kind="lib"/>
+	<classpathentry path="lib/commons-lang.jar" kind="lib"/>
+	<classpathentry path="lib/commons-pool.jar" kind="lib"/>
+	<classpathentry path="lib/log4jconfig.jar" kind="lib"/>
+	<classpathentry path="lib/xmlunit.jar" kind="lib"/>
+	<classpathentry path="bin" kind="output"/>
 </classpath>

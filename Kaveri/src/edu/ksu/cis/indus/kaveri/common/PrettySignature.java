@@ -1,12 +1,11 @@
 /*******************************************************************************
- * Copyright (c) 2000, 2004 IBM Corporation and others.
- * All rights reserved. This program and the accompanying materials 
- * are made available under the terms of the Common Public License v1.0
- * which accompanies this distribution, and is available at
- * http://www.eclipse.org/legal/cpl-v10.html
+ * Indus, a toolkit to customize and adapt Java programs.
+ * Copyright (c) 2003, 2007 SAnToS Laboratory, Kansas State University
  * 
- * Contributors:
- *     IBM Corporation - initial API and implementation
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
  *******************************************************************************/
 package edu.ksu.cis.indus.kaveri.common;
 

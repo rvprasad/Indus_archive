@@ -1,17 +1,12 @@
-/*
- *
+/*******************************************************************************
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
- *
- * This software is licensed under the KSU Open Academic License.
- * You should have received a copy of the license with the distribution.
- * A copy can be found at
- *     http://www.cis.ksu.edu/santos/license.html
- * or you can contact the lab at:
- *     SAnToS Laboratory
- *     234 Nichols Hall
- *     Manhattan, KS 66506, USA
- */
+ * Copyright (c) 2003, 2007 SAnToS Laboratory, Kansas State University
+ * 
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
+ *******************************************************************************/
 
 package edu.ksu.cis.indus.kaveri.views;
 

@@ -1,21 +1,28 @@
-/*
+/*******************************************************************************
  * Indus, a toolkit to customize and adapt Java programs.
- * Copyright (c) 2003 SAnToS Laboratory, Kansas State University
- *
- * This software is licensed under the KSU Open Academic License.
- * You should have received a copy of the license with the distribution.
- * A copy can be found at
- *     http://www.cis.ksu.edu/santos/license.html
- * or you can contact the lab at:
- *     SAnToS Laboratory
- *     234 Nichols Hall
- *     Manhattan, KS 66506, USA
- */
+ * Copyright (c) 2003, 2007 SAnToS Laboratory, Kansas State University
+ * 
+ * All rights reserved.  This program and the accompanying materials are made 
+ * available under the terms of the Eclipse Public License v1.0 which accompanies 
+ * the distribution containing this program, and is available at 
+ * http://www.opensource.org/licenses/eclipse-1.0.php.
+ *******************************************************************************/
 
 package edu.ksu.cis.indus.kaveri.views;
 
+import com.thoughtworks.xstream.XStream;
+import com.thoughtworks.xstream.io.xml.DomDriver;
+
+import edu.ksu.cis.indus.common.soot.NamedTag;
+import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
+import edu.ksu.cis.indus.kaveri.KaveriPlugin;
+import edu.ksu.cis.indus.kaveri.ResourceManager;
+import edu.ksu.cis.indus.kaveri.common.SECommons;
+import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
+import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
+import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -23,10 +30,8 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.jface.action.Action;
@@ -58,18 +63,6 @@ import org.eclipse.ui.part.ViewPart;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 
 import soot.jimple.Stmt;
-
-import com.thoughtworks.xstream.XStream;
-import com.thoughtworks.xstream.io.xml.DomDriver;
-
-import edu.ksu.cis.indus.common.soot.NamedTag;
-import edu.ksu.cis.indus.kaveri.KaveriErrorLog;
-import edu.ksu.cis.indus.kaveri.KaveriPlugin;
-import edu.ksu.cis.indus.kaveri.ResourceManager;
-import edu.ksu.cis.indus.kaveri.common.SECommons;
-import edu.ksu.cis.indus.kaveri.driver.EclipseIndusDriver;
-import edu.ksu.cis.indus.kaveri.preferencedata.Criteria;
-import edu.ksu.cis.indus.kaveri.preferencedata.CriteriaData;
 
 /**
  * <p>
