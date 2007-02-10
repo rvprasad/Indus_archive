@@ -1,6 +1,6 @@
 <!--#set var="menuItem" value="Overview.About" -->
 <!--#set var="title" value="About Indus" -->
-<!--#set var="description" value="About Indus" -->
+<!--#set var="description" value="Information about Indus project" -->
 
 <!--#include virtual="/header.shtml" -->
     
@@ -15,7 +15,12 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
 	href="http://www.eclipse.org">Eclipse</a>.</li>   
 </ul>
  
- <p><i><u>Starting from v0.8.3.6, the source code from Indus project is available under Eclipse Public License (EPL).<u><i></p> 
+<h1>News</h1>
+
+ <p><i><u>Starting from v0.8.3.6, the source code from Indus project is
+     available under Eclipse Public License (EPL).</u></i></p> 
+
+<h1>Overview</h1>
  
 <p>At present, there are 3 modules that are part of Indus. More modules are expected to be added over the course of time.  We
    provide an overview of the intent of each module that are available at present.</p>
@@ -101,14 +106,14 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
     one or more Eclipse plugins if the provided information is useful to the user and amenable for user consumption via a
     graphical user interface.</p>
 
-<h3>Software Engineering Philosophy</h3> 
+<h1>Software Engineering Philosophy</h1> 
 
 <p>Each module in this project will provide just the required functionality via well-defined interfaces that can be
  implemented to assemble a customized system with suitable extensions that fulfill specific requirement.  As the interface is
  clearly separated from the implementation, any external implementation that provides the required interface can be seamlessly
  used with modules from this project.</p>
 
-<h3>Background</h3>
+<h1>Background</h1>
 
 <p>The implementation of most of the analyses was driven by the requirements of Java program slicer required by Bandera.
     However, as the program slicer could be used outside Bandera and the analyses could be used to enable other

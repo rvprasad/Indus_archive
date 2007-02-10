@@ -5,16 +5,16 @@
 	
 	<target name="website.ftp">		
 		<query name="passphrase" password="true"/>
-       	<scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
-       		keyfile="${user.home}/.ssh/id_rsa" passphrase="${passphrase}">
-       	   	<fileset dir="${basedir}">
-       	   		<exclude name="localbuild.properties"/>
-                <exclude name=".project"/>
-                <exclude name=".cvsignore"/>
-                <exclude name="build.xml"/>
-                <exclude name="lib/**"/>
-            </fileset>
-  		</scp>		
+    <scp todir="${login}@projects.cis.ksu.edu:../../groups/indus/htdocs/"
+        keyfile="${user.home}/.ssh/id_rsa" passphrase="${passphrase}">
+          <fileset dir="${basedir}">
+            <exclude name="localbuild.properties"/>
+              <exclude name=".project"/>
+              <exclude name=".cvsignore"/>
+              <exclude name="build.xml"/>
+              <exclude name="lib/**"/>
+          </fileset>
+    </scp>		
 	</target>
 	
 </project>
