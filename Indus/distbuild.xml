@@ -69,12 +69,14 @@ at Kansas State University.
   </target>
 		
 	<target name="prepare-docs">
+		<!--
 		<mkdir dir="${dist.doc.dir}/${module}/docs/ug"/>
 		<unzip dest="${dist.doc.dir}/${module}/docs/ug">
 			<fileset dir="${projects.dir}/${module}/docs/ug/dist/">
 				<include name="*html-single.zip"/>
 			</fileset>			
 		</unzip>
+		-->
 		<mkdir dir="${dist.doc.dir}/${module}/docs/javadocs"/>
 		<copy todir="${dist.doc.dir}/${module}/docs/javadocs">
 			<fileset dir="${projects.dir}/${module}/docs/javadocs"/>
