@@ -1,11 +1,11 @@
 Required software:
     Jakarta Commons CLI (1.0)
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
-    Jakarta Commons IO (1.0)
+    Jakarta Commons IO (1.3)
         (commons-io.jar) [http://jakarta.apache.org/commons/io/]
-    Jakarta Commons Lang (2.1)
+    Jakarta Commons Lang (2.2)
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
-    JiBX: Binding XML to Java Code (1.0.2)
+    JiBX: Binding XML to Java Code (1.1.3)
         (jibx-run.jar) [http://jibx.sourceforge.net/index.html]
 	    - XML Pull Parser (1.1.2)
 	      	(xpp3.jar) [http://www.extreme.indiana.edu/xgws/xsoap/xpp/mxp1/]
@@ -16,16 +16,21 @@ Required software:
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
     SWT (3.1)
         (swt.jar, swt-pi.jar) [http://www.eclipse.org]
-    xmlenc (0.50)
+    xmlenc (0.52)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
     JUnit (3.8.1)
     	(junit.jar) [http://junit.org]
-    Simple Logging Facade For Java (=1.0)
+    Simple Logging Facade For Java (=1.0.1)
     	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
+Version 0.8.3.6
+-------------------
+	- fix for bug reported by Mahantesh on thread http://projects.cis.ksu.edu/forum/forum.php?thread_id=596&forum_id=35
+	- changes in version of required libraries
 
 Version 0.8.3.5
 ------------------- 

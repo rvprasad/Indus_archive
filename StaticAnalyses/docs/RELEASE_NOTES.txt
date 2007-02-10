@@ -1,7 +1,7 @@
 Required software:
     Jakarta Commons CLI (1.0)
         (commons-cli.jar) [http://jakarta.apache.org/commons/cli/]
-    Jakarta Commons Lang (2.1)
+    Jakarta Commons Lang (2.2)
         (commons-lang.jar) [http://jakarta.apache.org/commons/lang/]
     Jakarta Commons Pool (1.2)
         (commons-pool.jar) [http://jakarta.apache.org/commons/pool/]
@@ -10,7 +10,7 @@ Required software:
 		(jasminclasses.jar) [http://www.sable.mcgill.ca/soot/]
         - Polyglot 1.1.0
           	(polyglot.jar) [http://www.cs.cornell.edu/Projects/polyglot/]
-    xmlenc (0.50)
+    xmlenc (0.52)
         (xmlenc.jar) [http://xmlenc.sourceforge.net/]
     XMLUnit (1.0)
         (xmlunit.jar) [http://xmlunit.sourceforge.net/]
@@ -18,10 +18,14 @@ Required software:
     	(junit.jar) [http://junit.org]
     GNU Trove (1.1b4)
     	(trove.jar) [http://trove4j.sourceforge.net/]
-    Simple Logging Facade For Java (=1.0)
+    Simple Logging Facade For Java (1.0.1)
     	[http://http://www.slf4j.org/]
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
+
+Version 0.8.3.6
+-------------------
+	- changes in version of required libraries
 
 Version 0.8.1
 ----------------
