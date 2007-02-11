@@ -89,6 +89,7 @@ at Kansas State University.
                 <exclude name="**/*Test$*.class"/>            	
             	<exclude name="**/*Test?.class"/>
 			</fileset>
+			<fileset file="LICENSE.TXT"/>
 		</jar>
 	</target>
 
