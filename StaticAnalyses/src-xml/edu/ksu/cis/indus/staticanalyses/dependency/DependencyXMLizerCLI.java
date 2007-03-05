@@ -77,8 +77,10 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.jimple.Stmt;
 
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
@@ -104,7 +106,7 @@ public class DependencyXMLizerCLI
 	/**
 	 * A collection of dependence analyses.
 	 */
-	protected List<IDependencyAnalysis<?, ?, ?, ?, ?, ?>> das = new ArrayList<IDependencyAnalysis<?, ?, ?, ?, ?, ?>>();
+	protected List<IDependencyAnalysis> das = new ArrayList<IDependencyAnalysis>();
 
 	/**
 	 * This is a map from interface IDs to interface implementations that are required by the analyses being driven.
@@ -312,7 +314,7 @@ public class DependencyXMLizerCLI
 
 		for (int _i = 0; _i < dependenceOptions.length; _i++) {
 			if (cmdLine.hasOption(dependenceOptions[_i][0].toString())) {
-				final IDependencyAnalysis<?, ?, ?, ?, ?, ?> _da = (IDependencyAnalysis) dependenceOptions[_i][2];
+				final IDependencyAnalysis _da = (IDependencyAnalysis) dependenceOptions[_i][2];
 				xmlizerCLI.das.add(_da);
 				_flag = true;
 
@@ -484,6 +486,8 @@ public class DependencyXMLizerCLI
 			xmlizer.dumpJimple(null, xmlizer.getXmlOutputDir(), _xmlcgipc);
 		}
 		writeInfo("Total classes loaded: " + getEnvironment().getClasses().size());
+		
+		SystemDependenceGraphBuilder.getSystemDependenceGraph(das, _cgi, getEnvironment().getClasses());
 	}
 }
 

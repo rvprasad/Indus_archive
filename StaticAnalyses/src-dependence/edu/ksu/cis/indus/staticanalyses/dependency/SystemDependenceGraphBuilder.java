@@ -59,7 +59,7 @@ public final class SystemDependenceGraphBuilder {
 	/**
 	 * This is collection of dependence analyses from which dependences need to be captured.
 	 */
-	private final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> deps;
+	private final Collection<IDependencyAnalysis> deps;
 
 	/**
 	 * This is the call graph. If this is <code>null</code> then dependences such as control dependence that are based on
@@ -86,7 +86,7 @@ public final class SystemDependenceGraphBuilder {
 	 * @param classes to be considered while building the graph.
 	 * @pre dependences != null and cgi != null and classes != null
 	 */
-	private SystemDependenceGraphBuilder(final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> dependences,
+	private SystemDependenceGraphBuilder(final Collection<IDependencyAnalysis> dependences,
 			final ICallGraphInfo cgi, final Collection<SootClass> classes) {
 		pairMgr = new PairManager(true, true);
 		segb = new SimpleEdgeGraphBuilder<Pair<Stmt, SootMethod>>();
@@ -111,7 +111,7 @@ public final class SystemDependenceGraphBuilder {
 	 *       q.getIds().contains(p)) or p.equals(INTER_PROCEDURAL_DATA_DEPENDENCE)))
 	 */
 	public static SimpleEdgeGraph<Pair<Stmt, SootMethod>> getSystemDependenceGraph(
-			final Collection<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> dependences, final ICallGraphInfo cgi,
+			final Collection<IDependencyAnalysis> dependences, final ICallGraphInfo cgi,
 			final Collection<SootClass> classes) {
 		final SystemDependenceGraphBuilder _builder = new SystemDependenceGraphBuilder(dependences, cgi, classes);
 		return _builder.createGraph();
@@ -128,13 +128,19 @@ public final class SystemDependenceGraphBuilder {
 	private void addEdgesFor(final Stmt stmt, final SootMethod method) {
 		final Pair<Stmt, SootMethod> _dest = pairMgr.getPair(stmt, method);
 		final Collection<Pair<Stmt, SootMethod>> _sources = new ArrayList<Pair<Stmt, SootMethod>>();
-		final Iterator<IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?>> _i = deps.iterator();
+		final Iterator<IDependencyAnalysis> _i = deps.iterator();
 		final int _iEnd = deps.size();
 
 		for (int _iIndex = 0; _iIndex < _iEnd; _iIndex++) {
-			final IDependencyAnalysis<Stmt, SootMethod, ?, ?, ?, ?> _da = _i.next();
+			final IDependencyAnalysis _da = _i.next();
 			final Collection<? extends Comparable<?>> _ids = _da.getIds();
-			final Collection<?> _dees = _da.getDependees(stmt, method);
+			final Collection<?> _dees;
+			if (_da instanceof IdentifierBasedDataDA)
+				_dees = ((IdentifierBasedDataDA) _da).getDependees(stmt, method);
+			else if (_da instanceof IdentifierBasedDataDAv2)
+				_dees = ((IdentifierBasedDataDAv2) _da).getDependees(stmt, method);
+			else 
+				_dees = _da.getDependees(stmt, method);
 			final Iterator<?> _j = _dees.iterator();
 			final int _jEnd = _dees.size();
 			_sources.clear();
@@ -142,20 +148,7 @@ public final class SystemDependenceGraphBuilder {
 			for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
 				final Object _o = _j.next();
 
-				if (_o == null) {
-					if (callgraph != null) {
-						final Collection<CallTriple> _callers = callgraph.getCallers(method);
-						final Iterator<CallTriple> _k = _callers.iterator();
-						final int _kEnd = _callers.size();
-
-						for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
-							final CallTriple _ctrp = _k.next();
-							_sources.add(pairMgr.getPair(_ctrp.getStmt(), _ctrp.getMethod()));
-						}
-					} else {
-						continue;
-					}
-				} else if (_o instanceof Pair) {
+				if (_o instanceof Pair) {
 					_sources.add((Pair) _o);
 				} else {
 					_sources.add(pairMgr.getPair((Stmt) _o, method));
@@ -184,6 +177,17 @@ public final class SystemDependenceGraphBuilder {
 
 			if (_ids.contains(IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA)) {
 				segb.addEdgeFromTo(_sources, IDependencyAnalysis.DependenceSort.IDENTIFIER_BASED_DATA_DA, _dest);
+			}
+		}
+		
+		if (callgraph != null) {
+			final Collection<CallTriple> _callers = callgraph.getCallers(method);
+			final Iterator<CallTriple> _k = _callers.iterator();
+			final int _kEnd = _callers.size();
+
+			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
+				final CallTriple _ctrp = _k.next();
+				_sources.add(pairMgr.getPair(_ctrp.getStmt(), _ctrp.getMethod()));
 			}
 		}
 
