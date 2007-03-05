@@ -135,12 +135,16 @@ public final class SystemDependenceGraphBuilder {
 			final IDependencyAnalysis _da = _i.next();
 			final Collection<? extends Comparable<?>> _ids = _da.getIds();
 			final Collection<?> _dees;
-			if (_da instanceof IdentifierBasedDataDA)
+			
+			// This block is a HACK!!!
+			if (_da instanceof IdentifierBasedDataDA) {
 				_dees = ((IdentifierBasedDataDA) _da).getDependees(stmt, method);
-			else if (_da instanceof IdentifierBasedDataDAv2)
+			} else if (_da instanceof IdentifierBasedDataDAv2) {
 				_dees = ((IdentifierBasedDataDAv2) _da).getDependees(stmt, method);
-			else 
+			} else { 
 				_dees = _da.getDependees(stmt, method);
+			}
+			
 			final Iterator<?> _j = _dees.iterator();
 			final int _jEnd = _dees.size();
 			_sources.clear();
