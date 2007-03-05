@@ -143,7 +143,13 @@ public final class BasicBlockGraph
 				_result = new ArrayList<Stmt>(stmtList.subList(_startIndex, _endIndex + 1));
 				_result.retainAll(stmts);
 			} else {
-				_result = Collections.emptyList();
+				final int _localStartIndex = stmts.indexOf(start);
+				final int _localEndIndex = stmts.indexOf(end);
+				if (_localStartIndex <= _localEndIndex && _localStartIndex != -1) {
+					_result = new ArrayList<Stmt>(stmts.subList(_localStartIndex, _localEndIndex + 1));
+				} else {
+					_result = Collections.emptyList();
+				}
 			}
 			return _result;
 		}
