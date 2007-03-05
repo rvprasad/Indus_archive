@@ -110,7 +110,10 @@ at Kansas State University.
 	<target name="package">
 		<antcall target="package-docs"/>
 		<antcall target="package-bin"/>
-		
+	  <antcall target="build-examples"/>	
+    </target>
+
+    <target name="build-examples">
         <zip destfile="${examples.src.zip.filename}">
             <fileset dir="${projects.dir}">
                 <include name="*/src-xml/**/*.java"/>
