@@ -77,10 +77,8 @@ import org.apache.commons.cli.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import soot.SootMethod;
 import soot.Type;
 import soot.Value;
-import soot.jimple.Stmt;
 
 /**
  * This class provides a command-line interface to xmlize dependence information. Refer to <code>SootBasedDriver</code> for
