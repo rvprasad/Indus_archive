@@ -26,6 +26,7 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Iterator;
 
 import soot.SootClass;
@@ -136,12 +137,18 @@ public final class SystemDependenceGraphBuilder {
 			final Collection<? extends Comparable<?>> _ids = _da.getIds();
 			final Collection<?> _dees;
 			
-			// This block is a HACK!!!
+			// This whole block is a HACK!!! stemming from the use of Generics.
 			if (_da instanceof IdentifierBasedDataDA) {
 				_dees = ((IdentifierBasedDataDA) _da).getDependees(stmt, method);
 			} else if (_da instanceof IdentifierBasedDataDAv2) {
 				_dees = ((IdentifierBasedDataDAv2) _da).getDependees(stmt, method);
-			} else { 
+			} else if ((_da instanceof ReferenceBasedDataDA || _da instanceof InterferenceDAv1)) {
+				if (stmt instanceof AssignStmt) { 
+					_dees = _da.getDependees(stmt, method);
+				} else {
+					_dees = Collections.emptyList();
+				}
+			} else {
 				_dees = _da.getDependees(stmt, method);
 			}
 			
