@@ -172,7 +172,8 @@ at Kansas State University.
 	<target name="src-dist" depends="init">
 		<mkdir dir="${dist}" />
 		<property name="filename" value="${dist}/${ant.project.name}-src-${DSTAMP}" />
-		<jar jarfile="${filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz" />
+		<property name="bin.filename" value="${dist}/${ant.project.name}-${DSTAMP}" />
+		<jar jarfile="${bin.filename}.jar" basedir="${build.dir}" excludes="*.jar, *.tar, *.tgz" />
 		<zip destfile="${filename}.zip" level="9">
 			<zipfileset dir="." prefix="${ant.project.name}">
 				<patternset refid="dist.srcpath"/>
