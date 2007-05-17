@@ -25,8 +25,8 @@ at Kansas State University.
         <equals arg1="${ant.project.name}" arg2="indus.indus"/>
     </condition>
 
-    <import file="../StaticAnalyses/prelocalbuild.xml"/>
-    <import file="../JavaSlicer/prelocalbuild.xml"/>
+    <import file="../${project.home.staticanalyses}/prelocalbuild.xml"/>
+    <import file="../${project.home.slicer}/prelocalbuild.xml"/>
 
     <path id="indus.indus.docsrcpath">
         <pathelement location="src"/>
@@ -45,7 +45,7 @@ at Kansas State University.
         <pathelement location="${jars.dir}/commons-lang.jar"/>
         <pathelement location="${jars.dir}/commons-io.jar"/>
         <pathelement location="${jars.dir}/commons-pool.jar"/>
-		<pathelement location="${jars.dir}/commons-cli.jar"/>
+        <pathelement location="${jars.dir}/commons-cli.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
         <pathelement location="${jars.dir}/junit.jar"/>        
         <pathelement location="${jars.dir}/trove.jar"/>
@@ -73,17 +73,18 @@ at Kansas State University.
 		<include name="src/**"/>
 		<include name="src-test/**"/>
 		<include name="src-xml/**"/>
+		<include name="auxiliary/**"/>
 	</patternset>
    
 	<path id="bind.classpath">
-      <pathelement location="${jars.dir}/bcel.jar"/>
-      <pathelement location="${jars.dir}/jibx-bind.jar"/>
-      <pathelement location="${jars.dir}/jibx-run.jar"/>
-      <pathelement location="${jars.dir}/xpp3.jar"/>  
+		<pathelement location="${jars.dir}/bcel.jar"/>
+		<pathelement location="${jars.dir}/jibx-bind.jar"/>
+		<pathelement location="${jars.dir}/jibx-run.jar"/>
+		<pathelement location="${jars.dir}/xpp3.jar"/>  
     </path>
    
     <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
-       <classpath refid="bind.classpath"/>
+		<classpath refid="bind.classpath"/>
      </taskdef>
   
     <target name="bind">

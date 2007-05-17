@@ -25,13 +25,13 @@ at Kansas State University.
     </condition>
 
     <path id="indus.javaslicer.docsrcpath">
-    	<pathelement location="../JavaSlicer/src"/>
-    	<pathelement location="../JavaSlicer/src-xml"/>
+    	<pathelement location="../${project.home.this}/src"/>
+    	<pathelement location="../${project.home.this}/src-xml"/>
     </path>
 
     <path id="indus.javaslicer.srcpath">
         <path refid="indus.javaslicer.docsrcpath"/>
-    	<pathelement location="../JavaSlicer/src-test"/>
+    	<pathelement location="../${project.home.this}/src-test"/>
     </path>
     
     <path id="indus.javaslicer.classpath">
@@ -50,8 +50,8 @@ at Kansas State University.
         <pathelement location="${jars.dir}/swt/swt.jar"/>
         <pathelement location="${jars.dir}/xmlunit.jar"/>
         <pathelement location="${jars.dir}/xmlenc.jar"/>
-    	<pathelement location="../Indus/${build.dir}/"/>
-	    <pathelement location="../StaticAnalyses/${build.dir}/"/>        
+        <pathelement location="../${project.home.indus}/${build.dir}/"/>
+        <pathelement location="../${project.home.staticanalyses}/${build.dir}/"/>        
     </path>    
     
     <path id="bind.classpath">
@@ -66,6 +66,7 @@ at Kansas State University.
 		<include name="src/**"/>
 		<include name="src-test/**"/>
 		<include name="src-xml/**"/>
+		<include name="auxiliary/**"/>
 	</patternset>
    
     <taskdef name="bind" classname="org.jibx.binding.ant.CompileTask">
