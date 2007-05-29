@@ -213,13 +213,39 @@ public class DataAliasBasedCallingContextRetriever
 	 * @return <code>true</code> if such a path exists; <code>false</code>, otherwise.
 	 */
 	protected final boolean getCallSitesThatCanReachSource(final CallTriple callsite, final boolean exclusive) {
-		final Stmt _stmt = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
-		final SootMethod _method = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
+		final SootMethod _method1;
+		final Stmt _stmt1;
+		@SuppressWarnings("unchecked") final Stack<CallTriple> _srcCallingContext = (Stack) getInfoFor(Identifiers.SRC_CALLING_CONTEXT);
+		if (_srcCallingContext != null && !_srcCallingContext.isEmpty() && _srcCallingContext.peek() != null) {
+			final CallTriple _topCallSiteOnSrcEnd = _srcCallingContext.peek();
+			_method1 = _topCallSiteOnSrcEnd.getMethod();
+			_stmt1 = _topCallSiteOnSrcEnd.getStmt();
+		} else {
+			_method1 = (SootMethod) getInfoFor(Identifiers.SRC_METHOD);
+			_stmt1 = (Stmt) getInfoFor(Identifiers.SRC_ENTITY);
+		}
+
 		final boolean _flag = isSourceADefSite();
-		return (_flag && analysis.isReachableViaInterProceduralControlFlow(_method, _stmt, callsite.getMethod(), callsite
-				.getStmt(), tgi, exclusive))
-				|| (!_flag && analysis.isReachableViaInterProceduralControlFlow(callsite.getMethod(), callsite.getStmt(),
-						_method, _stmt, tgi, exclusive));
+		final SootMethod _method2 = callsite.getMethod();
+		final Stmt _stmt2 = callsite.getStmt();
+		boolean _result = false;
+		if (_method1 == _method2) {
+			if (_flag) {
+				_result = analysis.doesControlFlowPathExistBetween(_stmt1, _stmt2, _method1);
+			} else {
+				_result = analysis.doesControlFlowPathExistBetween(_stmt2, _stmt1, _method1);
+			}
+		} 
+		if (!_result) {
+			if (_flag) {
+				_result = analysis.isReachableViaInterProceduralControlFlow(_method1, _stmt1, _method2, _stmt2, tgi,
+						exclusive);
+			} else {
+				_result = analysis.isReachableViaInterProceduralControlFlow(_method2, _stmt2, _method1, _stmt1, tgi,
+						exclusive);
+			}
+		}
+		return _result;
 	}
 
 	/**
@@ -309,10 +335,25 @@ public class DataAliasBasedCallingContextRetriever
 			final CallTriple _destCallTriple = _i.next();
 			final SootMethod _destMethod = _destCallTriple.getMethod();
 			final Stmt _destStmt = _destCallTriple.getStmt();
-			if ((isSource && analysis.isReachableViaInterProceduralControlFlow(method, stmt, _destMethod, _destStmt, tgi,
-					true))
-					|| (!isSource && analysis.isReachableViaInterProceduralControlFlow(_destMethod, _destStmt, method, stmt,
-							tgi, true))) {
+			boolean _flag = false;
+			
+			if (_destMethod == method) {
+				if (isSource) {
+					_flag = analysis.doesControlFlowPathExistBetween(stmt, _destStmt, _destMethod);
+				} else {
+					_flag = analysis.doesControlFlowPathExistBetween(_destStmt, stmt, _destMethod);
+				}
+			} 
+			if (!_flag) {
+				if (isSource) {
+					_flag = analysis
+							.isReachableViaInterProceduralControlFlow(method, stmt, _destMethod, _destStmt, tgi, true);
+				} else {
+					_flag = analysis
+							.isReachableViaInterProceduralControlFlow(_destMethod, _destStmt, method, stmt, tgi, true);
+				}
+			}
+			if (_flag) {
 				ancestors.add(_destCallTriple);
 				_i.remove();
 			}
