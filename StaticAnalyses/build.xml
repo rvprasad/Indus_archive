@@ -30,7 +30,9 @@ at Kansas State University.
 	</condition>
 
 	<condition property="compilerToUse" value="modern">
-		<isset property="compilerToUse"/>
+		<not>
+			<isset property="compilerToUse"/>
+		</not>
 	</condition>
 			
 	<target name="init">
