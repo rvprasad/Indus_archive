@@ -18,16 +18,21 @@ package edu.ksu.cis.indus.staticanalyses.concurrency.escape;
 
 import edu.ksu.cis.indus.common.collections.ChainedTransformer;
 import edu.ksu.cis.indus.common.collections.ITransformer;
+import edu.ksu.cis.indus.common.datastructures.HistoryAwareFIFOWorkBag;
+import edu.ksu.cis.indus.common.datastructures.IWorkBag;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.datastructures.Triple;
 import edu.ksu.cis.indus.interfaces.AbstractStatus;
 import edu.ksu.cis.indus.interfaces.IReadWriteInfo;
 import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
+import edu.ksu.cis.indus.staticanalyses.concurrency.escape.EquivalenceClassBasedEscapeAnalysis.SiteContextRetriever;
 
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,6 +107,73 @@ class ReadWriteInfo
 
 	/**
 	 * {@inheritDoc}
+	 */
+	public boolean canMethodInduceSharingBetweenArgAndReceiver(final CallTriple callerTriple, final int argPos)
+			throws IllegalArgumentException {
+		final SootMethod _method = callerTriple.getMethod();
+		analysis.validate(argPos, _method);
+
+		final SiteContextRetriever _siteContextRetriever = this.analysis.new SiteContextRetriever(callerTriple);
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos))).transform(_method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER)).transform(_method);
+
+		return checkForObjectSharingBetween(_as1, _as2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean canMethodInduceSharingBetweenArgs(final CallTriple callerTriple, final int argPos1, final int argPos2)
+			throws IllegalArgumentException {
+		final SootMethod _method = callerTriple.getMethod();
+		analysis.validate(argPos1, _method);
+		analysis.validate(argPos2, _method);
+
+		final SiteContextRetriever _siteContextRetriever = this.analysis.new SiteContextRetriever(callerTriple);
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos1))).transform(_method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos2))).transform(_method);
+
+		return checkForObjectSharingBetween(_as1, _as2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean canMethodInduceSharingBetweenParamAndThis(final SootMethod method, final int paramPos)
+			throws IllegalArgumentException {
+		analysis.validate(method);
+		analysis.validate(paramPos, method);
+
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos))).transform(method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER)).transform(method);
+
+		return checkForObjectSharingBetween(_as1, _as2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean canMethodInduceSharingBetweenParams(final SootMethod method, final int paramPos1, final int paramPos2)
+			throws IllegalArgumentException {
+		analysis.validate(paramPos1, method);
+		analysis.validate(paramPos2, method);
+
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos1))).transform(method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos2))).transform(method);
+
+		return checkForObjectSharingBetween(_as1, _as2);
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * 
 	 * @see IReadWriteInfo#doesInvocationReadGlobalData(CallTriple)
 	 */
@@ -118,6 +190,82 @@ class ReadWriteInfo
 	public boolean doesInvocationWriteGlobalData(final CallTriple callerTriple) {
 		final SootMethod _caller = callerTriple.getMethod();
 		return globalDataReadWriteInfoHelper(_caller, this.analysis.new SiteContextRetriever(callerTriple), false);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean doesMethodInduceSharingBetweenAccesspaths(final CallTriple callerTriple, final int argPos1,
+			final String[] accesspath1, final int argPos2, final String[] accesspath2) throws IllegalArgumentException {
+		final SootMethod _method = callerTriple.getMethod();
+
+		analysis.validate(argPos1, _method);
+		analysis.validate(argPos2, _method);
+
+		final SiteContextRetriever _siteContextRetriever = this.analysis.new SiteContextRetriever(callerTriple);
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos1))).transform(_method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos2))).transform(_method);
+
+		return checkForObjectSharingViaAccessPaths(_as1, accesspath1, _as2, accesspath2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean doesMethodInduceSharingBetweenAccesspaths(final CallTriple callerTriple, final int argPos,
+			final String[] argAccesspath, final String[] receiverBasedAccesspath) throws IllegalArgumentException {
+		final SootMethod _method = callerTriple.getMethod();
+		if (_method.isStatic()) {
+			throw new IllegalArgumentException("Call site should invoke an instance method.");
+		}
+
+		analysis.validate(argPos, _method);
+
+		final SiteContextRetriever _siteContextRetriever = this.analysis.new SiteContextRetriever(callerTriple);
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(argPos))).transform(_method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(_siteContextRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER)).transform(_method);
+
+		return checkForObjectSharingViaAccessPaths(_as1, argAccesspath, _as2, receiverBasedAccesspath);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean doesMethodInduceSharingBetweenAccesspaths(final SootMethod method, final int paramPos1,
+			final String[] accesspath1, final int paramPos2, final String[] accesspath2) throws IllegalArgumentException {
+		analysis.validate(method);
+		analysis.validate(paramPos1, method);
+		analysis.validate(paramPos2, method);
+
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos1))).transform(method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos2))).transform(method);
+
+		return checkForObjectSharingViaAccessPaths(_as1, accesspath1, _as2, accesspath2);
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	public boolean doesMethodInduceSharingBetweenAccesspaths(final SootMethod method, final int paramPos,
+			final String[] paramAccesspath, final String[] thisBasedAccesspath) throws IllegalArgumentException {
+		if (method.isStatic()) {
+			throw new IllegalArgumentException("The method should invoke an instance method.");
+		}
+
+		analysis.validate(paramPos, method);
+
+		final AliasSet _as1 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				this.analysis.new ArgParamAliasSetRetriever(paramPos))).transform(method);
+		final AliasSet _as2 = (new ChainedTransformer<SootMethod, MethodContext, AliasSet>(methodCtxtRetriever,
+				ReadWriteInfo.THIS_ALIAS_SET_RETRIEVER)).transform(method);
+
+		return checkForObjectSharingViaAccessPaths(_as1, paramAccesspath, _as2, thisBasedAccesspath);
 	}
 
 	/**
@@ -283,6 +431,90 @@ class ReadWriteInfo
 	}
 
 	/**
+	 * Checks if an object may be shared between the object graphs represented by the given alias sets.
+	 * 
+	 * @param as1 is an alias set of interest.
+	 * @param as2 is another alias set of interest.
+	 * @return <code>true</code> if an object may be shared between the object graphs represented by the given alias sets;
+	 *         <code>false</code>, otherwise.
+	 * @pre as1 != null and as2 != null
+	 */
+	private boolean checkForObjectSharingBetween(final AliasSet as1, final AliasSet as2) {
+		boolean _result = false;
+		final Set<AliasSet> _reachable = new HashSet<AliasSet>();
+		final IWorkBag<AliasSet> _wb = new HistoryAwareFIFOWorkBag<AliasSet>(_reachable);
+		_wb.addWork(as1);
+		while (_wb.hasWork()) {
+			final AliasSet _as = _wb.getWork();
+			_wb.addAllWorkNoDuplicates(_as.getFieldMap().values());
+		}
+
+		final Collection<AliasSet> _temp = new HashSet<AliasSet>(_reachable);
+		_wb.clear();
+		_reachable.clear();
+		_wb.addWork(as2);
+		while (_wb.hasWork() && !_result) {
+			final AliasSet _as = _wb.getWork();
+			if (_temp.contains(_as)) {
+				_result = true;
+			} else {
+				_wb.addAllWorkNoDuplicates(_as.getFieldMap().values());
+			}
+		}
+
+		return _result;
+	}
+
+	/**
+	 * Checks if the alias set at the end of the accesspaths rooted at the given alias sets are the same/shared.
+	 * 
+	 * @param as1 is an alias set of interest. // *
+	 * @param accesspath1 is an accesspath rooted at <code>as1</code>.
+	 * @param as2 is another alias set of interest.
+	 * @param accesspath2 is an accesspath rooted at <code>as2</code>.
+	 * @return <code>true</code> if the alias set at the end of the accesspaths rooted at the given alias sets are the
+	 *         same/shared; <code>false</code>, otherwise.
+	 * @pre as1 != null and as2 != null and accesspath1 != null and accesspath2 != null
+	 */
+	private boolean checkForObjectSharingViaAccessPaths(final AliasSet as1, final String[] accesspath1, final AliasSet as2,
+			final String[] accesspath2) {
+		final AliasSet _endPoint1 = getAliasSetAtEndPointOfAccessPathRootedAt(accesspath1, as1);
+		final AliasSet _endPoint2 = getAliasSetAtEndPointOfAccessPathRootedAt(accesspath2, as2);
+
+		return _endPoint1 != null && _endPoint2 != null && _endPoint1.find() == _endPoint2.find();
+	}
+
+	/**
+	 * Retrieves the alias set associated with the end of the access path rooted at the given alias set.
+	 * 
+	 * @param accesspath of interest. This is rooted at <code>as</code>.
+	 * @param as is the alias set of interest.
+	 * @return the alias set associated with the end of the access path rooted at the given alias set, if any.
+	 * @pre accesspath != null and as != null
+	 */
+	private AliasSet getAliasSetAtEndPointOfAccessPathRootedAt(final String[] accesspath, final AliasSet as) {
+		final AliasSet _result;
+		final String[] _s1;
+
+		if (accesspath.length == 0) {
+			_s1 = new String[0];
+		} else {
+			_s1 = new String[accesspath.length - 1];
+			System.arraycopy(accesspath, 0, _s1, 0, _s1.length);
+		}
+
+		final Pair<AliasSet, String[]> _pair = new Pair<AliasSet, String[]>(as.find(), _s1);
+
+		if (analysis.query2handle.containsKey(_pair)) {
+			_result = analysis.query2handle.get(_pair);
+		} else {
+			_result = as.getAccessPathEndPoint(_s1);
+			analysis.query2handle.put(_pair, _result);
+		}
+		return _result;
+	}
+
+	/**
 	 * Checks if the given method either reads or writes global data.
 	 * 
 	 * @param method of interest.
@@ -388,6 +620,7 @@ class ReadWriteInfo
 		}
 		return _result;
 	}
+
 }
 
 // End of File

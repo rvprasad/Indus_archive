@@ -349,6 +349,37 @@ final class AliasSet
 
 	/**
 	 * {@inheritDoc}
+	 */
+	@Override public boolean equals(final Object obj) {
+		final boolean _result;
+		if (obj instanceof AliasSet) {
+			final AliasSet _a = (AliasSet) obj;
+			if (_a.find() == find()) {
+				_result = true;
+			} else {
+				_result = false;
+			}
+		} else {
+			_result = super.equals(obj);
+		}
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override public int hashCode() {
+		final int _result;
+		if (find() != this) {
+			_result = find().hashCode();
+		} else {
+			_result = super.hashCode();
+		}
+		return _result;
+	}
+
+	/**
+	 * {@inheritDoc}
 	 * 
 	 * @see java.lang.Object#toString()
 	 */
@@ -683,8 +714,8 @@ final class AliasSet
 	/**
 	 * Checks if an alias set associated with an inter-thread shared variable is reachable from this alias set.
 	 * 
-	 * @return <code>true</code> if an alias set associated with an inter-thread shared variable is reachable from this alias set.;
-	 *         <code>false</code>, otherwise.
+	 * @return <code>true</code> if an alias set associated with an inter-thread shared variable is reachable from this
+	 *         alias set.; <code>false</code>, otherwise.
 	 */
 	boolean isSharedDataReachable() {
 		boolean _result = false;
@@ -1282,6 +1313,7 @@ final class AliasSet
 			sigsOfWWSharedFields.addAll(SetUtils.intersection(writtenFields, represented.writtenFields));
 		}
 	}
+
 }
 
 // End of File

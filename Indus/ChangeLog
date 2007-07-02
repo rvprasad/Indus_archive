@@ -1,3 +1,10 @@
+2007-07-02 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/interfaces/IReadWriteInfo.java: 
+		- extended the interface with methods to answer the following questions 
+			"Does the method induce sharing between the object graphs rooted at the given arguments/parameters?" 
+			"Does the method induce sharing at the end of the access paths rooted at the given arguments/parameters?" 
+
 2006-12-11 venku <venku@boss.dreamsoft.com>
 
 	* src/edu/ksu/cis/indus/common/soot/AbstractStmtGraphFactory.java: 

@@ -224,6 +224,14 @@ public class EscapeAndReadWriteCLI
 							+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
 							+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
 				}
+				System.out.print("\t\tcoupled with parameters at position: ");
+				for (int _k = 0; _k < _sm.getParameterCount(); _k++) {
+					if (EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_sm.getParameterType(_k))
+							&& _rwInfo.canMethodInduceSharingBetweenParamAndThis(_sm, _k)) {
+						System.out.print(_k + ", ");
+					}
+				}
+				System.out.println("");
 			}
 
 			for (int _j = 0; _j < _sm.getParameterCount(); _j++) {
@@ -233,6 +241,15 @@ public class EscapeAndReadWriteCLI
 						+ _rwInfo.isParameterBasedAccessPathWritten(_sm, _j, _emptyStringArray, true));
 				System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_j, _sm));
 				System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_j, _sm));
+				System.out.print("\t\tcoupled with parameters at position: ");
+				for (int _k = 0; _k < _sm.getParameterCount(); _k++) {
+					if (_k != _j && EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_sm.getParameterType(_k))
+							&& _rwInfo.canMethodInduceSharingBetweenParams(_sm, _j, _k)) {
+						System.out.print(_k + ", ");
+					}
+				}
+				System.out.println("");
+
 			}
 
 			if (_sm.hasActiveBody()) {

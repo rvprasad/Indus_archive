@@ -1,3 +1,12 @@
+2007-07-02 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ReadWriteInfo.java: 
+		- implemented the new methods introduced in IReadWriteInfo.
+	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/AliasSet.java: 
+		- added overriding implementations for equals and hashCode. 
+	* src-xml/edu/ksu/cis/indus/staticanalyses/concurrency/escape/EscapeAndReadWriteCLI.java:
+		- extended the logic to use the new methods in ReadWriteInfo. 
+
 2006-12-11 venku <venku@boss.dreamsoft.com>
 
 	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/StmtAndMethodBasedDependencyXMLizer.java: 
