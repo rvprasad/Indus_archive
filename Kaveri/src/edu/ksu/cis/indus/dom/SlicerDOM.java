@@ -32,6 +32,7 @@ import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
+import org.eclipse.jdt.core.Signature;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
@@ -50,11 +51,14 @@ import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.PlatformUI;
 
+import soot.ArrayType;
 import soot.Scene;
 import soot.SootClass;
 import soot.SootMethod;
+import soot.Type;
 import soot.Value;
 import soot.jimple.Stmt;
+import sun.misc.Signal;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
@@ -302,9 +306,14 @@ public final class SlicerDOM {
 			throws JavaModelException {
 		final String[] _p = method.getParameterTypes();
 		boolean _flag = true;
-		for (int _k = method.getNumberOfParameters() - 1; _k >= 0; _k--) {
-			_flag &= sm.getParameterType(_k).toString().equals(
+		for (int _k = method.getNumberOfParameters() - 1; _k >= 0 && _flag; _k--) {
+			final Type _parameterType = sm.getParameterType(_k);
+			_flag &= _parameterType.toString().replace("[]","").equals(
 					JavaModelUtil.getResolvedTypeName(_p[_k], declaringType));
+			if (_parameterType instanceof ArrayType) {
+				ArrayType _t = (ArrayType) _parameterType;
+				_flag &= _t.numDimensions == Signature.getArrayCount(_p[_k]);
+			}
 		}
 		return _flag;
 	}
