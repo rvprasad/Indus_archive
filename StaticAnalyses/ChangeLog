@@ -1,3 +1,9 @@
+2007-07-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/OFABasedCallInfoCollector.java (OFABasedCallInfoCollector.java): 
+		- no method was included at the call site when the object binding information was empty for the receiver.  In such cases, the change pessimistically 
+		considers the static non-concrete method as being invoked.
+
 2007-07-02 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src-concurrency/edu/ksu/cis/indus/staticanalyses/concurrency/escape/ReadWriteInfo.java: 

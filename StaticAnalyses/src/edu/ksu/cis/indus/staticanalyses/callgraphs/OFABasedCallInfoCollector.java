@@ -83,7 +83,7 @@ public class OFABasedCallInfoCollector
 	private final CallInfo callInfoHolder = new CallInfo();
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#callback(soot.SootMethod)
+	 * {@inheritDoc}
 	 */
 	@Override public void callback(final SootMethod method) {
 		// all method marked by the object flow analyses are reachable.
@@ -129,7 +129,7 @@ public class OFABasedCallInfoCollector
 	/**
 	 * This calculates information such as heads, tails, and such.
 	 * 
-	 * @see edu.ksu.cis.indus.staticanalyses.interfaces.IValueAnalyzerBasedProcessor#consolidate()
+	 * {@inheritDoc}
 	 */
 	@Override public void consolidate() {
 		if (LOGGER.isInfoEnabled()) {
@@ -150,14 +150,14 @@ public class OFABasedCallInfoCollector
 	}
 
 	/**
-	 * @see ICallInfoCollector#getCallInfo()
+	 * {@inheritDoc}
 	 */
 	public CallGraphInfo.ICallInfo getCallInfo() {
 		return callInfoHolder;
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#hookup(ProcessingController)
+	 * {@inheritDoc}
 	 */
 	public void hookup(final ProcessingController ppc) {
 		unstable();
@@ -169,14 +169,14 @@ public class OFABasedCallInfoCollector
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#processingBegins()
+	 * {@inheritDoc}
 	 */
 	@Override public void processingBegins() {
 		unstable();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.AbstractProcessor#reset()
+	 * {@inheritDoc}
 	 */
 	@Override public void reset() {
 		callInfoHolder.reset();
@@ -194,7 +194,7 @@ public class OFABasedCallInfoCollector
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.processing.IProcessor#unhook(ProcessingController)
+	 * {@inheritDoc}
 	 */
 	public void unhook(final ProcessingController ppc) {
 		ppc.unregister(VirtualInvokeExpr.class, this);
@@ -224,13 +224,12 @@ public class OFABasedCallInfoCollector
 		context.setProgramPoint(expr.getBaseBox());
 
 		final Collection<?> _values = analyzer.getValues(expr.getBase(), context);
-
+		final Map<SootMethod, Collection<CallTriple>> _callee2callers = callInfoHolder.callee2callers;
+		final Map<SootMethod, Collection<CallTriple>> _caller2callees = callInfoHolder.caller2callees;
+		final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(_caller2callees, _caller);
+		final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
+		
 		if (!_values.isEmpty()) {
-			final Map<SootMethod, Collection<CallTriple>> _callee2callers = callInfoHolder.callee2callers;
-			final Map<SootMethod, Collection<CallTriple>> _caller2callees = callInfoHolder.caller2callees;
-			final Collection<CallTriple> _callees = MapUtils.getCollectionFromMap(_caller2callees, _caller);
-			final CallTriple _ctrp = new CallTriple(_caller, _stmt, expr);
-
 			for (final Iterator<?> _i = _values.iterator(); _i.hasNext();) {
 				final Object _t = _i.next();
 				SootClass _accessClass = null;
@@ -257,6 +256,12 @@ public class OFABasedCallInfoCollector
 				final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(_callee2callers, _callee);
 				_callers.add(_ctrp);
 			}
+		} else if (_calleeMethod.isConcrete()){
+			final CallTriple _triple = new CallTriple(_calleeMethod, _stmt, expr);
+			_callees.add(_triple);
+
+			final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(_callee2callers, _calleeMethod);
+			_callers.add(_ctrp);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
