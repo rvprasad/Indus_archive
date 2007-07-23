@@ -29,6 +29,10 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.8.3.11
+---------------------
+	- Environment.getClass() was not checking if the requested class was loaded.  Fixed.
+
 Version 0.8.3.6
 -------------------
 	- changes in version of required libraries
