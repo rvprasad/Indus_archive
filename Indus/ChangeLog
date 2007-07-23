@@ -1,3 +1,8 @@
+2007-07-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/processing/Environment.java: 
+		- getClass() was not checking if the requested class was loaded.  Fixed.
+
 2007-07-02 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/interfaces/IReadWriteInfo.java: 

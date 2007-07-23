@@ -56,21 +56,24 @@ public final class Environment
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClass(java.lang.String)
+	 * {@inheritDoc}
 	 */
 	public SootClass getClass(final String className) {
+		if (!system.containsClass(className)) {
+			system.loadClassAndSupport(className);
+		}
 		return system.getSootClass(className);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getClasses()
+	 * {@inheritDoc}
 	 */
 	public Collection<SootClass> getClasses() {
 		return system.getClasses();
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#getRoots()
+	 * {@inheritDoc}
 	 */
 	public Collection<SootMethod> getRoots() {
 		final Collection<SootMethod> _temp = new HashSet<SootMethod>();
@@ -88,14 +91,14 @@ public final class Environment
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#hasClass(java.lang.String)
+	 * {@inheritDoc}
 	 */
 	public boolean hasClass(final String scName) {
 		return system.containsClass(scName);
 	}
 
 	/**
-	 * @see edu.ksu.cis.indus.interfaces.IEnvironment#removeClass(soot.SootClass)
+	 * {@inheritDoc}
 	 */
 	public void removeClass(final SootClass clazz) {
 		system.removeClass(clazz);
