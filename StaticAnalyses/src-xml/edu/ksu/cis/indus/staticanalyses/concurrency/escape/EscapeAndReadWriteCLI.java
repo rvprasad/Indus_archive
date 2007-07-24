@@ -225,8 +225,8 @@ public class EscapeAndReadWriteCLI
 					SootField _field = _j.next();
 					if (!_field.isStatic()) {
 						final String[] _accessPath = { _field.getSignature() };
-						System.out.println("\t\t\t" + _accessPath[0] + ": ["
-								+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
+						System.out.println("\t\t\t" + _accessPath[0] + ": [read: "
+								+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", written:"
 								+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
 					}
 				}
