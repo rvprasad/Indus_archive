@@ -63,6 +63,8 @@ import soot.SootField;
 import soot.SootMethod;
 import soot.Type;
 import soot.Value;
+import soot.jimple.FieldRef;
+import soot.jimple.Stmt;
 
 /**
  * This is a command line interface to exercise side effect and escape information analysis.
@@ -212,17 +214,21 @@ public class EscapeAndReadWriteCLI
 				System.out.println("\t\tread =  " + _rwInfo.isThisBasedAccessPathRead(_sm, _emptyStringArray, true));
 				System.out.println("\t\twritten =  " + _rwInfo.isThisBasedAccessPathWritten(_sm, _emptyStringArray, true));
 				System.out.println("\t\tescapes = " + _escapeInfo.thisEscapes(_sm));
-				System.out.println("\t\tmulti-thread RW = " + _escapeInfo.thisFieldAccessShared(_sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
+				System.out.println("\t\tmulti-thread RW = "
+						+ _escapeInfo.thisFieldAccessShared(_sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
 				System.out.println("\t\tmulti-thread LU = " + _escapeInfo.thisLockUnlockShared(_sm));
 				System.out.println("\t\tmulti-thread WN = " + _escapeInfo.thisWaitNotifyShared(_sm));
 				System.out.println("\t\tfield reading threads = " + _escapeInfo.getReadingThreadsOfThis(_sm));
 				System.out.println("\t\tfield writing threads = " + _escapeInfo.getWritingThreadsOfThis(_sm));
 
 				for (final Iterator<SootField> _j = _sm.getDeclaringClass().getFields().iterator(); _j.hasNext();) {
-					final String[] _accessPath = {_j.next().getSignature()};
-					System.out.println("\t\t\t" + _accessPath[0] + ": ["
-							+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
-							+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
+					SootField _field = _j.next();
+					if (!_field.isStatic()) {
+						final String[] _accessPath = { _field.getSignature() };
+						System.out.println("\t\t\t" + _accessPath[0] + ": ["
+								+ _rwInfo.isThisBasedAccessPathRead(_sm, _accessPath, true) + ", "
+								+ _rwInfo.isThisBasedAccessPathWritten(_sm, _accessPath, true) + "]");
+					}
 				}
 				System.out.print("\t\tcoupled with parameters at position: ");
 				for (int _k = 0; _k < _sm.getParameterCount(); _k++) {
@@ -244,6 +250,7 @@ public class EscapeAndReadWriteCLI
 				System.out.print("\t\tcoupled with parameters at position: ");
 				for (int _k = 0; _k < _sm.getParameterCount(); _k++) {
 					if (_k != _j && EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_sm.getParameterType(_k))
+							&& EquivalenceClassBasedEscapeAnalysis.canHaveAliasSet(_sm.getParameterType(_j))
 							&& _rwInfo.canMethodInduceSharingBetweenParams(_sm, _j, _k)) {
 						System.out.print(_k + ", ");
 					}
@@ -259,12 +266,31 @@ public class EscapeAndReadWriteCLI
 					final Local _local = _j.next();
 					System.out.println("\tLocal " + _local.getName() + "[" + _local.getType() + "] : ");
 					System.out.println("\t\tescapes = " + _escapeInfo.escapes(_local, _sm));
-					System.out.println("\t\tshared RW = " + _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
-					System.out.println("\t\tshared WW = " + _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS));
+					System.out.println("\t\tshared RW = "
+							+ _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.READ_WRITE_SHARED_ACCESS));
+					System.out.println("\t\tshared WW = "
+							+ _escapeInfo.fieldAccessShared(_local, _sm, IEscapeInfo.WRITE_WRITE_SHARED_ACCESS));
 					System.out.println("\t\tlocking = " + _escapeInfo.lockUnlockShared(_local, _sm));
 					System.out.println("\t\twaitNotify  = " + _escapeInfo.waitNotifyShared(_local, _sm));
 					System.out.println("\t\tfield reading threads: " + _escapeInfo.getReadingThreadsOf(_local, _sm));
 					System.out.println("\t\tfield writing threads: " + _escapeInfo.getWritingThreadsOf(_local, _sm));
+				}
+
+				for (final Iterator<Stmt> _j = _body.getUnits().iterator(); _j.hasNext();) {
+					final Stmt _stmt = _j.next();
+					if (_stmt.containsFieldRef()) {
+						final FieldRef _fr = _stmt.getFieldRef();
+						SootField _field = _fr.getField();
+						if (_field.isStatic()) {
+							System.out.println("\tStatic " + _field.getSignature() + " : ");
+							System.out.println("\t\tshared RW = "
+									+ _escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), _sm, _field
+											.getSignature(), IEscapeInfo.READ_WRITE_SHARED_ACCESS));
+							System.out.println("\t\tshared WW = "
+									+ _escapeInfo.staticfieldAccessShared(_field.getDeclaringClass(), _sm, _field
+											.getSignature(), IEscapeInfo.WRITE_WRITE_SHARED_ACCESS));
+						}
+					}
 				}
 			}
 		}
