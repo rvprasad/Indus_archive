@@ -262,6 +262,7 @@ public class OFABasedCallInfoCollector
 
 			final Collection<CallTriple> _callers = MapUtils.getCollectionFromMap(_callee2callers, _calleeMethod);
 			_callers.add(_ctrp);
+      callInfoHolder.addReachable(_calleeMethod);
 		}
 
 		if (LOGGER.isDebugEnabled()) {
