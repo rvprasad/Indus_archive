@@ -72,7 +72,7 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 		 */
 		boolean canHandleDependee(final Stmt stmt) {
 			final boolean _result;
-			if (analysis instanceof IdentifierBasedDataDA) {
+			if (analysis instanceof IdentifierBasedDataDA || analysis instanceof IdentifierBasedDataDAv2) {
 				_result = stmt instanceof DefinitionStmt;
 			} else if (analysis instanceof ReferenceBasedDataDA || analysis instanceof InterferenceDAv1) {
 				_result = stmt instanceof AssignStmt;
@@ -247,6 +247,8 @@ final class StmtAndMethodBasedDependencyXMLizer<T1 extends Stmt, E2 extends Stmt
 			if (handler.canHandleDependent(stmt)) {
 				if (analysis instanceof IdentifierBasedDataDA) {
 					_dependees = ((IdentifierBasedDataDA) analysis).getDependees(stmt, _method);
+				} else if (analysis instanceof IdentifierBasedDataDAv2) {
+					_dependees = ((IdentifierBasedDataDAv2) analysis).getDependees(stmt, _method);
 				} else {
 					_dependees = analysis.getDependees(handler.castToCompatibleDependent(stmt), _method);
 				}

@@ -1,3 +1,8 @@
+2007-09-19 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/StmtAndMethodBasedDependencyXMLizer.java: 
+		- Special handling of asymmetry of dependee-dependence information in IdentifierBasedDataDAv2.
+
 2007-07-24 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/staticanalyses/callgraphs/OFABasedCallInfoCollector.java: 
