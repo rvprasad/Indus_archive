@@ -28,6 +28,8 @@ import edu.ksu.cis.indus.interfaces.ICallGraphInfo.CallTriple;
 import edu.ksu.cis.indus.processing.Context;
 import edu.ksu.cis.indus.staticanalyses.cfg.LocalUseDefAnalysisv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDA;
+import edu.ksu.cis.indus.staticanalyses.dependency.IdentifierBasedDataDAv2;
 import edu.ksu.cis.indus.staticanalyses.dependency.IDependencyAnalysis.Direction;
 
 import java.util.BitSet;
@@ -271,7 +273,17 @@ public class BackwardSlicingPart
 		final IDependencyAnalysis.Direction _direction = analysis.getDirection();
 
 		if (_direction.equals(Direction.BACKWARD_DIRECTION) || _direction.equals(Direction.BI_DIRECTIONAL)) {
-			_result.addAll(analysis.getDependees(entity, method));
+			if (analysis instanceof IdentifierBasedDataDA) {
+				if (entity != null) {
+				_result.addAll(((IdentifierBasedDataDA) analysis).getDependees((Stmt) entity, method));
+				}
+			} else if (analysis instanceof IdentifierBasedDataDAv2 ) {
+				if (entity != null) {
+				_result.addAll(((IdentifierBasedDataDAv2) analysis).getDependees((Stmt) entity, method));
+				}
+			} else {
+				_result.addAll(analysis.getDependees(entity, method));
+			}
 		} else if (LOGGER.isWarnEnabled()) {
 			LOGGER.warn("Trying to retrieve BACKWARD dependence from a dependence analysis that is FORWARD direction. -- "
 					+ analysis.getClass() + " - " + _direction);
