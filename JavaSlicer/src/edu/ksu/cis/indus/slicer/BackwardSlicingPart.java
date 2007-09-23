@@ -273,14 +273,10 @@ public class BackwardSlicingPart
 		final IDependencyAnalysis.Direction _direction = analysis.getDirection();
 
 		if (_direction.equals(Direction.BACKWARD_DIRECTION) || _direction.equals(Direction.BI_DIRECTIONAL)) {
-			if (analysis instanceof IdentifierBasedDataDA) {
-				if (entity != null) {
+			if (analysis instanceof IdentifierBasedDataDA && entity instanceof Stmt) {
 				_result.addAll(((IdentifierBasedDataDA) analysis).getDependees((Stmt) entity, method));
-				}
-			} else if (analysis instanceof IdentifierBasedDataDAv2 ) {
-				if (entity != null) {
+			} else if (analysis instanceof IdentifierBasedDataDAv2  && entity instanceof Stmt) {
 				_result.addAll(((IdentifierBasedDataDAv2) analysis).getDependees((Stmt) entity, method));
-				}
 			} else {
 				_result.addAll(analysis.getDependees(entity, method));
 			}

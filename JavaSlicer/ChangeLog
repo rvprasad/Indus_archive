@@ -1,3 +1,8 @@
+2007-09-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
+		- special handling of dependee-dependent information in IdentifierBasedDataDA(v2) was too agressive.  FIXED.
+
 2007-09-19 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
