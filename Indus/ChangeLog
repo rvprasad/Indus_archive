@@ -1,5 +1,8 @@
 2007-09-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
+	* src/edu/ksu/cis/indus/common/soot/MetricsProcessor.java: 
+		- application statistics were incorrectly returned as library statistics.  FIXED.
+
 	* src/edu/ksu/cis/indus/common/soot/RootMethodTrapper.java: 
 		- add a root method trapper that traps every non-private methods of every application class.
 

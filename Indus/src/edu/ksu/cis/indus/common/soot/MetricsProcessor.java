@@ -289,7 +289,7 @@ public final class MetricsProcessor
 	       }
 	       final Map<MetricKeys, Map<Object, Integer>> _result = new HashMap<MetricKeys, Map<Object, Integer>>();
 	       _result.put(MetricKeys.APPLICATION_STATISTICS, _app);
-	       _result.put(MetricKeys.LIBRARY_STATISTICS, _app);
+	       _result.put(MetricKeys.LIBRARY_STATISTICS, _lib);
 	       return _result;
 	   }
 
