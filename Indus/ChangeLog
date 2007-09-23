@@ -1,3 +1,8 @@
+2007-09-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/common/soot/RootMethodTrapper.java: 
+		- add a root method trapper that traps every non-private methods of every application class.
+
 2007-07-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/processing/Environment.java: 

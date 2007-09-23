@@ -83,6 +83,32 @@ public class RootMethodTrapper {
 	}
 
 	/**
+	 * This implementation traps all non-private methods in the application classes.
+	 * 
+	 * @author <a href="http://www.cis.ksu.edu/~rvprasad">Venkatesh Prasad Ranganath</a>
+	 * @author $Author$
+	 * @version $Revision$ $Date$
+	 */
+	public static final class AllNonPrivateMethodsInAppClassesTrapper
+			extends RootMethodTrapper {
+
+		/**
+		 * Creates an instance of this class.
+		 */
+		@Empty public AllNonPrivateMethodsInAppClassesTrapper() {
+			super();
+		}
+
+		/**
+		 * This implementation will allow all non-private methods in the application classes as root methods.
+		 * {@inheritDoc} *
+		 */
+		@Override protected boolean isThisARootMethod(@Immutable @NonNull final SootMethod sm) {
+			return !sm.isPrivate();
+		}
+	}
+	
+	/**
 	 * The logger used by instances of this class to log messages.
 	 */
 	private static final Logger LOGGER = LoggerFactory.getLogger(RootMethodTrapper.class);
@@ -107,6 +133,7 @@ public class RootMethodTrapper {
 	 */
 	@Empty public RootMethodTrapper() {
 		super();
+		LOGGER.info("RootMethodTrapper: " + getClass().getName());
 	}
 
 	/**
@@ -208,20 +235,15 @@ public class RootMethodTrapper {
 	 *         <code>false</code>, otherwise.
 	 */
 	@Functional protected boolean considerClassForEntryPoint(@Immutable @NonNull final SootClass sc) {
-		boolean _result = rootClassNamePatterns.isEmpty() && theClassNames.isEmpty();
+		boolean _result = false;
 		final String _scName = sc.getName();
-		final Iterator<Pattern> _i = rootClassNamePatterns.iterator();
-		final int _iEnd = rootClassNamePatterns.size();
 
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+		for (final Iterator<Pattern> _i = rootClassNamePatterns.iterator(); _i.hasNext() && !_result; ) {
 			final Pattern _pattern = _i.next();
 			_result = _pattern.matcher(_scName).matches();
 		}
 
-		final Iterator<String> _j = theClassNames.iterator();
-		final int _jEnd = theClassNames.size();
-
-		for (int _jIndex = 0; _jIndex < _jEnd && !_result; _jIndex++) {
+		for (final Iterator<String> _j = theClassNames.iterator(); _j.hasNext() && !_result; ) {
 			final String _name = _j.next();
 			_result = _name.equals(_scName);
 		}
@@ -239,11 +261,9 @@ public class RootMethodTrapper {
 	 *         otherwise.
 	 */
 	@Functional protected boolean isThisARootMethod(@NonNull @Immutable final SootMethod sm) {
-		boolean _result = rootMethodSignaturePatterns.isEmpty();
-		final Iterator<Pattern> _i = rootMethodSignaturePatterns.iterator();
-		final int _iEnd = rootMethodSignaturePatterns.size();
-
-		for (int _iIndex = 0; _iIndex < _iEnd && !_result; _iIndex++) {
+		boolean _result = false;
+		
+		for (final Iterator<Pattern> _i = rootMethodSignaturePatterns.iterator(); _i.hasNext() && !_result; ) {
 			final Pattern _pattern = _i.next();
 			final String _signature = sm.getSignature();
 			_result = _pattern.matcher(_signature).matches();

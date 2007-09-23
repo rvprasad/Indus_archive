@@ -29,6 +29,11 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.8.3.12
+--------------------
+	- Add a new root method trapper (AllNonPrivateMethodsInAppClassesTrapper) to trap all non-private methods as 
+	root methods.
+
 Version 0.8.3.11
 ---------------------
 	- Environment.getClass() was not checking if the requested class was loaded.  Fixed.
