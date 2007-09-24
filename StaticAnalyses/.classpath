@@ -9,16 +9,16 @@
 	<classpathentry kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/Indus"/>
-	<classpathentry sourcepath="/JUNIT_SRC_HOME/junitsrc.zip" kind="var" path="JAVACLASSES/junit.jar"/>
-	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/commons-cli.jar" kind="var" path="JAVACLASSES/commons-cli.jar"/>
-	<classpathentry sourcepath="USRLOCALSRC/xml/xmlunit/src" kind="var" path="JAVACLASSES/xmlunit.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/junit.jar" sourcepath="/JUNIT_SRC_HOME/junitsrc.zip"/>
+	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar" sourcepath="/PROJECTS_HOME/Misc/soot/src"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar" sourcepath="JAVACLASSES/src/commons-cli.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar" sourcepath="USRLOCALSRC/xml/xmlunit/src"/>
 	<classpathentry kind="var" path="JAVACLASSES/nlog4j.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/commons-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar" sourcepath="JAVACLASSES/src/commons-lang.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/trove.jar" sourcepath="JAVACLASSES/src/trove.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
 	<classpathentry kind="var" path="JESS_HOME/lib/jess.jar"/>
