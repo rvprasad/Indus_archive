@@ -23,6 +23,13 @@ Required software:
 	Bandera [OPTIONAL]
 		(banderaCommons.jar, banderaToolFramework.jar) [http://bandera.projects.cis.ksu.edu]
 
+Version 0.8.3.14
+---------------------
+	- AliasBasedUseDefInfo was only sound upto the available OFA information, i.e. when the intersection of alias sets 
+	for the primaries of array/field refs (considered for use-def relation) is empty, the analysis concludes no use-def 
+	relation.  While this can be correct upto the information from OFA, it can lead to unsound result in general.  To be 
+	sound, use-def relation is induced in such cases.
+	
 Version 0.8.3.11
 ----------------
 	- No method was being included at a call site when the object binding information was empty 
