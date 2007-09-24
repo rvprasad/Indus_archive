@@ -123,16 +123,18 @@ public class IdentifierBasedDataDAv2
 	 */
 	public final Collection<DefinitionStmt> getDependees(final Pair<Local, Stmt> programPoint, final SootMethod method) {
 		Collection<DefinitionStmt> _result = Collections.emptyList();
-		final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDefAnalysis = dependee2dependent.get(method);
+		if (programPoint != null) {
+			final IUseDefInfo<DefinitionStmt, Pair<Local, Stmt>> _useDefAnalysis = dependee2dependent.get(method);
 
-		if (_useDefAnalysis != null) {
-			final Stmt _stmt = programPoint.getSecond();
-			final Local _local = programPoint.getFirst();
-			_result = _useDefAnalysis.getDefs(_local, _stmt, method);
-		} else {
-			if (LOGGER.isWarnEnabled()) {
-				LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
-						+ ") - No dependents found for ");
+			if (_useDefAnalysis != null) {
+				final Stmt _stmt = programPoint.getSecond();
+				final Local _local = programPoint.getFirst();
+				_result = _useDefAnalysis.getDefs(_local, _stmt, method);
+			} else {
+				if (LOGGER.isWarnEnabled()) {
+					LOGGER.warn("getDependees(programPoint = " + programPoint + ", method = " + method
+							+ ") - No dependents found for ");
+				}
 			}
 		}
 

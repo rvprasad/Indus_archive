@@ -1,3 +1,9 @@
+2007-09-24 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDAv2.java: 
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDA.java: 
+		- args to getDependees(Pair,SootMethod) could be null but they were not being checked. FIXED.
+
 2007-09-19 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src-xml/edu/ksu/cis/indus/staticanalyses/dependency/StmtAndMethodBasedDependencyXMLizer.java: 

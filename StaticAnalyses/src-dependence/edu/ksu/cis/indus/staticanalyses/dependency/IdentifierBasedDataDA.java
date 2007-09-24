@@ -178,18 +178,20 @@ public class IdentifierBasedDataDA
 	public Collection<DefinitionStmt> getDependees(final Pair<Local, Stmt> programPoint, final SootMethod method) {
 		Collection<DefinitionStmt> _result = Collections.emptySet();
 
-		final Stmt _stmt = programPoint.getSecond();
-		final Local _local = programPoint.getFirst();
-		final List<Map<Local, Collection<DefinitionStmt>>> _dependees = dependent2dependee.get(method);
-		if (_dependees != null) {
-			final Map<Local, Collection<DefinitionStmt>> _local2defs = _dependees.get(getStmtList(method).indexOf(_stmt));
-			final Collection<DefinitionStmt> _c = _local2defs.get(_local);
+		if (programPoint != null) {
+			final Stmt _stmt = programPoint.getSecond();
+			final Local _local = programPoint.getFirst();
+			final List<Map<Local, Collection<DefinitionStmt>>> _dependees = dependent2dependee.get(method);
+			if (_dependees != null) {
+				final Map<Local, Collection<DefinitionStmt>> _local2defs = _dependees.get(getStmtList(method).indexOf(_stmt));
+				final Collection<DefinitionStmt> _c = _local2defs.get(_local);
 
-			if (_c != null) {
-				_result = Collections.unmodifiableCollection(_c);
-			} else {
-				if (LOGGER.isWarnEnabled()) {
-					LOGGER.warn("No dependence information available for " + programPoint + " in " + method);
+				if (_c != null) {
+					_result = Collections.unmodifiableCollection(_c);
+				} else {
+					if (LOGGER.isWarnEnabled()) {
+						LOGGER.warn("No dependence information available for " + programPoint + " in " + method);
+					}
 				}
 			}
 		}
