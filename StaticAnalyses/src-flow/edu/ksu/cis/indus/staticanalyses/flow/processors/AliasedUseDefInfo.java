@@ -400,8 +400,9 @@ public class AliasedUseDefInfo
 			_context.setStmt(_defStmt);
 			_context.setProgramPoint(_vBox2);
 
+			final Collection<Value> _c2 = analyzer.getValues(_vBox2.getValue(), _context);
 			// if the primaries of the access expression alias atleast one object
-			_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), _context));
+			_result = CollectionUtils.containsAny(_c1, _c2) || (_c1.isEmpty() && _c2.isEmpty());
 		} else if (_defStmt.containsFieldRef()) {
 			final FieldRef _fr = _useStmt.getFieldRef();
 
@@ -420,8 +421,9 @@ public class AliasedUseDefInfo
 				_context.setStmt(_defStmt);
 				_context.setProgramPoint(_vBox2);
 
+				final Collection<Value> _c2 = analyzer.getValues(_vBox2.getValue(), _context);
 				// if the primaries of the access expression alias atleast one object.
-				_result = CollectionUtils.containsAny(_c1, analyzer.getValues(_vBox2.getValue(), _context));
+				_result = CollectionUtils.containsAny(_c1, _c2) || (_c1.isEmpty() && _c2.isEmpty());
 			}
 		}
 

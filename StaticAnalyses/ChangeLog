@@ -1,5 +1,11 @@
 2007-09-24 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
+	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/AliasedUseDefInfo.java: 
+		- when the intersection of alias sets for the primaries of array/field refs (considered for use-def relation) is empty, 
+		the analysis concludes no use-def relation.  While this can be correct upto the information from OFA, it can lead
+		to unsound result in general.  To be sound, use-def relation is induced in such cases.  We will need to evaluate
+		the resulting inaccurate.  Further, we can explore other possibilities to contain the inaccuracy.
+
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDAv2.java: 
 	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/IdentifierBasedDataDA.java: 
 		- args to getDependees(Pair,SootMethod) could be null but they were not being checked. FIXED.
