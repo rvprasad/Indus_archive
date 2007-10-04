@@ -21,10 +21,11 @@ import edu.ksu.cis.indus.annotations.Functional;
 import edu.ksu.cis.indus.annotations.Immutable;
 import edu.ksu.cis.indus.annotations.NonNull;
 import edu.ksu.cis.indus.annotations.NonNullContainer;
+import edu.ksu.cis.indus.common.collections.ListOrderedSet;
 
 import gnu.trove.TObjectIntHashMap;
 
-import java.util.ArrayList;
+import java.util.AbstractList;
 import java.util.Collections;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class GraphInfo<N extends INode<N>> {
 	/**
 	 * The sequence of nodes in this graph. They are stored in the order that the nodes are created.
 	 */
-	@NonNullContainer private final List<N> nodes = new ArrayList<N>();
+	@NonNullContainer private final ListOrderedSet<N> nodes = new ListOrderedSet<N>();
 
 	/**
 	 * Creates an instance of this class.
@@ -82,7 +83,21 @@ public class GraphInfo<N extends INode<N>> {
 	 * @return a collection of nodes.
 	 */
 	@NonNull @NonNullContainer @Functional public final List<N> getNodes() {
-		return Collections.unmodifiableList(nodes);
+		return Collections.unmodifiableList(new AbstractList<N>() {
+
+			@Override public N get(final int index) {
+				return nodes.get(index);
+			}
+
+			@Override public int size() {
+				return nodes.size();
+			}
+
+			@Override public boolean contains(Object o) {
+				return nodes.contains(o);
+			}
+
+		});
 	}
 
 	/**

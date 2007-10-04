@@ -1,3 +1,8 @@
+2007-10-04 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/common/graph/GraphInfo.java: 
+		- optimized access to nodes.
+
 2007-09-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/common/soot/MetricsProcessor.java: 
