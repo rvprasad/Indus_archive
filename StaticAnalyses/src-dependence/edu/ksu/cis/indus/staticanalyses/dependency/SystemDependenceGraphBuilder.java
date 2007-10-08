@@ -50,7 +50,7 @@ public final class SystemDependenceGraphBuilder {
 	/**
 	 * This is the label of the data dependence arch across method boundaries.
 	 */
-	private static final Object INTER_PROCEDURAL_DATA_DEPENDENCE = "Inter-procedural data dependence";
+	public static final Object INTER_PROCEDURAL_DATA_DEPENDENCE = "Inter-procedural data dependence";
 
 	/**
 	 * The collection of classes that define the scope in which dependence nodes have both incoming and outgoing edges.

@@ -1,3 +1,8 @@
+2007-10-08 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src-dependence/edu/ksu/cis/indus/staticanalyses/dependency/SystemDependenceGraphBuilder.java: 
+		- publicized INTER_PROCEDURAL_DATA_DEPENDENCE.
+
 2007-09-24 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src-flow/edu/ksu/cis/indus/staticanalyses/flow/processors/AliasedUseDefInfo.java: 
