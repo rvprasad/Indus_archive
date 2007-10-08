@@ -67,6 +67,28 @@ public class SimpleEdgeGraph<O>
 		@Functional public Object getObject() {
 			return object;
 		}
+		
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override public boolean equals(final Object obj) {
+			final boolean _result;
+			if (obj instanceof SimpleLabel) {
+				final SimpleLabel _sl = (SimpleLabel) obj;
+				_result = object == _sl.object || (object != null && object.equals(_sl.object));
+			} else {
+				_result = object == obj || (object != null && object.equals(obj));
+			}
+			return _result;
+		}
+
+
+		/**
+		 * {@inheritDoc}
+		 */
+		@Override public int hashCode() {
+			return object.hashCode();
+		}		
 	}
 
 	/**
@@ -115,7 +137,7 @@ public class SimpleEdgeGraph<O>
 	 * @param obj to serve as the contents of the label.
 	 * @return the label.
 	 */
-	@NonNull protected IEdgeLabel getLabel(@Immutable final Object obj) {
+	@NonNull public IEdgeLabel getLabel(@Immutable final Object obj) {
 		return new SimpleLabel(obj);
 	}
 

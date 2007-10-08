@@ -754,6 +754,23 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * {@inheritDoc}
 	 */
+	public SimpleNodeGraph<N> getSpanningSubgraph(final IPredicate<Pair<N, N>> pred) {
+		final SimpleNodeGraph<N> _projection = new SimpleNodeGraph<N>();
+		for (final N _node : getNodes()) {
+			for (final N _succ : _node.getSuccsOf()) {
+				if (pred.evaluate(new Pair<N, N>(_node, _succ))) {
+					final SimpleNode<N> _n1 = _projection.getNode(_node);
+					final SimpleNode<N> _n2 = _projection.getNode(_succ);
+					_projection.addEdgeFromTo(_n1, _n2);
+				}
+			}
+		}
+		return _projection;
+	}
+	
+	/**
+	 * {@inheritDoc}
+	 */
 	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Collection<N> getSources() {
 		if (!sourcesAreAvailable) {
 			sources.clear();
@@ -1014,14 +1031,18 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		if (!reachability) {
 			final List<N> _nodes = getNodes();
 			final int _noOfNodes = _nodes.size();
+			final Collection<Integer> _sccIndices = new HashSet<Integer>();
 			forwardReachabilityMatrix = new BitSet[_noOfNodes];
 			backwardReachabilityMatrix = new BitSet[_noOfNodes];
 
 			for (final List<N> _scc : getSCCs(true)) {
 				final BitSet _f = new BitSet(_noOfNodes);
 				final BitSet _b = new BitSet(_noOfNodes);
+
+				_sccIndices.add(getIndexOfNode(_scc.get(0)));
+
 				for (final N _node : _scc) {
-					final int _iIndex = _nodes.indexOf(_node);
+					final int _iIndex = getIndexOfNode(_node);
 					forwardReachabilityMatrix[_iIndex] = _f;
 					backwardReachabilityMatrix[_iIndex] = _b;
 				}
@@ -1040,22 +1061,25 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 				}
 			}
 
-			for (int _j = 0; _j < _noOfNodes; _j++) {
-				for (int _k = 0; _k < _noOfNodes; _k++) {
-					if (forwardReachabilityMatrix[_k].get(_j)) {
-						for (int _l = 0; _l < _noOfNodes; _l++) {
-							if (forwardReachabilityMatrix[_j].get(_l)) {
-								forwardReachabilityMatrix[_k].set(_l);
-								backwardReachabilityMatrix[_l].set(_k);
-							}
+			for (final int _j : _sccIndices) {
+				final BitSet _jf = forwardReachabilityMatrix[_j];
+				final BitSet _jb = backwardReachabilityMatrix[_j];
+				for (final int _k : _sccIndices) {
+					if (_k != _j) {
+						final BitSet _kf = forwardReachabilityMatrix[_k];
+						if (_kf.get(_j)) {
+							_kf.or(_jf);
+						}
+						final BitSet _kb = backwardReachabilityMatrix[_k];
+						if (_kb.get(_j)) {
+							_kb.or(_jb);
 						}
 					}
 				}
 			}
+
 			reachability = true;
-			// clear and resize the connectivity cache to hold 20% of the connections under worst case connectivity (n*n/4).
-			final int _noOfConnections = _nodes.size() * _nodes.size() / 5;
-			connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(_noOfConnections);
+			connectivityCache = new Cache<Triple<N, N, Boolean>, Collection<N>>(_noOfNodes);
 		}
 	}
 

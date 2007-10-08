@@ -1,3 +1,10 @@
+2007-10-08 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/common/graph/SimpleEdgeGraph.java: 
+		- overrode equals() and hashcode() methods in SimpleLabel.
+	* src/edu/ksu/cis/indus/common/graph/AbstractDirectedGraph.java: 
+		- optimized reachability calculation.
+
 2007-10-04 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/common/graph/GraphInfo.java: 
