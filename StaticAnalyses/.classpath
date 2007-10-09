@@ -21,6 +21,5 @@
 	<classpathentry kind="var" path="JAVACLASSES/trove.jar" sourcepath="JAVACLASSES/src/trove.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
-	<classpathentry kind="var" path="JESS_HOME/lib/jess.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
