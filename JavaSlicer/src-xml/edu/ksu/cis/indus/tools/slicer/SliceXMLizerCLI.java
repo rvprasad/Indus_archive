@@ -433,7 +433,7 @@ public class SliceXMLizerCLI
 			if (preserveThrowStmtsInAppClassesOnly) {
 				_generator.setSiteSelectionPredicate(new IPredicate<SootMethod>() {
 
-					public <T1 extends SootMethod> boolean evaluate(final T1 t) {
+					public boolean evaluate(final SootMethod t) {
 						return t.getDeclaringClass().isApplicationClass();
 					}
 				});

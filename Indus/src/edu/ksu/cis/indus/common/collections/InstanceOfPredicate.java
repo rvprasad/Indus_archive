@@ -48,7 +48,7 @@ public class InstanceOfPredicate<T, V>
 	/**
 	 * {@inheritDoc}
 	 */
-	@Functional public <V1 extends V> boolean evaluate(final V1 t) {
+	@Functional public  boolean evaluate(final V t) {
 		return clazz.isInstance(t);
 	}
 

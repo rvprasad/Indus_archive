@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-temp"/>
 	<classpathentry kind="src" path="src-flow"/>
 	<classpathentry kind="src" path="src-dependence"/>
 	<classpathentry kind="src" path="src-concurrency"/>

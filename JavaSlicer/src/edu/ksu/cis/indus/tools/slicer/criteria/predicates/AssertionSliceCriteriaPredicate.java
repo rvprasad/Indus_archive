@@ -52,7 +52,7 @@ public final class AssertionSliceCriteriaPredicate
 	/**
 	 * {@inheritDoc}
 	 */
-	public <E1 extends Stmt> boolean evaluate(final E1 stmt) {
+	public boolean evaluate(final Stmt stmt) {
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug("evaluate(entity = " + stmt + ":" + stmt.getClass() + ")");
 		}

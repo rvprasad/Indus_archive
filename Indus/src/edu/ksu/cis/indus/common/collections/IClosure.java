@@ -28,10 +28,10 @@ public interface IClosure<T> {
 	/**
 	 * Executes this closure on the given input.
 	 * 
-	 * @param <T1> is the type of the input.
+	 * @param <T> is the type of the input.
 	 * @param input to be operated on.
 	 */
-	<T1 extends T> void execute(T1 input);
+	 void execute(T input);
 
 }
 

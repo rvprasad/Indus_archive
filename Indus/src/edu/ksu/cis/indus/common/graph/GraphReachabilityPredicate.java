@@ -67,7 +67,7 @@ public final class GraphReachabilityPredicate<N extends IObjectNode<N, O>, O>
 	/**
 	 * {@inheritDoc}
 	 */
-	public <V extends O> boolean evaluate(@Immutable final V srcObject) {
+	public  boolean evaluate(@Immutable final O srcObject) {
 		final N _srcNode = graph.queryNode(srcObject);
 		return destNode != null && _srcNode != null && graph.isReachable(_srcNode, destNode, forward);
 	}

@@ -54,7 +54,7 @@ public final class SootPredicatesAndTransformers {
 	 */
 	public static final IPredicate<ValueBox> ESCAPABLE_EXPR_FILTER = new IPredicate<ValueBox>() {
 
-		public <V1 extends ValueBox> boolean evaluate(final V1 object) {
+		public boolean evaluate(final ValueBox object) {
 			final Value _v = object.getValue();
 			return _v instanceof StaticFieldRef || _v instanceof InstanceFieldRef || _v instanceof ArrayRef
 					|| _v instanceof Local || _v instanceof ThisRef || _v instanceof ParameterRef;
@@ -67,7 +67,7 @@ public final class SootPredicatesAndTransformers {
 	 */
 	public static final IPredicate<Stmt> INVOKING_STMT_PREDICATE = new IPredicate<Stmt>() {
 
-		public <V1 extends Stmt> boolean evaluate(final V1 object) {
+		public  boolean evaluate(final Stmt object) {
 			return object.containsInvokeExpr();
 		}
 	};

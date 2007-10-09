@@ -29,11 +29,11 @@ public interface IPredicate<T> {
 	/**
 	 * Evaluates the predicate on the given object.
 	 * 
-	 * @param <T1> is the type of the input.
+	 * @param <T> is the type of the input.
 	 * @param t is the input.
 	 * @return <code>true</code> if the predicate evaluates to <code>true</code>; <code>false</code>, otherwise.
 	 */
-	<T1 extends T> boolean evaluate(T1 t);
+	 boolean evaluate(T t);
 
 }
 

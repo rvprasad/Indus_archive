@@ -99,10 +99,8 @@ public final class SlicingEngine {
 
 		/**
 		 * {@inheritDoc}
-		 * 
-		 * @see edu.ksu.cis.indus.common.collections.IPredicate#evaluate(java.lang.Object)
 		 */
-		public <T1 extends SootMethod> boolean evaluate(final T1 object) {
+		public boolean evaluate(final SootMethod object) {
 			return !Util.isStartMethod(object);
 		}
 	}

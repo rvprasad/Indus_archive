@@ -74,9 +74,10 @@ class DependenceAndMayFollowInfoCalculator
 	 */
 	private static final IPredicate<Pair<?, SootMethod>> APPLICATION_CLASS_ONLY_PREDICATE = new IPredicate<Pair<?, SootMethod>>() {
 
-		public boolean evaluate(final Pair<?, SootMethod> object) {
-			return object.getSecond().getDeclaringClass().isApplicationClass();
+		public boolean evaluate(final Pair object) {
+			return ((SootMethod) object.getSecond()).getDeclaringClass().isApplicationClass();
 		}
+
 	};
 
 	/**

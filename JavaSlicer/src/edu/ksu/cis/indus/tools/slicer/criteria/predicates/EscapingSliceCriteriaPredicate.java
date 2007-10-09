@@ -37,7 +37,7 @@ public final class EscapingSliceCriteriaPredicate
 	/**
 	 * {@inheritDoc}
 	 */
-	public <E1 extends Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod>> boolean evaluate(final E1 monitorTriple) {
+	public boolean evaluate(final Triple<EnterMonitorStmt, ExitMonitorStmt, SootMethod> monitorTriple) {
 		final boolean _result;
 
 		final IEscapeInfo _escapes = getSlicerTool().getEscapeInfo();

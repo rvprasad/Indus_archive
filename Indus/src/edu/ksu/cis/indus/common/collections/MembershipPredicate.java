@@ -58,13 +58,13 @@ public final class MembershipPredicate<T>
 	/**
 	 * The membership test.
 	 * 
-	 * @param <T1> is the type of the input object.
+	 * @param <T> is the type of the input object.
 	 * @param object to be tested.
 	 * @return <code>true</code> if the <code>object</code> belongs to <code>collection</code> and membership is
 	 *         <code>true</code> or if <code>object</code> does not belong to <code>collection</code> and membership is
 	 *         <code>false</code>; <code>false</code>, otherwise.
 	 */
-	@Functional public <T1 extends T> boolean evaluate(@NonNull final T1 object) {
+	@Functional public  boolean evaluate(@NonNull final T object) {
 		return membership == collection.contains(object);
 	}
 }

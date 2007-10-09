@@ -16,7 +16,6 @@
 
 package edu.ksu.cis.indus.staticanalyses.cfg;
 
-import edu.ksu.cis.indus.annotations.Empty;
 import edu.ksu.cis.indus.common.collections.CollectionUtils;
 import edu.ksu.cis.indus.common.collections.IPredicate;
 import edu.ksu.cis.indus.common.collections.MapUtils;
@@ -102,18 +101,7 @@ public final class LocalUseDefAnalysisv2
 			LOGGER.debug("END: Analyzing " + graph.getStmtGraph().getBody().getMethod());
 		}
 	}
-
-	// / CLOVER:OFF
-
-	/**
-	 * Creates a new LocalUseDefAnalysisv2 object.
-	 */
-	@Empty private LocalUseDefAnalysisv2() {
-		// does nothing
-	}
-
-	// / CLOVER:ON
-
+	
 	/**
 	 * Retrieves the definitions of <code>local</code> that reach <code>stmt</code>.
 	 * 

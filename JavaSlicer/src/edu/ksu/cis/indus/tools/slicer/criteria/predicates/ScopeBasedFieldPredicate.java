@@ -41,7 +41,7 @@ public class ScopeBasedFieldPredicate
 	 * @return <code>true</code> if criteria should be generated; <code>false</code>, otherwise.
 	 * @pre entity.oclIsKindOf(SootField)
 	 */
-	public <T1 extends SootField> boolean evaluate(final T1 entity) {
+	public boolean evaluate(final SootField entity) {
 		return matcher.isInScope(entity, getSlicerTool().getSystem());
 	}
 
