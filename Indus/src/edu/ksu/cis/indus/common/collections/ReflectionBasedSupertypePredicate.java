@@ -50,7 +50,7 @@ public class ReflectionBasedSupertypePredicate<T>
 	 * @return <code>true</code> if <code>object</code> is a class object and it is a super type of the subtype set on
 	 *         this object; <code>false</code>, otherwise.
 	 */
-	@Functional public boolean evaluate(@NonNull final Class<? extends T> object) {
+	@Functional public boolean evaluate(@NonNull final Class object) {
 		return object.isAssignableFrom(subtype);
 	}
 
