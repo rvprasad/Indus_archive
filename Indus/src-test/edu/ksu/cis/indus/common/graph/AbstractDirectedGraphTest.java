@@ -18,19 +18,16 @@
 package edu.ksu.cis.indus.common.graph;
 
 import edu.ksu.cis.indus.IndusTestCase;
-
-import edu.ksu.cis.indus.common.collections.CollectionUtils;
+import edu.ksu.cis.indus.common.collections.ITransformer;
 import edu.ksu.cis.indus.common.collections.SetUtils;
 import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -207,28 +204,29 @@ public abstract class AbstractDirectedGraphTest
 	 * Tests <code>getSpanningSuccs()</code> method.
 	 */
 	public final void testGetSpanningSuccs() {
-		final Map _spanningSuccs = new HashMap(dg.getSpanningSuccs());
-		final Set _temp = new HashSet();
-		assertEquals(_spanningSuccs, dg.getSpanningSuccs());
-
-		for (final Iterator _i = _spanningSuccs.values().iterator(); _i.hasNext();) {
-			final Collection _succs = (Collection) _i.next();
-			_temp.addAll(_succs);
-		}
-
+		final IObjectDirectedGraph _forest = dg.getSpanningForest();
+		final Collection<INode> _nodes = _forest.getNodes();
+		
 		// ensure all tree nodes are among the nodes of this graph.
-		assertTrue(dg.getNodes().containsAll(_spanningSuccs.keySet()));
-		assertTrue(dg.getNodes().containsAll(_temp));
+		final Collection _dgNodes = new HashSet();
+		final ITransformer _trans = _forest.getObjectExtractor();
+		for(Object _o : _nodes) {
+			_dgNodes.add(_trans.transform(_o));
+		}
+		assertTrue(dg.getNodes().containsAll(_dgNodes));
 
 		// ensure no node appears as child of two different parents in the spanning tree.
-		for (final Iterator _i = _temp.iterator(); _i.hasNext();) {
-			final INode _node = (INode) _i.next();
-			assertTrue(CollectionUtils.cardinality(_node, _temp) == 1);
+		for (final INode _n1 : _nodes) {
+			assertTrue(_n1.getPredsOf().size() <= 1);
+			for (final INode _n2 : _nodes) {
+				if (!_n1.equals(_n2)) {
+					assertTrue(SetUtils.intersection(_n1.getSuccsOf(), _n2.getSuccsOf()).isEmpty());
+				}
+			}
 		}
 
 		// ensure that all nodes occur in the spanning tree
-		_temp.addAll(_spanningSuccs.keySet());
-		assertTrue(_temp.containsAll(dg.getNodes()));
+		assertTrue(_dgNodes.containsAll(dg.getNodes()));
 	}
 
 	/**

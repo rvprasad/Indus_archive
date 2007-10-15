@@ -227,11 +227,6 @@ public class SimpleNodeGraphTest
 		} catch (final IllegalArgumentException _e) {
 			;
 		}
-
-		// Create Spanning tree, add a new node, and check if the a new spanning tree will be built.
-		final Map _temp = new HashMap(dg.getSpanningSuccs());
-		assertTrue(sng.addEdgeFromTo(sng.getNode("i"), sng.getNode("b")));
-		assertFalse(_temp.equals(dg.getSpanningSuccs()));
 	}
 
 	/**

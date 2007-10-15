@@ -23,8 +23,6 @@ import edu.ksu.cis.indus.common.datastructures.Pair;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * This is an interface to a directed graph in which nodes are represented by <code>INode</code> objects. The nodes in the
@@ -148,6 +146,14 @@ public interface IDirectedGraph<N extends INode<N>> {
 	 */
 	@NonNull @NonNullContainer Collection<N> getSinks();
 
+
+	/**
+	 * Retrieves a spanning tree of this graph.
+	 * 
+	 * @return a spanning tree in which each node is associated with a node in this graph.
+	 */
+	@NonNull IObjectDirectedGraph<?, N> getSpanningForest();
+	
 	/**
 	 * Retrieves the source nodes of this graph.
 	 * 
@@ -155,14 +161,6 @@ public interface IDirectedGraph<N extends INode<N>> {
 	 * @post result->forall(o | o.getPredsOf()->size() == 0) and getNodes().containsAll(result)
 	 */
 	@NonNull @NonNullContainer Collection<N> getSources();
-
-	/**
-	 * Retrieves the succession information as it occurs in this graph's spanning tree. The returned map maps a node to a
-	 * collection of nodes which immediately succeed the key node in the spanning tree of this graph.
-	 * 
-	 * @return an read-only copy of immediate succession information as it occurs in this graph's spanning tree.
-	 */
-	@NonNull @NonNullContainer Map<N, Set<N>> getSpanningSuccs();
 
 	/**
 	 * Retrieves the tails of the given graph. A Tail is a sink node or an arbitrary node in a strongly-connected component

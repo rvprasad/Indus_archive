@@ -1,3 +1,9 @@
+2007-10-16 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src/edu/ksu/cis/indus/common/graph/AbstractDirectedGraph.java: 
+	* src/edu/ksu/cis/indus/common/graph/IDirectedGraph.java: 
+		- getSpanningTree() is substituted with getSpanningForest().
+
 2007-10-08 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/common/graph/SimpleEdgeGraph.java: 

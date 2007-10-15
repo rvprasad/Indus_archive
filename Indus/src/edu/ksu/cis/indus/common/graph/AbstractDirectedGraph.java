@@ -53,7 +53,6 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This class provides abstract implementation of <code>IDirectedGraph</code>. The subclasses are responsible for
@@ -94,7 +93,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * This captures backward reachability information.
 	 */
 	private BitSet[] backwardReachabilityMatrix;
-
+	
 	/**
 	 * The graph builder to use to build graphs that represent views of this graph.
 	 */
@@ -189,7 +188,7 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	 * @invariant getNodes().containsAll(spanningSuccs.keySet())
 	 * @invariant spanningSuccs.values()->forall( o | getNodes().containsAll(o))
 	 */
-	private Map<N, Set<N>> spanningSuccs;
+	private SimpleNodeGraph<N> spanningForest;
 
 	/**
 	 * Finds cycles in the given set of nodes. This implementation is <i>exponential</i> in the number of cycles in the the
@@ -754,20 +753,12 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * {@inheritDoc}
 	 */
-	public SimpleNodeGraph<N> getSpanningSubgraph(final IPredicate<Pair<N, N>> pred) {
-		final SimpleNodeGraph<N> _projection = new SimpleNodeGraph<N>();
-		for (final N _node : getNodes()) {
-			for (final N _succ : _node.getSuccsOf()) {
-				if (pred.evaluate(new Pair<N, N>(_node, _succ))) {
-					final SimpleNode<N> _n1 = _projection.getNode(_node);
-					final SimpleNode<N> _n2 = _projection.getNode(_succ);
-					_projection.addEdgeFromTo(_n1, _n2);
-				}
-			}
-		}
-		return _projection;
+	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final IObjectDirectedGraph<?, N> getSpanningForest() {
+		createSpanningForest();
+		return spanningForest;
 	}
-	
+
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -789,13 +780,22 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 		}
 		return Collections.unmodifiableCollection(sources);
 	}
-
+	
 	/**
 	 * {@inheritDoc}
 	 */
-	@Functional(level = AccessSpecifier.PACKAGE) @NonNull @NonNullContainer public final Map<N, Set<N>> getSpanningSuccs() {
-		createSpanningForest();
-		return Collections.unmodifiableMap(spanningSuccs);
+	public SimpleNodeGraph<N> getSpanningSubgraph(final IPredicate<Pair<N, N>> pred) {
+		final SimpleNodeGraph<N> _projection = new SimpleNodeGraph<N>();
+		for (final N _node : getNodes()) {
+			for (final N _succ : _node.getSuccsOf()) {
+				if (pred.evaluate(new Pair<N, N>(_node, _succ))) {
+					final SimpleNode<N> _n1 = _projection.getNode(_node);
+					final SimpleNode<N> _n2 = _projection.getNode(_succ);
+					_projection.addEdgeFromTo(_n1, _n2);
+				}
+			}
+		}
+		return _projection;
 	}
 
 	/**
@@ -1048,12 +1048,10 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 				}
 			}
 
-			for (int _iIndex = 0; _iIndex < _noOfNodes; _iIndex++) {
-				final N _node = _nodes.get(_iIndex);
-				final Iterator<N> _j = _node.getSuccsOf().iterator();
-				final int _jEnd = _node.getSuccsOf().size();
+			for (final N _node : _nodes) {
+				final int _iIndex = getIndexOfNode(_node);
 
-				for (int _jIndex = 0; _jIndex < _jEnd; _jIndex++) {
+				for (final Iterator<N> _j = _node.getSuccsOf().iterator(); _j.hasNext();) {
 					final N _succ = _j.next();
 					final int _indexOfSucc = getIndexOfNode(_succ);
 					forwardReachabilityMatrix[_iIndex].set(_indexOfSucc);
@@ -1061,17 +1059,18 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 				}
 			}
 
-			for (final int _j : _sccIndices) {
-				final BitSet _jf = forwardReachabilityMatrix[_j];
-				final BitSet _jb = backwardReachabilityMatrix[_j];
+			for (final N _j : _nodes) {
+				final int _nodeIndex = getIndexOfNode(_j);
+				final BitSet _jf = forwardReachabilityMatrix[_nodeIndex];
+				final BitSet _jb = backwardReachabilityMatrix[_nodeIndex];
 				for (final int _k : _sccIndices) {
-					if (_k != _j) {
+					if (_k != _nodeIndex) {
 						final BitSet _kf = forwardReachabilityMatrix[_k];
-						if (_kf.get(_j)) {
+						if (_kf.get(_nodeIndex)) {
 							_kf.or(_jf);
 						}
 						final BitSet _kb = backwardReachabilityMatrix[_k];
-						if (_kb.get(_j)) {
+						if (_kb.get(_nodeIndex)) {
 							_kb.or(_jb);
 						}
 					}
@@ -1093,29 +1092,27 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 			return;
 		}
 
-		if (spanningSuccs == null) {
-			spanningSuccs = new HashMap<N, Set<N>>();
-		} else {
-			spanningSuccs.clear();
-		}
+		spanningForest = new SimpleNodeGraph<N>();
 
-		final IWorkBag<Object> _order = new LIFOWorkBag<Object>();
 		final List<N> _nodes = getNodes();
-
-		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here.
-		if (getSources().isEmpty()) {
-			_order.addAllWork(_nodes);
-		} else {
-			_order.addAllWork(getSources());
-		}
-
-		final Collection<N> _blackNodes = new ArrayList<N>();
-		final Collection<N> _grayNodes = new ArrayList<N>();
+		final Collection<N> _exploredNodes = new HashSet<N>();
+		final Collection<N> _consideredNodes = new HashSet<N>();
+		final Collection<N> _processedNodes = new HashSet<N>();
 		int _discoverTime = 0;
 		discoverTimes = new int[_nodes.size()];
 		finishTimes = new int[_nodes.size()];
 		backedges.clear();
 		crossedges.clear();
+
+		final IWorkBag<Object> _order = new LIFOWorkBag<Object>();
+		final Collection<N> _sources = getSources();
+
+		// It is possible that the graph has no heads, i.e., nodes with no predecessors, and these are handled here.
+		if (_sources.isEmpty()) {
+			_order.addAllWork(_nodes);
+		} else {
+			_order.addAllWork(_sources);
+		}
 
 		while (_order.hasWork()) {
 			final Object _work = _order.getWork();
@@ -1124,15 +1121,14 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 				@SuppressWarnings("unchecked") final N _node = (N) ((Marker) _work).getContent();
 				final int _indexOfNode = getIndexOfNode(_node);
 				finishTimes[_indexOfNode] = ++_discoverTime;
-				// processNodeForHighValues(_node, _indexOfNode);
-			} else if (!_blackNodes.contains(_work)) {
+				_exploredNodes.add(_node);
+			} else if (!_exploredNodes.contains(_work)) {
 				// we do not want to process nodes that are already processed.
 				@SuppressWarnings("unchecked") final N _node = (N) _work;
 				discoverTimes[getIndexOfNode(_node)] = ++_discoverTime;
-				_grayNodes.add(_node);
+				_processedNodes.add(_node);
 				_order.addWork(new Marker(_node));
-				processNodeForSpanningTree(_grayNodes, _order, _node);
-				_blackNodes.add(_node);
+				processNodeForSpanningTree(_consideredNodes, _processedNodes, _order, _node);
 			}
 		}
 
@@ -1191,34 +1187,34 @@ public abstract class AbstractDirectedGraph<N extends INode<N>>
 	/**
 	 * Processes the given node while creating a spanning tree.
 	 * 
-	 * @param grayNodes is the collection of nodes already visited or reached but not processed.
+	 * @param consideredNodes is the collection of nodes already reached but not processed.
+	 * @param processedNodes is the collection of nodes already processed for immediate successors but not fully explored.
 	 * @param workBag is the work bag that needs to be updates during processing.
 	 * @param nodeToProcess is the node to be processed.
-	 * @pre grayNodes != null and workBag != null and nodeToProcess != null
+	 * @pre consideredNodes != null and processedNodes != null and workBag != null and nodeToProcess != null
 	 * @post processedNodes.containsAll(processedNodes$pre)
-	 * @post reachedNodes.containsAll(reachedNodes$pre)
-	 * @post processedNodes.containsAll(processedNodes$pre)
+	 * @post consideredNodes.containsAll(consideredNodes$pre)
 	 */
-	private void processNodeForSpanningTree(@NonNull @NonNullContainer @Immutable final Collection<N> grayNodes,
+	private void processNodeForSpanningTree(@NonNull @NonNullContainer @Immutable final Collection<N> consideredNodes,
+			@NonNull @NonNullContainer @Immutable Collection<N> processedNodes,
 			@NonNull @NonNullContainer final IWorkBag<Object> workBag, @NonNull @NonNullContainer final N nodeToProcess) {
-		final Set<N> _temp = new HashSet<N>();
-		spanningSuccs.put(nodeToProcess, _temp);
-
-		for (final Iterator<N> _j = nodeToProcess.getSuccsOf().iterator(); _j.hasNext();) {
-			final N _succ = _j.next();
-
-			// edges to visited nodes can only be backedges or crossedges.
-			if (grayNodes.contains(_succ)) {
+		// capture the node in the spanning forest.
+		final SimpleNode<N> _n1 = spanningForest.getNode(nodeToProcess);
+		for (final N _succ : nodeToProcess.getSuccsOf()) {
+			// edges to processedNodes and  nodes can only be backedges or crossedges.
+			if (consideredNodes.contains(_succ) || processedNodes.contains(_succ)) {
 				final int _destIndex = getIndexOfNode(_succ);
 				final Pair<N, N> _edge = new Pair<N, N>(nodeToProcess, _succ);
 
-				if (finishTimes[_destIndex] > 0) {
-					crossedges.add(_edge);
-				} else {
+				if (finishTimes[_destIndex] == 0 && processedNodes.contains(_succ)) {
 					backedges.add(_edge);
+				} else {
+					crossedges.add(_edge);
 				}
 			} else {
-				_temp.add(_succ);
+				final SimpleNode<N> _n2 = spanningForest.getNode(_succ);
+				spanningForest.addEdgeFromTo(_n1, _n2);
+				consideredNodes.add(_succ);
 				workBag.addWork(_succ);
 			}
 		}
