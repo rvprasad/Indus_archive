@@ -58,7 +58,6 @@ import soot.SootMethod;
 import soot.Type;
 import soot.Value;
 import soot.jimple.Stmt;
-import sun.misc.Signal;
 
 import edu.ksu.cis.indus.common.datastructures.Pair;
 import edu.ksu.cis.indus.common.soot.BasicBlockGraphMgr;
