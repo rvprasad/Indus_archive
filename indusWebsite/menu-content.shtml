@@ -36,13 +36,13 @@
     <li><a href="/overview/licenses.shtml">Licenses</a></li>
     <!--#endif -->
     
-    <li><a href="http://projects.cis.ksu.edu/projects/indus/">Sourceforge</a></li>
+    <li><a href="http://projects.cis.ksu.edu/gf/projects/indus/">Sourceforge</a></li>
   </ul>
 
   <!--#if expr="${menuItem} = Downloads" -->
   <h1>Downloads</h1>
   <!--#else -->
-  <h1><a href="http://projects.cis.ksu.edu/plugin/ksuafrs/showfiles.php?group_id=12">Downloads</a></h1>
+  <h1><a href="http://projects.cis.ksu.edu/gf/project/indus/frs/">Downloads</a></h1>
   <!--#endif -->
 
   
@@ -57,7 +57,7 @@
     <!--#if expr="${menuItem} = Documentation.generalDocs" --> 
     <li>User Guides</li>
     <!--#else -->
-    <li><a href="http://projects.cis.ksu.edu/docman/index.php?group_id=12">User Guides and Source docs</a></li>
+    <li><a href="http://projects.cis.ksu.edu/gf/project/indus/docman/">User Guides and Source docs</a></li>
     <!--#endif -->
 
     <!--#if expr="${menuItem} = Documentation.DeveloperResources" --> 
@@ -99,9 +99,9 @@
     <li><a href="/support/policy.shtml">Policy</a></li>
     <!--#endif -->
 
-    <li><a href="http://projects.cis.ksu.edu/forum/?group_id=12">Forums</a></li>
+    <li><a href="http://projects.cis.ksu.edu/gf/project/indus/forum/">Forums</a></li>
 
-    <li><a href="http://projects.cis.ksu.edu/tracker/?group_id=12">Tracker (Bugs, Requests)</a></li>    
+    <li><a href="http://projects.cis.ksu.edu/gf/project/indus/tracker/">Tracker (Bugs, Requests)</a></li>    
 
-    <li><a href="http://projects.cis.ksu.edu/mail/?group_id=12">Mailing List</a></li>
+    <li><a href="http://projects.cis.ksu.edu/gf/project/indus/mailman/">Mailing List</a></li>
   </ul>
