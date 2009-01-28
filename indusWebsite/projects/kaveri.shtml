@@ -30,7 +30,7 @@
 
 <p>
  Kaveri can be obtained from the  
-<a href="http://projects.cis.ksu.edu/plugin/ksuafrs/showfiles.php?group_id=12">download page </a>
+<a href="http://projects.cis.ksu.edu/gf/project/indus/frs/?action=FrsReleaseBrowse&frs_package_id=36">download page </a>
 <!--or using the Eclipse feature installation method. The address for the feature installation is
 <a href="http://indus.projects.cis.ksu.edu/sliceeclipse">
  http://indus.projects.cis.ksu.edu/sliceeclipse</a>-->
@@ -38,7 +38,7 @@
 
 <p>
 Before using Kaveri please go through the documentation,
-which can be obtained from <a href="http://projects.cis.ksu.edu/docman/view.php/12/90/kaveri-ug.pdf">here</a>.
+which can be obtained from <a href="http://projects.cis.ksu.edu/gf/download/docmanfileversion/106/1464/Kaveri-ug.pdf">here</a>.
 </p>	
 <p>The artifacts from this subproject are developed and maintained by <i>Ganeshan Jayaraman</i> under the 
 supervision of <i>Venkatesh Prasad Ranganath</i>.</p>
