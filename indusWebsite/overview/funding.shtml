@@ -4,18 +4,28 @@
 
 <!--#include virtual="/header.shtml" -->
 
-
+<p>
+The development of Indus has been funded through a variety of sources including
+</p>
+<ul>
+  <li>U.S. Army Research Office (DAAD190110564),</li>
+  <li>DARPA/IXO's PCES program (AFRL Contract F33615-00-C-3044),</li> 
+  <li>Air Force Office of Scientific Research (FA9550-006-1-0223),</li>
+  <li>NSF (CCF-0429149, CRI-0454308, CCF-04444167)</li>
+  <li>Lockheed Martin, and </li>
+  <li>Rockwell Collins.
+</ul>
+<!--    
   <ul>
     <li>DARPA/AFRL project <a href="http://www.cis.ksu.edu/~dwyer/projects/AFRL-F33615-00-C-3044.html">AFRL-F33615-00-C-3044</a>. 
-<!--    
     <li>Army Research Office CIP/SW URI award <a href="http://www.cis.ksu.edu/~dwyer/projects/DAAD190110564.html">DAAD190110564</a>. 
     <li>Cooperative Agreement, NCC-1-399, sponsored by Honeywell Technology Center and NASA Langley Research Center.
     
     <li>Intel Corporation.
     
     <li>Coordination Services for Distributed Application <a href="http://www.cis.ksu.edu/~singh/coordination.html">NSF CCR-OSC 0098179</a>.
-    -->
     <li>Rockwell-Collins Advanced Technology Center.
   </ul>
+-->
 
 <!--#include virtual="/footer.shtml" -->

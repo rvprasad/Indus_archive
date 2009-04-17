@@ -120,4 +120,17 @@ adapt Java programs.  It is intended to serve as an umbrella for </p>
     transformations such as program specialization via partial evaluation, we moved the analyses and
     transformations into a new project called <i>Indus</i>.</p>
 
+<h1>Funding</h1>
+<p>
+The development of Indus has been funded through a variety of sources including
+</p>
+<ul>
+  <li>U.S. Army Research Office (DAAD190110564),</li>
+  <li>DARPA/IXO's PCES program (AFRL Contract F33615-00-C-3044),</li> 
+  <li>Air Force Office of Scientific Research (FA9550-006-1-0223),</li>
+  <li>NSF (CCF-0429149, CRI-0454308, CCF-04444167)</li>
+  <li>Lockheed Martin, and </li>
+  <li>Rockwell Collins.
+</ul>
+
 <!--#include virtual="/footer.shtml" -->
