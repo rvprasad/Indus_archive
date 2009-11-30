@@ -31,7 +31,6 @@ import edu.ksu.cis.indus.processing.ProcessingController;
 import edu.ksu.cis.indus.processing.TagBasedProcessingFilter;
 import edu.ksu.cis.indus.slicer.ISliceCriterion;
 import edu.ksu.cis.indus.slicer.transformations.TagBasedDestructiveSliceResidualizer;
-import edu.ksu.cis.indus.staticanalyses.dependency.DependencyXMLizerCLI;
 import edu.ksu.cis.indus.staticanalyses.tokens.ITokens;
 import edu.ksu.cis.indus.staticanalyses.tokens.TokenUtil;
 import edu.ksu.cis.indus.staticanalyses.tokens.soot.SootValueTypeManager;
@@ -445,8 +444,9 @@ public class SliceXMLizerCLI
 			slicer.addCriteriaGenerator(lineBasedCriteriaGenerator);
 		}
 
-		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
 		slicer.setSliceScopeDefinition(sliceScope);
+		
+		final Collection<ISliceCriterion> _criteria = processCriteriaSpecFile();
 		slicer.addCriteria(_criteria);
 		slicer.addToolProgressListener(this);
 		slicer.run(Phase.STARTING_PHASE, null, true);
@@ -593,6 +593,8 @@ public class SliceXMLizerCLI
 		_o.setArgName("crit-spec-file");
 		_o.setOptionalArg(false);
 		_options.addOption(_o);
+		_o = new Option("sa", "Perform scoped analysis (as opposed merely performing scoped slicing)");
+		_options.addOption(_o);
 		_o = new Option("S", "slice-scope-spec-file", true, "Use the scope specified in this file.");
 		_o.setArgs(1);
 		_o.setArgName("slice-scope-spec-file");
@@ -669,7 +671,11 @@ public class SliceXMLizerCLI
 
 		if (_cl.hasOption('S')) {
 			sliceScope = xmlizer.setScopeSpecFile(_cl.getOptionValue('S'));
-			xmlizer.setScopeSpecFile(null);
+			if (_cl.hasOption("sa")) {
+				xmlizer.setScopeSpecFile(_cl.getOptionValue('S'));
+			} else {
+				xmlizer.setScopeSpecFile(null);
+			}
 		}
 
 		if (_cl.hasOption('l')) {
@@ -752,7 +758,7 @@ public class SliceXMLizerCLI
 	 * @pre options != null
 	 */
 	private static void printUsage(final Options options) {
-		final String _cmdLineSyn = "java " + DependencyXMLizerCLI.class.getName() + " <options> <classnames>";
+		final String _cmdLineSyn = "java " + SliceXMLizerCLI.class.getName() + " <options> <classnames>";
 		(new HelpFormatter()).printHelp(_cmdLineSyn, "Options are: ", options, "");
 	}
 

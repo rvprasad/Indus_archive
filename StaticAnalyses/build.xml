@@ -29,7 +29,7 @@ at Kansas State University.
 		<isset property="docbook.base"/>
 	</condition>
 
-	<condition property="compilerToUse" value="modern">
+	<condition property="compilerToUse" value="org.eclipse.jdt.core.JDTCompilerAdapter">
 		<not>
 			<isset property="compilerToUse"/>
 		</not>
@@ -182,6 +182,7 @@ at Kansas State University.
 				<include name="src-/**"/>
 				<include name="${filename}.jar"/>
 				<include name="${docs}/**"/>
+				<include name="auxiliary/*"/>
 				<include name="build.xml"/>
 				<include name="prelocalbuild.xml"/>
 				<include name="antbuild.properties"/>
