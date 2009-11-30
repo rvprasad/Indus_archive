@@ -1,3 +1,11 @@
+2009-11-30 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: 
+		- enabled scoped slicing and fixed issues due to copy-n-paste.
+	* build.xml: 
+		- forced the use of Eclipse compiler.
+		- added auxiliary files to the source bundle.
+
 2007-09-23 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src/edu/ksu/cis/indus/slicer/BackwardSlicingPart.java: 
