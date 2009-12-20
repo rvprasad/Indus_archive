@@ -1,3 +1,10 @@
+2009-12-20 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* prelocalbuild.xml: 
+		- used project.home.indus instead of hardcoded path to Indus project.
+	* build.xml:  
+	    - removed the requirement to define custom.javadoc.links.
+
 2009-11-30 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* src-xml/edu/ksu/cis/indus/tools/slicer/SliceXMLizerCLI.java: 

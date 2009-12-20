@@ -1,3 +1,8 @@
+2009-12-20 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* build.xml: 
+	    - removed the requirement to define custom.javadoc.links. 
+
 2009-11-30 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* build.xml: 

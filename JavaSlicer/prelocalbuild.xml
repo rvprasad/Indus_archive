@@ -80,7 +80,7 @@ at Kansas State University.
         	</bindingfileset>
         	<classpath>
         		<path refid="bind.classpath"/>
-    	        <pathelement location="../Indus/${build.dir}/"/>
+    	        <pathelement location="../${project.home.indus}/${build.dir}/"/>
     	        <pathelement location="${build.dir}"/>
         	</classpath>
         </bind>

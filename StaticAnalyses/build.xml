@@ -35,6 +35,12 @@ at Kansas State University.
 		</not>
 	</condition>
 			
+	<condition property="custom.javadoc.links" value="">
+		<not>
+			<isset property="custom.javadoc.links"/>
+		</not>
+	</condition>
+	
 	<target name="init">
 		<tstamp />
 	</target>
