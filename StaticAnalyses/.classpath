@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-flow"/>
-	<classpathentry kind="src" path="src-dependence"/>
-	<classpathentry kind="src" path="src-concurrency"/>
-	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="src" path="src-xml"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-flow"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-dependence"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-concurrency"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-test"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-xml"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar" sourcepath="/JUNIT_SRC_HOME/junitsrc.zip"/>

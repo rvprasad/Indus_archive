@@ -1,25 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="/StaticAnalyses"/>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="src" path="src-xml"/>
-	<classpathentry kind="src" path="src-test"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-xml"/>
+	<classpathentry excluding="**/.DS_Store" kind="src" path="src-test"/>
 	<classpathentry kind="var" path="JAVACLASSES/nlog4j.jar"/>
-	<classpathentry sourcepath="/JAVACLASSES/swt/src.zip" kind="var" path="JAVACLASSES/swt/swt.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/swt/swt.jar" sourcepath="/JAVACLASSES/swt/src.zip"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-cli.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jibx-run.jar"/>
-	<classpathentry sourcepath="PROJECTS_HOME/Misc/soot/src" kind="var" path="JAVACLASSES/sootclasses.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/sootclasses.jar" sourcepath="PROJECTS_HOME/Misc/soot/src"/>
 	<classpathentry kind="src" path="/Indus"/>
 	<classpathentry kind="var" path="JAVACLASSES/junit.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/xmlunit.jar"/>
-	<classpathentry sourcepath="/JAVACLASSES/src/commons-lang.jar" kind="var" path="JAVACLASSES/commons-lang.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/commons-lang.jar" sourcepath="/JAVACLASSES/src/commons-lang.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaCommons/banderaCommons.jar"/>
 	<classpathentry kind="var" path="BANDERA/lib/banderaToolFramework/banderaToolFramework.jar"/>
-	<classpathentry sourcepath="/JAVACLASSES/src/xmlenc.jar" kind="var" path="JAVACLASSES/xmlenc.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/xmlenc.jar" sourcepath="/JAVACLASSES/src/xmlenc.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/commons-io.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/jasminclasses-sable-1.2.jar"/>
 	<classpathentry kind="var" path="JAVACLASSES/polyglot.jar"/>
-	<classpathentry sourcepath="JAVACLASSES/src/trove.jar" kind="var" path="JAVACLASSES/trove.jar"/>
+	<classpathentry kind="var" path="JAVACLASSES/trove.jar" sourcepath="JAVACLASSES/src/trove.jar"/>
 	<classpathentry kind="output" path="build"/>
 </classpath>
