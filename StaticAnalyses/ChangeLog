@@ -1,3 +1,8 @@
+2010-10-17 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
+
+	* antbuild.properties: 
+		- changed the location of bandera related files. 
+
 2009-12-20 Venkatesh Prasad Ranganath <venkateshprasad.ranganath@gmail.com>
 
 	* build.xml:  
