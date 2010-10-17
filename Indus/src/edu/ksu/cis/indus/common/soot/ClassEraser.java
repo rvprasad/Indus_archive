@@ -193,7 +193,7 @@ final class ClassEraser
 					.getTraps());
 
 			final Iterator<Trap> _k = _traps.iterator();
-			final int _kEnd = _c.size();
+			final int _kEnd = _traps.size();
 
 			for (int _kIndex = 0; _kIndex < _kEnd; _kIndex++) {
 				final Trap _t = _k.next();
