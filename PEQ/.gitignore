@@ -1,0 +1,5 @@
+.checkstyle
+**.class
+docs
+dist
+build

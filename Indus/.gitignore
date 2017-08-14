@@ -1,0 +1,13 @@
+indus.jar
+docs/javadocs
+docs/javadocs*
+docs/doxydocs
+docs/doxydocs*
+build
+packaging
+indus-src.jar
+temp
+.clover
+dist
+localbuild.properties
+.fbwarnings
