@@ -1,4 +1,4 @@
-This is the umbrella repo that ties together all repos associated with Indus-Kaveri project.  This repo contains the latest (last) distributions of Indus project.
+This repo contains CVS image of Indus-Kaveri project. 
 
 - [Linux](https://github.com/rvprasad/Indus-Kaveri_archive/blob/master/Linux-bundle-ingredients.zip)
 - [Windows](https://github.com/rvprasad/Indus-Kaveri_archive/blob/master/Windows-bundle-ingredients.zip)
