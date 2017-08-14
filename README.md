@@ -7,7 +7,7 @@ To try out Indus, please use the following bundles.
 
 **This is an archive repo.**
 
-This is a Git repo converted from [CVS repo](https://forge.cs.ksu.edu/scm/?group_id=12) following the instructions provided on [StackOverFlow](https://stackoverflow.com/questions/881158/is-there-a-migration-tool-from-cvs-to-git).  
+This repo converted from [CVS repo](https://forge.cs.ksu.edu/scm/?group_id=12) following the instructions provided on [StackOverFlow](https://stackoverflow.com/questions/881158/is-there-a-migration-tool-from-cvs-to-git).  
 
 
 ## Attribution
