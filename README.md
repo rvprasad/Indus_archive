@@ -8,7 +8,7 @@ This is the umbrella repo that ties together all repos associated with Indus-Kav
 
 ## Attribution
 
-Copyright (c) 2005, Venkatesh-Prasad Ranganath
+Copyright: Different modules have different copyrights as the creators were different.  So, please refer to the README file in the modules for copyright details.
 
 Licensed under Eclipse Public License v 1.0
 
